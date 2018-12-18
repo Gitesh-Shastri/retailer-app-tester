@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingRight="20dp"
+    android:paddingLeft="20dp"
+    tools:context=".Register">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:id="@+id/text"
+        android:text="@string/pharmacy_registration"
+        android:textColor="@color/colorAccent"
+        android:gravity="center" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/agree"
+        android:layout_below="@id/text">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:inputType="textCapWords"
+                android:textSize="13sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Shop Name *"
+                android:id="@+id/shop_name"
+                android:maxLines="1"
+                />
+
+            <EditText
+                android:inputType="textCapWords"
+                android:textSize="13sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/shop_address"
+                android:hint="Adrdess *"
+                android:maxLines="1"
+                />
+
+            <Spinner
+                android:textSize="13sp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/area_spinner"
+                />
+
+            <EditText
+                android:textSize="13sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/owner_pincode"
+                android:hint="Pincode"
+                android:inputType="number"
+                android:maxLines="1"
+                />
+
+            <EditText
+                android:inputType="textCapWords"
+                android:textSize="13sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/owner_name"
+                android:hint="Owner Name"
+                android:maxLines="1"
+                />
+
+            <EditText
+                android:textSize="13sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/phone_number"
+                android:hint="Phone Number *"
+                android:inputType="phone"
+                />
+
+            <EditText
+                android:textSize="13sp"
+                android:hint="Email Address *"
+                android:id="@+id/email"
+                android:inputType="textEmailAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:textSize="13sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/drug_license"
+                android:maxLines="1"
+                android:inputType="textCapWords"
+                android:hint="Drug License Number *"
+                />
+
+            <EditText
+                android:textSize="13sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/gst_license"
+                android:hint="GST Number *"
+                android:inputType="text"
+                android:maxLines="1"
+                />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/agree"
+        android:layout_above="@+id/termsOfService"
+        android:layout_marginBottom="10dp"
+        android:text="@string/by_clicking_create_account_you_agree_to_the_medicento"
+        />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/termsOfService"
+        android:text="@string/terms_of_service"
+        android:gravity="center"
+        android:layout_above="@id/create"
+        android:layout_marginBottom="10dp"
+        android:textColor="#0000ff"
+        android:textSize="12sp" />
+
+    <Button
+        android:drawableRight="@drawable/ic_person_add_black_24dp"
+        android:id="@+id/create"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/create_account"
+        android:padding="10dp"
+        android:layout_above="@id/login"
+        android:layout_marginBottom="10dp"
+        android:layout_centerInParent="true"
+        android:textColor="@color/white"
+        android:background="@color/official_color"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/login"
+        android:text="@string/alreday_have_an_promocode_login_here"
+        android:textColor="#4267b2"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:gravity="end"
+        />
+
+</RelativeLayout>

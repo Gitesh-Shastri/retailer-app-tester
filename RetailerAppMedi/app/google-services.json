@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "868494149846",
+    "firebase_url": "https://retailerapptestmedi.firebaseio.com",
+    "project_id": "retailerapptestmedi",
+    "storage_bucket": "retailerapptestmedi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:868494149846:android:b0f9b4c548d3ba85",
+        "android_client_info": {
+          "package_name": "com.developer.medicento.retailerappmedi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "868494149846-s9ortu2etam7v4j8vjj0u17l0jrcltom.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.developer.medicento.retailerappmedi",
+            "certificate_hash": "4b9835718f6ef24ddfed9e06abc35dd3a323f2fe"
+          }
+        },
+        {
+          "client_id": "868494149846-0a87l6h6i0qfkv24lgut4mfpq04qnncf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALuDvgs-xgg4jeD_UYbPD7XY4eiRfGJoA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "868494149846-0a87l6h6i0qfkv24lgut4mfpq04qnncf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
