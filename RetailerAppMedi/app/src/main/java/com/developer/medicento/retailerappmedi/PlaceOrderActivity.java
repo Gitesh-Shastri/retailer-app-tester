@@ -453,7 +453,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
     }
 
     public void setCount(Context context, String count) {
-        MenuItem menuItem = menu.findItem(R.id.place_order);
+        MenuItem menuItem = menu.findItem(R.id.action_proceed);
         LayerDrawable icon = (LayerDrawable) menuItem.getIcon();
 
         CountDrawable badge;
