@@ -32,6 +32,8 @@ dependencies {
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support:design:28.0.0'
 
+    implementation 'uk.co.chrisjenx:calligraphy:2.3.0'
+
     implementation 'com.google.firebase:firebase-config:16.1.2'
 
     implementation 'com.google.android.gms:play-services-maps:16.0.0'

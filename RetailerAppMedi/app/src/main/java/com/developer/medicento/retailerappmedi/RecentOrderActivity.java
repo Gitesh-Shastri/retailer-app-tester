@@ -5,11 +5,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MenuItem;
+import android.widget.FrameLayout;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -43,6 +49,13 @@ public class RecentOrderActivity extends AppCompatActivity implements OrderAdapt
 
     RecyclerView recyclerView;
 
+    BottomNavigationView bottomNavigationView;
+
+    CanceledFragment canceledFragment;
+
+    FragmentTransaction fragmentTransaction;
+
+    FrameLayout frameLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +64,7 @@ public class RecentOrderActivity extends AppCompatActivity implements OrderAdapt
 
         Paper.init(this);
 
-        String cache = Paper.book().read("user");
+        final String cache = Paper.book().read("user");
 
         if(cache != null && !cache.isEmpty()) {
             salesPerson = new Gson().fromJson(cache, SalesPerson.class);
@@ -59,9 +72,51 @@ public class RecentOrderActivity extends AppCompatActivity implements OrderAdapt
 
         url = "https://retailer-app-api.herokuapp.com/product/recent_order/" + salesPerson.getmAllocatedPharmaId() + "?status=Delivered";
 
-        recyclerView = findViewById(R.id.order_rv);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setHasFixedSize(true);
+        bottomNavigationView = findViewById(R.id.bottom);
+
+        frameLayout = findViewById(R.id.main_nav);
+
+        canceledFragment = new CanceledFragment();
+
+        mRecentOrder = new ArrayList<>();
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+
+                switch(menuItem.getItemId()) {
+
+                    case R.id.pending:
+                        canceledFragment.addOrders(mRecentOrder);
+
+                        bottomNavigationView.setItemBackgroundResource(R.color.official_color);
+                        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                        fragmentTransaction.replace(R.id.main_nav, canceledFragment).commit();
+                        return  true;
+
+                    case R.id.undelivered:
+                        canceledFragment.addOrders(mRecentOrder);
+
+                        bottomNavigationView.setItemBackgroundResource(R.color.colorRedDark);
+                        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                        fragmentTransaction.replace(R.id.main_nav, canceledFragment).commit();
+                        canceledFragment.addOrders(mRecentOrder);
+                        return  true;
+
+                    case R.id.completed:
+                        canceledFragment.addOrders(mRecentOrder);
+
+                        bottomNavigationView.setItemBackgroundResource(R.color.colorAccent);
+                        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                        fragmentTransaction.replace(R.id.main_nav, canceledFragment).commit();
+                        canceledFragment.addOrders(mRecentOrder);
+                        return  true;
+
+                    default:
+                            return true;
+                }
+            }
+        });
 
         new GetOrder().execute();
     }
@@ -128,10 +183,13 @@ public class RecentOrderActivity extends AppCompatActivity implements OrderAdapt
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            orderAdapterC = new OrderAdapterDelivered(mRecentOrder);
-            recyclerView.setAdapter(orderAdapterC);
-            orderAdapterC.setOnItemClicklistener(RecentOrderActivity.this);
             progressDialog.dismiss();
+
+            canceledFragment.addOrders(mRecentOrder);
+
+            fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.main_nav, canceledFragment).commit();
+
         }
     }
 

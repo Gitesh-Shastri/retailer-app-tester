@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/pending"
+        android:title="Pending"
+        android:icon="@drawable/ic_icon"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/undelivered"
+        android:title="Undelivered"
+        android:icon="@drawable/ic_logistics_delivery_truck_in_movement"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/completed"
+        android:title="Completed"
+        android:icon="@drawable/ic_completed"
+        app:showAsAction="always"
+        />
+
+</menu>

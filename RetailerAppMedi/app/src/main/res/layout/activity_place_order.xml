@@ -17,10 +17,26 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:itemIconTint="#000000"
+        app:itemTextColor="@color/colorPrimary"
         android:background="@color/colorBackground"
         android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_place_orders"
-        app:menu="@menu/activity_place_orders_drawer" />
+        app:menu="@menu/activity_place_orders_drawer" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        <include layout="@layout/nav_header_place_orders"
+            android:id="@+id/header_header"/>
+
+        <ListView
+            android:id="@+id/list_menu_items"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/white"/>
+        </LinearLayout>
+    </android.support.design.widget.NavigationView>
 
 </android.support.v4.widget.DrawerLayout>

@@ -8,7 +8,7 @@
         <menu>
             <item
                 android:id="@+id/about_me"
-                android:icon="@drawable/ic_person_black_24dp"
+                android:icon="@drawable/ic_man"
                 android:title="Profile"/>
 
             <item

@@ -1,5 +1,9 @@
 package com.developer.medicento.retailerappmedi.data;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.developer.medicento.retailerappmedi.PlaceOrderActivity;
 import com.developer.medicento.retailerappmedi.R;
 
 import java.io.Serializable;
@@ -16,6 +21,7 @@ import java.util.ArrayList;
 public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicineAdapter.MedicineViewHolder> implements Serializable{
 
     public ArrayList<OrderedMedicine> mMedicinesList;
+    private Context context;
     public float mOverallCost = 0;
     OverallCostChangeListener mOverallCostChangeListener;
 
@@ -25,6 +31,14 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
 
     public void setOverallCostChangeListener(OverallCostChangeListener listener) {
         this.mOverallCostChangeListener = listener;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 
     @NonNull
@@ -86,11 +100,14 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
         notifyDataSetChanged();
     }
 
+
     public ArrayList<OrderedMedicine> getList() {
         return mMedicinesList;
     }
 
     public class MedicineViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+
+        AlertDialog alert;
 
         TextView MedName, MedCompany, MedQty, MedCost, incQty, decQty, MedRate,stock;
 
@@ -111,8 +128,8 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
             OrderedMedicine medicine = mMedicinesList.get(pos);
             MedName.setText(medicine.getMedicineName());
             MedCompany.setText(medicine.getMedicineCompany());
-            MedRate.setText("Billing Rate : ");
-            MedCost.setText("\u20B9"+medicine.getCost() + "");
+            MedRate.setText("PTR : "+"\u20B9"+medicine.getCost() + "");
+            MedCost.setText("Packing : "+medicine.getPacking() + "");
             MedQty.setText(medicine.getQty() + "");
             stock.setText("Stock" + medicine.getStock());
         }
@@ -125,7 +142,22 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
                    OrderedMedicine med = mMedicinesList.get(i);
                    if (med.getMedicineName().equals(mMedicinesList.get(pos).getMedicineName())) {
                        if(med.getStock() <= 0) {
-                           break;
+
+                           final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                           builder.setTitle("No More Stock Of " + med.getMedicineName());
+                           builder.setIcon(R.mipmap.ic_launcher_new);
+                           builder.setCancelable(false);
+                           builder.setMessage("This is the maximum quantity try after some time ...")
+                                   .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                                       @Override
+                                       public void onClick(DialogInterface dialog, int which) {
+                                           alert.dismiss();
+                                       }
+                                   });
+                           alert = builder.create();
+                           alert.show();
+
+                           return;
                        }
                        int qty = med.getQty();
                        int stock = med.getStock();

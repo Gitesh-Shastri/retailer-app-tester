@@ -14,8 +14,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.card.MaterialCardView;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -40,6 +42,8 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +55,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.developer.medicento.retailerappmedi.data.CountDrawable;
+import com.developer.medicento.retailerappmedi.data.ListViewAdapter;
+import com.developer.medicento.retailerappmedi.data.MenuItems;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -67,7 +73,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -84,12 +98,19 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
     public static ArrayList<MakeYourOwn> makeYourOwns;
     RecyclerView mOrderedMedicinesListView;
     public static String strcode;
+    ProgressBar progressBar;
     SharedPreferences mSharedPreferences;
     String usercode;
     SalesPerson sp;
     AutoCompleteTextView mMedicineList;
     Toolbar mToolbar;
     Button filter,notify;
+
+    ListView listView;
+
+    MaterialCardView materialCardView;
+
+    TextView cart_sub;
 
     public static OrderedMedicineAdapter mOrderedMedicineAdapter;
     public static String url = "https://retailer-app-api.herokuapp.com/product/medimap";
@@ -119,6 +140,8 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
 
     AutoCompleteAdapter medicineAdapter;
 
+    ArrayList<MenuItems> menuItems;
+
     int count;
 
     @Override
@@ -133,7 +156,13 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
+        progressBar = findViewById(R.id.progressBar);
+
         isLoading = false;
+
+        materialCardView = findViewById(R.id.card);
+
+        cart_sub = findViewById(R.id.tv2);
 
         notify = findViewById(R.id.notify);
         mMedicineList = (AutoCompleteTextView) findViewById(R.id.medicine_edit_tv);
@@ -161,6 +190,59 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
 
             sp = gson.fromJson(cache, SalesPerson.class);
         }
+
+        listView = findViewById(R.id.list_menu_items);
+
+        menuItems = new ArrayList<>();
+
+        menuItems.add(new MenuItems("Profile", "1", getResources().getDrawable(R.drawable.ic_man)));
+        menuItems.add(new MenuItems("Recent Order", "2", getResources().getDrawable(R.drawable.ic_trolley)));
+        menuItems.add(new MenuItems("Sign Out", "1", getResources().getDrawable(R.drawable.ic_logout)));
+
+        ListViewAdapter listViewAdapter = new ListViewAdapter(this, menuItems);
+
+        listView.setAdapter(listViewAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent;
+                switch (position){
+                    case 0:
+                        intent = new Intent(PlaceOrderActivity.this, SalesPersonDetails.class);
+                        intent.putExtra("usercode", usercode);
+                        intent.putExtra("SalesPerson", sp);
+                        startActivity(intent);
+                        break;
+                    case 1:
+                        if(!IamConnect()) {
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(PlaceOrderActivity.this);
+                            builder.setTitle("No Internet Connection");
+                            builder.setIcon(R.mipmap.ic_launcher_new);
+                            builder.setCancelable(false);
+                            builder.setMessage("Please Connect To The Internet")
+                                    .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            alert.dismiss();
+                                        }
+                                    });
+                            alert = builder.create();
+                            alert.show();
+                        } else {
+                            intent = new Intent(PlaceOrderActivity.this, RecentOrderActivity.class);
+                            intent.putExtra("SalesPerson", sp);
+                            startActivity(intent);
+                        }
+                        break;
+                    case 2:
+                        clearUserDetails();
+                        intent = new Intent(PlaceOrderActivity.this, SignUpActivity.class);
+                        startActivityForResult(intent, Constants.RC_SIGN_IN);
+                        break;
+                }
+            }
+        });
 
         String json = mSharedPreferences.getString("saved", null);
         Type type = new TypeToken<ArrayList<Medicine>>() {}.getType();
@@ -197,6 +279,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
         mOrderedMedicineAdapter = new OrderedMedicineAdapter(new ArrayList<OrderedMedicine>());
         mOrderedMedicinesListView.setAdapter(mOrderedMedicineAdapter);
         mOrderedMedicineAdapter.setOverallCostChangeListener(this);
+        mOrderedMedicineAdapter.setContext(this);
         notify.setVisibility(View.GONE);
         notify.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -229,9 +312,10 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                         medicine.getCompanyName(),
                         1,
                         medicine.getPrice(),
+                        medicine.getCode(),
                         medicine.getPrice(),
                         medicine.getMstock(),
-                        medicine.getCode()));
+                        medicine.getPacking()));
                 float cost = Float.parseFloat(mTotalTv.getText().toString().substring(1));
                 float overall = cost+medicine.getPrice();
                 mTotalTv.setText(getString(R.string.ruppe_symbol)+overall);
@@ -305,6 +389,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                 mOrderedMedicineAdapter = new OrderedMedicineAdapter(new ArrayList<OrderedMedicine>());
                 mOrderedMedicinesListView.setAdapter(mOrderedMedicineAdapter);
                 mOrderedMedicineAdapter.setOverallCostChangeListener(this);
+                mOrderedMedicineAdapter.setContext(this);
                 for(OrderedMedicine med: (ArrayList<OrderedMedicine>)data.getSerializableExtra("myList")){
                     mOrderedMedicineAdapter.add(med);
                 }
@@ -322,10 +407,12 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
         }
         mNavigationView = findViewById(R.id.nav_view);
             mNavigationView.setNavigationItemSelectedListener(this);
+
+            LinearLayout linearLayout = findViewById(R.id.header_header);
             View headerView = mNavigationView.getHeaderView(0);
-            TextView navHeaderSalesmanName = headerView.findViewById(R.id.username_header);
-            TextView navHeaderSalesmanEmail = headerView.findViewById(R.id.user_email_header);
-            TextView navp = headerView.findViewById(R.id.user_pharmaid);
+            TextView navHeaderSalesmanName = linearLayout.findViewById(R.id.username_header);
+            TextView navHeaderSalesmanEmail = linearLayout.findViewById(R.id.user_email_header);
+            TextView navp = linearLayout.findViewById(R.id.user_pharmaid);
             navHeaderSalesmanName.setText(sp.getName());
             navHeaderSalesmanEmail.setText(getString(R.string.pharmacode) + sp.getUsercode());
             navp.setText(sp.getName());
@@ -351,11 +438,8 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
             super.onPreExecute();
             // Showing progress dialog
             isLoading = true;
-            pDialog = new ProgressDialog(PlaceOrderActivity.this);
-            pDialog.setTitle("Loading Initial Data");
-            pDialog.setMessage("Please wait...");
-            pDialog.setCancelable(false);
-            pDialog.show();
+
+            materialCardView.setVisibility(View.VISIBLE);
 
         }
 
@@ -387,6 +471,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                                 c.getInt("stock"),
                                 c.getString("item_code")
                         ));
+                        MedicineDataList.get(i).setPacking(c.getString("packing"));
                         medicineAuto.add(new MedicineAuto(c.getString("medicento_name"),
                                 c.getString("company_name"),
                                 c.getInt("price")));
@@ -425,8 +510,8 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             // Dismiss the progress dialog
-            if (pDialog.isShowing())
-                pDialog.dismiss();
+
+            materialCardView.setVisibility(View.INVISIBLE);
 
             medicineAdapter = new AutoCompleteAdapter(PlaceOrderActivity.this, medicineAuto);
             mMedicineList.setAdapter(medicineAdapter);
@@ -457,6 +542,8 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
         LayerDrawable icon = (LayerDrawable) menuItem.getIcon();
 
         CountDrawable badge;
+
+        cart_sub.setText("Cart Sub Total ("+count+" Items ) : ");
 
         // Reuse drawable if possible
         Drawable reuse = icon.findDrawableByLayerId(R.id.counter);
@@ -497,11 +584,11 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                 alert.show();
             } else {
                 if (mOrderedMedicineAdapter.getItemCount() > 0) {
-                    Intent intent = new Intent(PlaceOrderActivity.this, AddToCart.class);
-                    intent.putExtra("myList", mOrderedMedicineAdapter.getList());
-                    intent.putExtra("make", makeYourOwns);
-                    startActivityForResult(intent, 3);
-                } else {
+                        makeYourOwns = new ArrayList<>();
+                        String json = extractJsonFromOrderItemsList(mOrderedMedicineAdapter.getList(), makeYourOwns, sp.getmAllocatedPharmaId(),  sp.getId());
+                        new PlaceOrder().execute(json);
+                    }
+                 else {
                     Toast.makeText(PlaceOrderActivity.this, "Please Select Some Medicine", Toast.LENGTH_SHORT).show();
                     return super.onOptionsItemSelected(item);
                 }
@@ -714,6 +801,129 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
             startActivityForResult(intent, Constants.RC_SIGN_IN);
 
         }
+    }
+
+
+    public class PlaceOrder extends AsyncTask<String, String, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog = new ProgressDialog(PlaceOrderActivity.this);
+            pDialog.setTitle("Placing Order");
+            pDialog.setMessage("Please wait...");
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            pDialog.dismiss();
+            Intent intent = new Intent(PlaceOrderActivity.this, OrderConfirmed.class);
+            intent.putExtra("TotalCost", Float.valueOf(mTotalTv.getText().toString().substring(1)));
+            intent.putExtra("json", s);
+            startActivity(intent);
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String jsonResponse = null;
+            url = Constants.PLACE_ORDER_URL;
+            String jsonData = strings[0];
+            HttpURLConnection urlConnection = null;
+            InputStream inputStream = null;
+            try {
+                URL url1 = new URL(url);
+                urlConnection = (HttpURLConnection) url1.openConnection();
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setDoOutput(true);
+                urlConnection.setUseCaches(false);
+                urlConnection.setConnectTimeout(10000);
+                urlConnection.setReadTimeout(15000);
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.connect();
+                OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
+                writer.write(jsonData);
+                writer.close();
+                if (urlConnection.getResponseCode() == 200) {
+                    inputStream = urlConnection.getInputStream();
+                    jsonResponse = readFromStream(inputStream);
+                } else {
+                    Log.e("Git", "Error response code : " + urlConnection.getResponseCode());
+                }
+            } catch (IOException e) {
+                Log.e("Git", "Error IOException");
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return jsonResponse;
+        }
+
+    }
+
+
+    private static String readFromStream(InputStream inputStream) throws IOException {
+        StringBuilder output = new StringBuilder();
+        if (inputStream != null) {
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
+            BufferedReader reader = new BufferedReader(inputStreamReader);
+            String line = reader.readLine();
+            while (line != null) {
+                output.append(line);
+                line = reader.readLine();
+            }
+        }
+        return output.toString();
+    }
+
+    private static String extractJsonFromOrderItemsList(ArrayList<OrderedMedicine> data, ArrayList<MakeYourOwn> data1, String pId, String sId) {
+        JSONArray orderItems = new JSONArray();
+        try {
+            for (OrderedMedicine orderedMedicine : data) {
+                JSONObject object = new JSONObject();
+                object.put("medicento_name", orderedMedicine.getMedicineName());
+                object.put("company_name", orderedMedicine.getMedicineCompany());
+                object.put("pharma_id", pId);
+                object.put("code", orderedMedicine.getCode());
+                object.put("qty", String.valueOf(orderedMedicine.getQty()));
+                object.put("rate", String.valueOf(orderedMedicine.getRate()));
+                object.put("cost", String.valueOf(orderedMedicine.getCost()));
+                object.put("salesperson_id", sId);
+                orderItems.put(object);
+            }
+            JSONArray allDataArray = new JSONArray();
+            for(MakeYourOwn makeYourOwn: makeYourOwns){
+                JSONObject each = new JSONObject();
+                try {
+                    Log.i("Make", makeYourOwn.getName());
+                    each.put("Chosen", makeYourOwn.getName());
+                } catch (JSONException e){
+                    e.printStackTrace();
+                }
+                allDataArray.put(each);
+            }
+            JSONObject object = new JSONObject();
+            try {
+                object.put("choosen_data", allDataArray);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            orderItems.put(object);
+        } catch (JSONException e) {
+            Log.v("Saf", e.toString());
+        }
+        Log.i("orderItems", orderItems.toString());
+        return orderItems.toString();
     }
 
     private Boolean IamConnect() {

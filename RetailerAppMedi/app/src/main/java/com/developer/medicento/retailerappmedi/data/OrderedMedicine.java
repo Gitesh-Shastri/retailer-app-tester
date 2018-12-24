@@ -10,12 +10,24 @@ public class OrderedMedicine implements Serializable{
     private String code;
     private float mCost;
     private int stock;
+    private String packing;
 
     public OrderedMedicine(){
 
     }
 
-    public OrderedMedicine(String name, String company, int qty, float rate, float cost,int stock, String code){
+    public OrderedMedicine(String mMedicineName, String mMedicineCompany, int mQty, float mRate, String code, float mCost, int stock, String packing) {
+        this.mMedicineName = mMedicineName;
+        this.mMedicineCompany = mMedicineCompany;
+        this.mQty = mQty;
+        this.mRate = mRate;
+        this.code = code;
+        this.mCost = mCost;
+        this.stock = stock;
+        this.packing = packing;
+    }
+
+    public OrderedMedicine(String name, String company, int qty, float rate, float cost, int stock, String code){
         mMedicineName = name;
         mMedicineCompany = company;
         mQty = qty;
@@ -23,6 +35,14 @@ public class OrderedMedicine implements Serializable{
         mCost = cost;
         this.code = code;
         this.stock  = stock;
+    }
+
+    public String getPacking() {
+        return packing;
+    }
+
+    public void setPacking(String packing) {
+        this.packing = packing;
     }
 
     public String getCode() {

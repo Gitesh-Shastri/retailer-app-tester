@@ -9,6 +9,7 @@ public class Medicine implements Serializable{
     private String mId;
     private String code;
     private int mstock;
+    private String Packing;
 
     public Medicine (String medicentoName, String companyName, int price, String id, int stock, String code) {
         mMedicentoName = medicentoName;
@@ -17,6 +18,14 @@ public class Medicine implements Serializable{
         mId = id;
         this.code = code;
         mstock = stock;
+    }
+
+    public String getPacking() {
+        return Packing;
+    }
+
+    public void setPacking(String packing) {
+        Packing = packing;
     }
 
     public String getCode() {
