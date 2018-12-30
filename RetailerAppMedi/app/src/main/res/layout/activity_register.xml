@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingRight="20dp"
+    android:id="@+id/relative"
     android:paddingLeft="20dp"
     tools:context=".Register">
 
@@ -127,10 +128,11 @@
         />
 
 
-    <TextView
+    <Button
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="20dp"
         android:id="@+id/termsOfService"
+        android:background="@android:color/transparent"
         android:text="@string/terms_of_service"
         android:gravity="center"
         android:layout_above="@id/create"
@@ -152,9 +154,11 @@
         android:background="@color/official_color"
         />
 
-    <TextView
+    <Button
+        android:background="@android:color/transparent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="20dp"
+        android:textSize="12sp"
         android:id="@+id/login"
         android:text="@string/alreday_have_an_promocode_login_here"
         android:textColor="#4267b2"

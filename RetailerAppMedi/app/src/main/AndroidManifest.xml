@@ -36,8 +36,8 @@
         <activity
             android:name=".SalesPersonDetails"
             android:label="Sales Person Details"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName=".PlaceOrderActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".RecentOrderActivity"
             android:label="Recent Order"
@@ -100,7 +100,11 @@
             android:name=".TermsAndCondition"
             android:label="Medicento"
             android:parentActivityName=".PlaceOrderActivity" />
-        <activity android:name=".RecentOrderDetails" android:label="Order Details" android:parentActivityName=".RecentOrderActivity"/>
+        <activity
+            android:name=".RecentOrderDetails"
+            android:label="Order Details"
+            android:parentActivityName=".RecentOrderActivity" />
+        <activity android:name=".ProfileNew"></activity>
     </application>
 
 </manifest>

@@ -209,7 +209,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                 Intent intent;
                 switch (position){
                     case 0:
-                        intent = new Intent(PlaceOrderActivity.this, SalesPersonDetails.class);
+                        intent = new Intent(PlaceOrderActivity.this, ProfileNew.class);
                         intent.putExtra("usercode", usercode);
                         intent.putExtra("SalesPerson", sp);
                         startActivity(intent);
