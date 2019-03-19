@@ -13,6 +13,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:id="@+id/text"
+        android:textSize="16sp"
+        android:textStyle="bold"
         android:text="@string/pharmacy_registration"
         android:textColor="@color/colorAccent"
         android:gravity="center" />
@@ -38,24 +40,65 @@
                 android:maxLines="1"
                 />
 
+
+            <Spinner
+                android:textSize="11sp"
+                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/state_spinner"
+                />
+
+            <Spinner
+                android:textSize="11sp"
+                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                android:layout_marginBottom="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/city_spinner"
+                />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <Spinner
+                    style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                    android:textSize="11sp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/area_spinner"
+                    android:layout_toLeftOf="@+id/add"
+                    android:layout_marginRight="5dp"
+                    />
+
+                <Button
+                    android:id="@+id/add"
+                    android:layout_centerVertical="true"
+                    android:drawableLeft="@drawable/ic_add_plus"
+                    android:layout_alignParentRight="true"
+                    android:layout_width="20dp"
+                    android:background="@android:color/transparent"
+                    android:layout_height="20dp" />
+
+            </RelativeLayout>
+
+
+
             <EditText
                 android:inputType="textCapWords"
                 android:textSize="13sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/shop_address"
-                android:hint="Adrdess *"
+                android:hint="Address *"
                 android:maxLines="1"
                 />
 
-            <Spinner
-                android:textSize="13sp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/area_spinner"
-                />
 
             <EditText
                 android:textSize="13sp"
@@ -119,52 +162,87 @@
     </ScrollView>
 
     <TextView
+        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/agree"
-        android:layout_above="@+id/termsOfService"
+        android:layout_above="@+id/termsOfService_l"
         android:layout_marginBottom="10dp"
         android:text="@string/by_clicking_create_account_you_agree_to_the_medicento"
         />
 
-
-    <Button
+    <LinearLayout
+        android:weightSum="10"
+        android:id="@+id/termsOfService_l"
         android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:id="@+id/termsOfService"
-        android:background="@android:color/transparent"
-        android:text="@string/terms_of_service"
-        android:gravity="center"
         android:layout_above="@id/create"
-        android:layout_marginBottom="10dp"
-        android:textColor="#0000ff"
-        android:textSize="12sp" />
+        android:layout_height="wrap_content">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            />
+
+        <TextView
+            android:layout_toLeftOf="@id/termsOfService"
+            android:text="Medicento's "
+            android:id="@+id/label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:id="@+id/termsOfService"
+            android:background="@android:color/transparent"
+            android:text="@string/terms_of_service"
+            android:gravity="center"
+            android:layout_marginBottom="10dp"
+            android:textColor="#0000ff"
+            android:textSize="12sp" />
+
+    </LinearLayout>
 
     <Button
-        android:drawableRight="@drawable/ic_person_add_black_24dp"
         android:id="@+id/create"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:text="@string/create_account"
-        android:padding="10dp"
-        android:layout_above="@id/login"
+        android:layout_above="@id/login_l"
         android:layout_marginBottom="10dp"
         android:layout_centerInParent="true"
         android:textColor="@color/white"
         android:background="@color/official_color"
         />
 
-    <Button
-        android:background="@android:color/transparent"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:textSize="12sp"
-        android:id="@+id/login"
-        android:text="@string/alreday_have_an_promocode_login_here"
-        android:textColor="#4267b2"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="20dp"
-        android:gravity="end"
-        />
+    <LinearLayout
+        android:id="@+id/login_l"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:text="@string/alreday_have_an_promocode_login_here"
+            />
+
+        <Button
+            android:background="@android:color/transparent"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:textSize="12sp"
+            android:id="@+id/login"
+            android:text="Login Here"
+            android:textColor="#060BF0"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="20dp"
+            />
+    </LinearLayout>
+
 
 </RelativeLayout>

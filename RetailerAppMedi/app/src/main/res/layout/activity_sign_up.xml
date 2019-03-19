@@ -12,7 +12,7 @@
 
     <ImageView
         android:contentDescription="@string/medicento_logo"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:layout_alignParentTop="true"
         android:layout_centerInParent="true"
         android:id="@+id/medicento_logo"
@@ -25,6 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardElevation="8dp"
+        app:cardCornerRadius="10dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_below="@id/medicento_logo"
@@ -43,14 +44,14 @@
                 android:text="@string/pharmacy_login"
                 android:textStyle="bold"
                 android:id="@+id/sign_in"
-                android:background="#05C5CE"
-                android:textColor="#000" />
+                android:background="@color/colorPrimaryDark"
+                android:textColor="@color/white" />
 
             <TextView
                 android:layout_marginTop="10dp"
                 android:textSize="15sp"
+                android:layout_marginLeft="10dp"
                 android:layout_width="match_parent"
-                android:gravity="center"
                 android:layout_marginBottom="5dp"
                 android:id="@+id/pharma"
                 android:layout_height="wrap_content"
@@ -63,28 +64,102 @@
                 android:autofillHints="Enter Code "
                 android:layout_width="match_parent"
                 android:gravity="center"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
+                android:textSize="16sp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:layout_height="wrap_content"
                 android:hint="@string/enter_pharma_code"
                 android:inputType="number"
                 android:textColor="@color/colorPrimaryDark"
                 tools:layout_editor_absoluteX="20dp" />
 
+
             <TextView
+                android:layout_marginTop="10dp"
+                android:textSize="15sp"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="5dp"
+                android:id="@+id/phone"
+                android:layout_height="wrap_content"
+                android:text="Registered Mobile Number"
+                android:textColor="@color/colorAccent" />
+
+            <EditText
+                android:textSize="16sp"
+                android:background="@drawable/border"
+                android:id="@+id/user_phone_tv"
+                android:autofillHints="Enter Phone "
+                android:layout_width="match_parent"
+                android:gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:hint="Enter Phone Number"
+                android:inputType="number"
+                android:textColor="@color/colorPrimaryDark"
+                tools:layout_editor_absoluteX="20dp" />
+
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:visibility="gone"
+        android:id="@+id/verifyCodeCard"
+        android:layout_width="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_margin="10dp"
+        app:cardElevation="20dp"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:padding="10dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:inputType="text"
+                android:maxLines="1"
+                android:textSize="16sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="end"
-                android:textColor="#0000ff"
-                android:text="@string/forget_pharmacode"
                 android:layout_marginLeft="10dp"
-                android:textSize="12sp"
-                android:focusable="true"
-                android:id="@+id/forget"
-                android:layout_marginTop="5dp"
-                android:background="#ffffff"
-                android:layout_marginBottom="5dp"
-                android:layout_marginStart="10dp" />
+                android:layout_marginRight="10dp"
+                android:id="@+id/code"
+                android:hint="Enter Verification Code"
+                />
+
+            <Button
+                android:id="@+id/verifyCode"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_height="35dp"
+                android:background="@drawable/border_curved"
+                android:text="Verify Code"
+                android:textColor="#fff"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginBottom="5dp" />
+
+            <Button
+                android:id="@+id/verifyCancel"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_height="35dp"
+                android:background="@drawable/border_red"
+                android:text="Cancel"
+                android:textColor="#fff"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginBottom="5dp" />
 
         </LinearLayout>
 
@@ -97,13 +172,29 @@
         android:layout_marginRight="30dp"
         android:layout_marginTop="10dp"
         android:layout_below="@id/loginlayout"
-        android:layout_height="wrap_content"
-        android:background="@color/official_color"
+        android:layout_height="35dp"
+        android:background="@drawable/border_curved"
         android:text="@string/log_in"
         android:textColor="#fff"
         android:textStyle="bold"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:layout_marginBottom="5dp" />
+
+    <TextView
+        android:layout_marginRight="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="#0000ff"
+        android:text="Forgot your PharmaCode?"
+        android:layout_marginLeft="30dp"
+        android:textSize="12sp"
+        android:focusable="true"
+        android:id="@+id/forget"
+        android:layout_above="@id/signUp"
+        android:background="@android:color/transparent"
+        android:layout_marginBottom="10dp" />
+
 
     <TextView
         android:visibility="gone"
@@ -154,26 +245,23 @@
 
     </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#000"
-        android:layout_above="@id/joining"
-        android:layout_toLeftOf="@id/signUp"
-        android:text="@string/dont_have_account_yet"
-        android:layout_toStartOf="@id/signUp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <Button
         android:id="@+id/signUp"
-        android:text="@string/sign_up"
-        android:layout_above="@id/joining"
-        android:layout_alignParentRight="true"
+        android:layout_width="match_parent"
         android:layout_marginRight="30dp"
-        android:textColor="#0000ff"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="30dp" />
+        android:layout_marginLeft="30dp"
+        android:layout_height="30dp"
+        android:text="CREATE AN ACCOUNT"
+        android:layout_above="@id/joining"
+        android:layout_marginBottom="10dp"
+        android:drawableRight="@drawable/ic_person_add_black_24dp"
+        android:textColor="#FFFFFF"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:background="@drawable/border_curved"
+        android:layout_gravity="center"
+        android:paddingRight="20dp"
+        />
 
     <TextView
         android:id="@+id/joining"
@@ -188,12 +276,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/termsOfService"
+
         android:text="@string/terms_of_service"
         android:gravity="center"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@id/privacy"
         android:layout_marginBottom="10dp"
         android:textColor="#0000ff"
         android:textSize="12sp" />
+
+    <Button
+        android:id="@+id/privacy"
+        android:text="privacy policy"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:background="@android:color/transparent"
+        android:textColor="#0000ff"
+        android:textSize="14sp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        />
 
     <ProgressBar
         android:elevation="10dp"

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SavedMedicines">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="Saved Medicines List"
+        android:gravity="center_horizontal"
+        android:id="@+id/saved_label"
+        android:layout_marginTop="10dp"
+        android:textSize="18sp"
+        android:textColor="#000"
+        />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/ordered_medicines_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/saved_label" />
+
+</RelativeLayout>

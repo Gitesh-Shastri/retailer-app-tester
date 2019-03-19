@@ -18,6 +18,7 @@
                 android:id="@+id/pharmacy_edit_tv"
                 android:text="Pharmacy : "
                 android:textSize="20sp"
+                android:layout_marginBottom="10dp"
                 android:textStyle="bold"
                 android:textColor="@color/colorPrimaryDark"
                 android:layout_width="match_parent"
@@ -42,8 +43,9 @@
                     android:layout_width="match_parent"
                     android:layout_marginRight="5dp"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/filter"
+                    android:layout_below="@id/pharmacy_edit_tv"
                     android:layout_marginTop="5dp"
+                    android:layout_toLeftOf="@id/filter"
                     android:hint="Enter Medicine"
                     android:background="@drawable/border"
                     android:completionThreshold="1"
@@ -53,15 +55,34 @@
                     android:textSize="18sp"
                     android:inputType="textPhonetic"
                     android:textColor="@color/colorPrimaryDark" />
+
                 <Button
-                    android:layout_marginTop="10dp"
+                    android:textSize="15sp"
+                    android:id="@+id/save"
+                    android:visibility="gone"
+                    android:text="Save"
+                    android:layout_below="@id/pharmacy_edit_tv"
+                    android:layout_width="100dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="10dp"
+                    android:layout_height="40dp"
+                    android:textStyle="bold"
+                    android:layout_weight="3"
+                    android:background="@drawable/border_curved"
+                    android:textColor="@color/white"
+                    android:paddingLeft="10dp"
+                    android:drawableLeft="@drawable/ic_save"
+                    android:paddingRight="10dp"
+                    />
+
+                <Button
                     android:id="@+id/filter"
                     android:background="@drawable/border"
                     android:layout_below="@id/pharmacy_edit_tv"
                     android:layout_width="100dp"
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="10dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:textStyle="bold"
                     android:layout_weight="3"
                     android:paddingLeft="10dp"
@@ -143,6 +164,227 @@
                 android:textStyle="bold" />
 
         </LinearLayout>
+
+    <android.support.v7.widget.CardView
+        android:visibility="gone"
+        android:layout_width="300dp"
+        android:layout_centerInParent="true"
+        app:cardElevation="10dp"
+        android:id="@+id/card_slot"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:padding="5dp"
+                android:background="@color/colorPrimary"
+                android:layout_width="match_parent"
+                android:gravity="center_horizontal"
+                android:textColor="@color/white"
+                android:text="Choose Slot"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:padding="3dp"
+                android:weightSum="10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Spinner
+                    android:id="@+id/day_spinner"
+                    android:layout_weight="5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" />
+
+                <Spinner
+                    android:id="@+id/slot_spinner"
+                    android:layout_weight="5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Set Slot "
+                android:drawableRight="@drawable/ic_access_alarms_black_24dp"
+                android:textColor="@color/white"
+                android:background="@color/red"
+                android:padding="10dp"
+                android:id="@+id/choose"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="10dp"
+                />
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_centerInParent="true"
+        app:cardElevation="20dp"
+        android:id="@+id/first_time_login"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:src="@drawable/ic_smiling"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:padding="2dp"
+                android:textSize="14sp"
+                android:layout_width="match_parent"
+                android:gravity="center_horizontal"
+                android:textColor="@color/colorPrimary"
+                android:text="Thank-You!!"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:padding="2dp"
+                android:textSize="12sp"
+                android:layout_width="match_parent"
+                android:gravity="center_horizontal"
+                android:textColor="#000"
+                android:text="Kindly provide below details to proceed"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/mobile"
+                android:inputType="phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="2dp"
+                android:hint="Phone No."
+                android:textSize="12sp"
+                />
+
+            <EditText
+                android:id="@+id/email"
+                android:inputType="textEmailAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="2dp"
+                android:hint="Email Id"
+                android:textSize="12sp"
+                />
+
+            <LinearLayout
+                android:padding="2dp"
+                android:weightSum="10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:textSize="13sp"
+                    android:completionThreshold="1"
+                    android:hint="Search State"
+                    android:id="@+id/state_spinner"
+                    android:layout_weight="5"
+                    android:entries="@array/state"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" />
+                <Button
+                    android:id="@+id/showstate"
+                    android:layout_width="20dp"
+                    android:background="@android:color/transparent"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:drawableLeft="@drawable/ic_arrow_drop_down_black_24dp"
+                    />
+
+                <AutoCompleteTextView
+                    android:textSize="13sp"
+                    android:completionThreshold="1"
+                    android:hint="Search City"
+                    android:id="@+id/city_spinner"
+                    android:layout_weight="5"
+                    android:entries="@array/city"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" />
+                <Button
+                    android:id="@+id/showcity"
+                    android:layout_width="20dp"
+                    android:background="@android:color/transparent"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:drawableLeft="@drawable/ic_arrow_drop_down_black_24dp"
+                    />
+
+            </LinearLayout>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="5dp"
+                android:layout_height="wrap_content">
+                <AutoCompleteTextView
+                    android:gravity="center"
+                    android:textSize="13sp"
+                    android:completionThreshold="1"
+                    android:hint="Search Area"
+                    android:id="@+id/area_spinner"
+                    android:entries="@array/area"
+                    android:layout_width="match_parent"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@id/add"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:layout_toLeftOf="@id/add"
+                    android:id="@+id/shwarea"
+                    android:layout_width="20dp"
+                    android:background="@android:color/transparent"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:drawableLeft="@drawable/ic_arrow_drop_down_black_24dp"
+                    />
+                <Button
+                    android:id="@+id/add"
+                    android:gravity="center_vertical"
+                    android:drawableLeft="@drawable/ic_add_plus"
+                    android:background="@android:color/transparent"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentRight="true"
+                    />
+
+            </RelativeLayout>
+
+            <Button
+                android:id="@+id/submit"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:textSize="14sp"
+                android:text="Submit"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:background="@color/red"
+                />
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/ordered_medicines_list"

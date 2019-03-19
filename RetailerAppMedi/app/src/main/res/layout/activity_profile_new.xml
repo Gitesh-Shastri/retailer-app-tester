@@ -114,6 +114,7 @@
                         android:layout_height="wrap_content" />
 
                     <EditText
+                        android:id="@+id/drug"
                         android:textSize="14sp"
                         android:layout_weight="5"
                         android:layout_marginRight="10dp"
@@ -140,6 +141,7 @@
                         android:layout_height="wrap_content" />
 
                     <EditText
+                        android:id="@+id/gst"
                         android:textSize="14sp"
                         android:layout_weight="5"
                         android:layout_marginRight="10dp"
@@ -166,6 +168,7 @@
                         android:layout_height="wrap_content" />
 
                     <EditText
+                        android:id="@+id/pan"
                         android:textSize="14sp"
                         android:layout_weight="5"
                         android:layout_marginRight="10dp"
@@ -334,7 +337,8 @@
                     android:layout_below="@id/linear5"
                     >
 
-                    <Spinner
+                    <AutoCompleteTextView
+                        android:id="@+id/state"
                         android:layout_width="0dp"
                         android:layout_weight="3"
                         android:layout_height="wrap_content"
@@ -342,7 +346,8 @@
                         />
 
 
-                    <Spinner
+                    <AutoCompleteTextView
+                        android:id="@+id/city"
                         android:layout_width="0dp"
                         android:layout_weight="3"
                         android:layout_height="wrap_content"
@@ -351,7 +356,8 @@
                         android:layout_below="@id/address"
                         />
 
-                    <Spinner
+                    <AutoCompleteTextView
+                        android:id="@+id/area"
                         android:layout_width="0dp"
                         android:layout_weight="3"
                         android:layout_height="wrap_content"

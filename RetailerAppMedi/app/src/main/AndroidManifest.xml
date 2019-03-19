@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.developer.medicento.retailerappmedi">
+    package="com.medicento.retailerappmedi">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:allowBackup="true"
@@ -17,6 +16,10 @@
         android:roundIcon="@mipmap/ic_launcher_new_full_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".SavedMedicines"
+            android:label="Saved Medicine"
+            />
+
         <meta-data
             android:name="com.facebook.accountkit.ApplicationName"
             android:value="@string/app_name" />
@@ -94,7 +97,8 @@
 
         <activity
             android:name=".Register"
-            android:label="Sign Up To Medicento" />
+            android:label="Sign Up with Medicento"
+            android:parentActivityName=".SignUpActivity" />
         <activity android:name=".Success" />
         <activity
             android:name=".TermsAndCondition"
@@ -104,7 +108,10 @@
             android:name=".RecentOrderDetails"
             android:label="Order Details"
             android:parentActivityName=".RecentOrderActivity" />
-        <activity android:name=".ProfileNew"></activity>
+        <activity
+            android:name=".ProfileNew"
+            android:label="My Profile"
+            android:parentActivityName=".RecentOrderActivity" />
     </application>
 
 </manifest>
