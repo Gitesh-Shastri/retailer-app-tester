@@ -4,7 +4,23 @@ import java.io.Serializable;
 
 public class RecentOrderMedicine implements Serializable {
 
-    private String name, qty, price;
+    private String name, qty, price, id, status;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public RecentOrderMedicine(String name, String qty, String price) {
         this.name = name;

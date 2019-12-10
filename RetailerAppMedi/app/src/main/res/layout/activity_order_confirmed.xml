@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,8 +9,9 @@
     tools:context=".OrderConfirmed">
 
     <RelativeLayout
+        android:id="@+id/order_rl"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/congo"
@@ -17,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:text="Congratulations !!"
-            android:textColor="#FF0000"
+            android:textColor="@color/colorAccent"
             android:textSize="15dp"
             android:textStyle="bold" />
 
@@ -71,7 +73,6 @@
                         android:id="@+id/selected_pharmacy_tv"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Pharmacy Name"
                         android:textColor="@color/colorPrimaryDark"
                         android:textStyle="bold" />
 
@@ -107,7 +108,6 @@
                         android:layout_width="0dp"
                         android:layout_weight="5.4"
                         android:layout_height="wrap_content"
-                        android:text="1234"
                         android:textColor="@color/colorPrimaryDark"
                         android:textStyle="bold" />
 
@@ -141,7 +141,6 @@
                         android:layout_width="0dp"
                         android:layout_weight="5.4"
                         android:layout_height="wrap_content"
-                        android:text="9999"
                         android:textColor="@color/colorPrimaryDark"
                         android:textStyle="bold" />
 
@@ -164,7 +163,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="4.6"
                         android:layout_height="wrap_content"
-                        android:text="Chosen Slot: "
+                        android:text="Expected Delivery: "
                         android:textColor="@color/colorAccent"
                         android:textStyle="bold" />
 
@@ -173,7 +172,6 @@
                         android:layout_width="0dp"
                         android:layout_weight="5.4"
                         android:layout_height="wrap_content"
-                        android:text="22-22-2078"
                         android:textColor="@color/colorPrimaryDark"
                         android:textStyle="bold" />
 
@@ -210,42 +208,36 @@
 
     </RelativeLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <RelativeLayout
+        android:background="@color/white"
         android:id="@+id/bottom_sheet"
+        android:layout_below="@id/order_rl"
         android:layout_width="match_parent"
-        android:layout_height="170dp"
-        android:background="#ffffff"
-        app:layout_behavior="@string/bottom_sheet_behavior">
+        android:layout_height="match_parent">
 
-        <RelativeLayout
+        <View
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?android:attr/listDivider" />
+        <TextView
+            android:layout_marginTop="5dp"
+            android:id="@+id/order_details_label"
+            style="@style/Base.TextAppearance.AppCompat.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:text="Order Details"
+            android:textColor="@color/colorPrimaryDark" />
 
-            <TextView
-                android:layout_marginTop="5dp"
-                android:id="@+id/order_details_label"
-                style="@style/Base.TextAppearance.AppCompat.Large"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_gravity="center_horizontal"
-                android:text="Order Details"
-                android:textColor="@color/colorPrimaryDark" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/order_confirmed_rv"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/order_details_label" />
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/order_confirmed_rv"
-                android:layout_margin="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/order_details_label" />
-        </RelativeLayout>
+    </RelativeLayout>
 
-    </android.support.v4.widget.NestedScrollView>
-
-
-</android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>

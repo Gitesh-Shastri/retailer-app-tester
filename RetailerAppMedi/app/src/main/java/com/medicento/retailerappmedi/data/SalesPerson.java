@@ -9,9 +9,67 @@ public class SalesPerson implements Serializable{
     private int mReturn;
     private float mEarnings;
     private String mId;
-    private String mAllocatedAreaId, mAllocatedPharmaId;
+    private String mAllocatedAreaId, mAllocatedPharmaId, mAllocatedStateId, mAllocatedCityId;
     private String usercode;
     private String phone;
+    private String email, address;
+    private String area_name, city_name, state_name;
+
+    public String getState_name() {
+        return state_name != null ? state_name : "";
+    }
+
+    public void setState_name(String state_name) {
+        this.state_name = state_name;
+    }
+
+    public String getArea_name() {
+        return area_name;
+    }
+
+    public void setArea_name(String area_name) {
+        this.area_name = area_name;
+    }
+
+    public String getCity_name() {
+        return city_name;
+    }
+
+    public void setCity_name(String city_name) {
+        this.city_name = city_name;
+    }
+
+    public String getmAllocatedStateId() {
+        return mAllocatedStateId;
+    }
+
+    public void setmAllocatedStateId(String mAllocatedStateId) {
+        this.mAllocatedStateId = mAllocatedStateId;
+    }
+
+    public String getmAllocatedCityId() {
+        return mAllocatedCityId;
+    }
+
+    public void setmAllocatedCityId(String mAllocatedCityId) {
+        this.mAllocatedCityId = mAllocatedCityId;
+    }
+
+    public String getAddress() {
+        return address != null ? address : "";
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getEmail() {
+        return email != null ? email : "";
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String getPhone() {
         return phone;

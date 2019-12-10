@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <SurfaceView
+        android:id="@+id/cameraPreview"
+        android:layout_width="match_parent"
+        android:layout_height="480dp"
+        android:layout_centerInParent="true"
+        />
+
+    <TextView
+        android:padding="10dp"
+        android:textColor="@color/white"
+        android:background="@color/colorPrimary"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal"
+        android:textSize="20sp"
+        android:id="@+id/textResult"
+        android:layout_marginTop="20dp"
+        android:text="Please focus camera to QR Code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+<!--    <me.dm7.barcodescanner.zxing.ZXingScannerView-->
+<!--        android:id="@+id/scan"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"/>-->
+
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:padding="8dp"-->
+<!--        android:id="@+id/linear_layout"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:orientation="vertical"-->
+<!--        android:background="@color/colorPrimary">-->
+
+<!--        <TextView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:id="@+id/text_result"-->
+<!--            android:textSize="24sp"-->
+<!--            android:gravity="center"-->
+<!--            android:textColor="@color/white"-->
+<!--            android:text="..."-->
+<!--            />-->
+
+<!--    </LinearLayout>-->
+    
+</RelativeLayout>

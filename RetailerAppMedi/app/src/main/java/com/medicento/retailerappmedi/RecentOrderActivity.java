@@ -1,25 +1,50 @@
 package com.medicento.retailerappmedi;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.AbsListView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.medicento.retailerappmedi.Utils.JsonUtils;
+import com.medicento.retailerappmedi.Utils.MedicentoUtils;
+import com.medicento.retailerappmedi.activity.ReturnActivity;
 import com.medicento.retailerappmedi.data.OrderAdapterDelivered;
+import com.medicento.retailerappmedi.data.RecentOrder;
 import com.medicento.retailerappmedi.data.RecentOrderDelivered;
 import com.medicento.retailerappmedi.data.RecentOrderMedicine;
 import com.medicento.retailerappmedi.data.SalesPerson;
@@ -28,34 +53,41 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.paperdb.Paper;
 
+import static com.medicento.retailerappmedi.Utils.JsonUtils.getIntegerValueFromJsonKey;
+import static com.medicento.retailerappmedi.Utils.JsonUtils.getJsonValueFromKey;
+import static com.medicento.retailerappmedi.Utils.MedicentoUtils.showVolleyError;
+
 public class RecentOrderActivity extends AppCompatActivity implements OrderAdapterDelivered.OnItemClickListener {
 
-    ProgressDialog progressDialog;
+    private static final String TAG = "RecentOrderAct";
 
     private static ArrayList<RecentOrderDelivered> mRecentOrder;
 
-    SharedPreferences sharedPreferences;
-
     SalesPerson salesPerson;
 
-    OrderAdapterDelivered orderAdapterC;
-    SharedPreferences mSharedPreferences;
+    private static OrderAdapterDelivered mOrder;
+    RecyclerView iv;
+    ProgressBar progressBar;
+    int page = 1;
 
-    String url = "";
+    boolean isLoading = false;
+    boolean isScrolling = false;
+    SwipeRefreshLayout swipe_refresh;
 
-    RecyclerView recyclerView;
+    LinearLayoutManager linearLayoutManager;
+    Dialog dialog;
 
-    BottomNavigationView bottomNavigationView;
-
-    CanceledFragment canceledFragment;
-
-    FragmentTransaction fragmentTransaction;
-
-    FrameLayout frameLayout;
+    RadioGroup reason;
+    RadioButton radioButton;
+    EditText other_reasons;
+    SalesPerson sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,19 +98,151 @@ public class RecentOrderActivity extends AppCompatActivity implements OrderAdapt
 
         final String cache = Paper.book().read("user");
 
-        if(cache != null && !cache.isEmpty()) {
+        if (cache != null && !cache.isEmpty()) {
             salesPerson = new Gson().fromJson(cache, SalesPerson.class);
         }
 
-        url = "https://retailer-app-api.herokuapp.com/product/recent_order/" + salesPerson.getmAllocatedPharmaId();
-
-        frameLayout = findViewById(R.id.main_nav);
-
-        canceledFragment = new CanceledFragment();
+        progressBar = findViewById(R.id.progress_bar);
+        swipe_refresh = findViewById(R.id.swipe_refresh);
+        iv = (RecyclerView) findViewById(R.id.listview3);
+        linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        iv.setLayoutManager(linearLayoutManager);
+        iv.setHasFixedSize(true);
 
         mRecentOrder = new ArrayList<>();
 
-        new GetOrder().execute();
+        mOrder = new OrderAdapterDelivered(mRecentOrder);
+        mOrder.setOnItemClicklistener(this);
+        iv.setAdapter(mOrder);
+
+        iv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                    isScrolling = true;
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                int currentItems = linearLayoutManager.getChildCount();
+                int totalItems = linearLayoutManager.getItemCount();
+
+                int scrolledItems = linearLayoutManager.findFirstVisibleItemPosition();
+
+                if (isScrolling && (currentItems + scrolledItems == totalItems)) {
+                    isScrolling = false;
+                    getOrders();
+                }
+            }
+        });
+
+
+        swipe_refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (!isLoading) {
+                    page = 1;
+                    mRecentOrder.clear();
+                    mOrder.notifyDataSetChanged();
+                    getOrders();
+                }
+                swipe_refresh.setRefreshing(false);
+            }
+        });
+
+        getOrders();
+    }
+
+    private void getOrders() {
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                "http://54.161.199.63:8080/orders/get_pharmacy_orders/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            String message = getJsonValueFromKey(jsonObject, "message");
+
+                            if (message.equals("Data Found")) {
+                                JSONArray order_details = jsonObject.getJSONArray("order_details");
+
+                                for (int i = 0; i < order_details.length(); i++) {
+                                    JSONObject order = order_details.getJSONObject(i);
+                                    RecentOrderDelivered recentOrderDelivered = new RecentOrderDelivered(
+                                            getJsonValueFromKey(order, "id"),
+                                            getJsonValueFromKey(order, "created_at"),
+                                            getIntegerValueFromJsonKey(order, "grand_total"));
+
+                                    JSONObject status = order.getJSONObject("status");
+                                    String status_name = getJsonValueFromKey(status, "name");
+
+                                    recentOrderDelivered.setStatus(status_name);
+                                    mRecentOrder.add(recentOrderDelivered);
+                                    mOrder.notifyItemInserted(mRecentOrder.size() - 1);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        page += 1;
+                        isLoading = false;
+                        progressBar.setVisibility(View.GONE);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        isLoading = false;
+                        progressBar.setVisibility(View.GONE);
+                        try {
+                            if (error == null || error.networkResponse == null) {
+                                Toast.makeText(RecentOrderActivity.this, "No Response from server. Please try again after some time", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            String body;
+                            try {
+                                body = new String(error.networkResponse.data, "UTF-8");
+                                Log.d(TAG, "onErrorResponse: " + body);
+                                try {
+                                    JSONObject jsonObject = new JSONObject(body);
+                                    if (jsonObject.has("message")) {
+                                        Toast.makeText(RecentOrderActivity.this, JsonUtils.getJsonValueFromKey(jsonObject, "message"), Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (JSONException e) {
+                                    Toast.makeText(RecentOrderActivity.this, "No Response from server. Please try again after some time", Toast.LENGTH_SHORT).show();
+                                    e.printStackTrace();
+                                }
+                            } catch (UnsupportedEncodingException e) {
+                                Toast.makeText(RecentOrderActivity.this, "No Response from server. Please try again after some time", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(RecentOrderActivity.this, "No Response from server. Please try again after some time", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("pharmacy_id", salesPerson.getId());
+                params.put("page", page + "");
+                return params;
+            }
+        };
+
+        if (!isLoading) {
+            isLoading = true;
+            requestQueue.add(stringRequest);
+            progressBar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -89,73 +253,247 @@ public class RecentOrderActivity extends AppCompatActivity implements OrderAdapt
         startActivity(intent);
     }
 
-    public class GetOrder extends AsyncTask<Void, Void, Void> {
+    @Override
+    public void onCancelItem(final int position) {
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mRecentOrder = new ArrayList<>();
-            progressDialog = new ProgressDialog(RecentOrderActivity.this);
-            progressDialog.setMessage("Loading Orders");
-            progressDialog.show();
+        String status = mRecentOrder.get(position).getStatus();
+        if(MedicentoUtils.isStringEquals(status, "Cancelled")) {
+            Toast.makeText(this, "Sorry, Order cannot be cancelled as order is already cancelled.", Toast.LENGTH_SHORT).show();
+            return;
+        } else if(MedicentoUtils.isStringEquals(status, "Delivered")) {
+            Toast.makeText(this, "Sorry, Order cannot be cancelled as order is delivered.", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        @Override
-        protected Void doInBackground(Void... voids) {
+        dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_cancel_order);
 
-            Log.i("urls", url);
+        Button cancel, back;
+        back = dialog.findViewById(R.id.back);
+        cancel = dialog.findViewById(R.id.cancel_order);
 
-            JsonParser sh = new JsonParser();
+        reason = dialog.findViewById(R.id.reason);
+        other_reasons = dialog.findViewById(R.id.other_reasons);
 
-            // Making a request to url and getting response
-            String jsonStr = sh.makeServiceCall(url);
-            Log.e("Gitesh", "Response from url: " + jsonStr);
+        radioButton = dialog.findViewById(R.id.other);
 
-            if (jsonStr != null) {
-                try {
-                    JSONObject jsonObj = new JSONObject(jsonStr);
-                    // Getting JSON Array node
-                    JSONArray jsonArray = jsonObj.getJSONArray("orders");
-                    for (int i =0;i<jsonArray.length();i++) {
-                        JSONObject order = jsonArray.getJSONObject(i);
-                        RecentOrderDelivered recentOrderDelivered = new RecentOrderDelivered(order.getString("order_id"),
-                                order.getString("created_at"),
-                                Integer.valueOf(order.getString("grand_total")));
-                        recentOrderDelivered.setMedicines(new ArrayList<RecentOrderMedicine>());
-                        JSONArray medicine = order.getJSONArray("order_items");
-                        for(int j=0;j<medicine.length();j++) {
-                            JSONObject ordermedicine = medicine.getJSONObject(j);
-                            recentOrderDelivered.getMedicines().add(new RecentOrderMedicine(ordermedicine.getString("medicento_name"),
-                                    ordermedicine.getInt("quantity")+"",
-                                    ordermedicine.getString("total_amount")));
-                        }
-                        mRecentOrder.add(recentOrderDelivered);
-                    }
-                } catch (final JSONException e) {
-                    Log.e("Gitesh", "Json parsing error: " + e.getMessage());
-                }
-            } else {
-                Log.e("Gitesh", "Couldn't get json from server.");
+        other_reasons.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
             }
-            return null;
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                radioButton.setChecked(true);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RequestQueue requestQueue = Volley.newRequestQueue(RecentOrderActivity.this);
+                StringRequest stringRequest = new StringRequest(
+                        Request.Method.POST,
+                        "http://54.161.199.63:8080/orders/cancel_order/",
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                Log.d(TAG, "onResponse: " + response);
+                                dialog.dismiss();
+                                showOkayDialog();
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                try {
+                                    if (error == null || error.networkResponse == null) {
+                                        Toast.makeText(RecentOrderActivity.this, "No Response from server. Please try again after some time", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                    String body;
+                                    try {
+                                        body = new String(error.networkResponse.data, "UTF-8");
+                                        Log.d(TAG, "onErrorResponse: " + body);
+                                        try {
+                                            JSONObject jsonObject = new JSONObject(body);
+                                            if (jsonObject.has("message")) {
+                                                Toast.makeText(RecentOrderActivity.this, JsonUtils.getJsonValueFromKey(jsonObject, "message"), Toast.LENGTH_SHORT).show();
+                                            }
+                                        } catch (JSONException e) {
+                                            Toast.makeText(RecentOrderActivity.this, "No Response from server. Please try again after some time", Toast.LENGTH_SHORT).show();
+                                            e.printStackTrace();
+                                        }
+                                    } catch (UnsupportedEncodingException e) {
+                                        Toast.makeText(RecentOrderActivity.this, "No Response from server. Please try again after some time", Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(RecentOrderActivity.this, "No Response from server. Please try again after some time", Toast.LENGTH_SHORT).show();
+                                }
+                                dialog.dismiss();
+                            }
+                        }
+                ) {
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("id", mRecentOrder.get(position).getpOrderId());
+                        radioButton = dialog.findViewById(reason.getCheckedRadioButtonId());
+
+                        if (reason.getCheckedRadioButtonId() == R.id.other) {
+                            params.put("order_cancelation_reason", "Other -> " + other_reasons.getText().toString());
+                        } else {
+                            params.put("order_cancelation_reason", radioButton.getText().toString());
+                        }
+
+                        return params;
+                    }
+                };
+                if(reason.getCheckedRadioButtonId() == -1) {
+                    Toast.makeText(RecentOrderActivity.this, "Please select a reason to cancel the order", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                requestQueue.add(stringRequest);
+            }
+        });
+
+        dialog.show();
+    }
+
+    @Override
+    public void onReturnItem(int position) {
+        String status = mRecentOrder.get(position).getStatus();
+        if(MedicentoUtils.isStringEquals(status, "Cancelled")) {
+            Toast.makeText(this, "Sorry, Items cannot be returned as order is already cancelled.", Toast.LENGTH_SHORT).show();
+            return;
+        } else if(MedicentoUtils.isStringEquals(status, "Placed")) {
+            Toast.makeText(this, "Sorry, Items cannot be returned without being delivered.", Toast.LENGTH_SHORT).show();
+            return;
         }
+        startActivity(new Intent(this, ReturnActivity.class)
+                .putExtra("order", mRecentOrder.get(position)));
+    }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            progressDialog.dismiss();
+    private void showOkayDialog() {
+        dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_confirm);
 
-            canceledFragment.addOrders(mRecentOrder);
+        Button okay;
+        okay = dialog.findViewById(R.id.okay);
 
-            fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.main_nav, canceledFragment).commit();
+        okay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                page = 1;
+                mRecentOrder.clear();
+                mOrder.notifyDataSetChanged();
+                getOrders();
+            }
+        });
 
-        }
+        dialog.show();
     }
 
     @Override
     public void onBackPressed() {
         finish();
-        startActivity(new Intent(RecentOrderActivity.this, PlaceOrderActivity.class));
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
+        return true;
+    }
+
+    JSONObject activityObject;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        activityObject = new JSONObject();
+        try {
+            activityObject.put("activity_name", "RecentOrder");
+            activityObject.put("start_time", System.currentTimeMillis() + "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        String androidId = "";
+        try {
+            androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            activityObject.put("end_time", System.currentTimeMillis() + "");
+            activityObject.put("android_id", androidId);
+            if (salesPerson != null && salesPerson.getmAllocatedPharmaId() != null) {
+                activityObject.put("pharmacy_id", salesPerson.getmAllocatedPharmaId());
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                "http://54.161.199.63:8080/api/app/record_activity/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(TAG, "onResponse: " + response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        showVolleyError(error);
+                    }
+                }
+        ){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                try {
+                    params.put("activity_name", activityObject.getString("activity_name"));
+                    params.put("start_time", activityObject.getString("start_time"));
+                    params.put("end_time", activityObject.getString("end_time"));
+                    params.put("android_id", activityObject.getString("android_id"));
+                    params.put("pharmacy_id", activityObject.getString("pharmacy_id"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest);
     }
 }

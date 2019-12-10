@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.SignIn">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:id="@+id/view"
+        app:layout_constraintHeight_percent="0.1"
+        />
+
+    <RelativeLayout
+        app:layout_constraintTop_toBottomOf="@+id/view"
+        android:layout_width="match_parent"
+        android:id="@+id/layout_logo"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent="0.2">
+
+    <ImageView
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ic_launcher"
+        />
+    </RelativeLayout>
+
+    <LinearLayout
+        app:layout_constraintTop_toBottomOf="@+id/layout_logo"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:weightSum="10"
+        app:layout_constraintHeight_percent="0.1">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            />
+
+        <Button
+            android:textColor="@color/white"
+            android:text="Sign In With google "
+            android:background="@drawable/border_curved_red"
+            android:drawableRight="@drawable/ic_google_plus"
+            android:layout_width="0dp"
+            android:layout_weight="6"
+            android:layout_gravity="center"
+            android:layout_height="35dp" />
+
+    </LinearLayout>
+
+
+
+
+</android.support.constraint.ConstraintLayout>

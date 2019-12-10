@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="240dp"
+    android:padding="10dp"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/state_layout"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:padding="2dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/state_dialog"
+            />
+
+        <TextView
+            android:padding="2dp"
+            android:layout_width="0dp"
+            android:textStyle="bold"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:id="@+id/city_dialog"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        app:layout_constraintTop_toBottomOf="@id/state_layout"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:id="@+id/pincode_area_layout"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <EditText
+            android:layout_weight="1"
+            android:textSize="12sp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Enter Area Name"
+            android:id="@+id/area_name"
+            />
+        <EditText
+            android:layout_width="0dp"
+            android:textSize="12sp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="Enter Pincode"
+            android:id="@+id/area_pincode"
+            />
+
+    </LinearLayout>
+
+    <Button
+        android:layout_margin="10dp"
+        android:text="Add New Area"
+        android:id="@+id/add_new_area"
+        android:background="@drawable/border_curved"
+        android:textSize="12sp"
+        app:layout_constraintTop_toBottomOf="@id/pincode_area_layout"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_width="match_parent"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:layout_height="30dp" />
+
+
+
+</android.support.constraint.ConstraintLayout>

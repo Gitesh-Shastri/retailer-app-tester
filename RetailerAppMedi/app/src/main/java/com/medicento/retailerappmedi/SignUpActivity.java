@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -45,6 +47,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.gson.Gson;
+import com.medicento.retailerappmedi.Utils.JsonUtils;
+import com.medicento.retailerappmedi.activity.NoInternetActivity;
 import com.medicento.retailerappmedi.data.SalesPerson;
 
 import org.json.JSONArray;
@@ -53,24 +57,22 @@ import org.json.JSONObject;
 
 import com.medicento.retailerappmedi.data.Constants;
 
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.paperdb.Paper;
 
+import static com.medicento.retailerappmedi.Utils.MedicentoUtils.amIConnect;
+import static com.medicento.retailerappmedi.Utils.MedicentoUtils.showVolleyError;
+
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final String TAG = "SignUp Activity";
-    private final static int RC_SIGN_IN = 2;
 
-    String verificationId;
-
-    FirebaseAuth mAuth;
-
-    CardView verifyCard;
 
     EditText code;
-
-    private GoogleSignInClient mGoogleSignInClient;
 
     EditText mEmailEditTv, phoneEditTv;
 
@@ -94,53 +96,50 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     Button signIn, privacy, verifyCode, verifyCancel;
 
-    SharedPreferences sharedPreferences;
-
-    ImageView facebook, google, twitter;
+    RequestQueue queue;
+    Dialog dialog_app_exit;
+    JSONObject activityObject;
 
     @Override
     public void onBackPressed() {
+        dialog_app_exit = new Dialog(this);
+        dialog_app_exit.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog_app_exit.setContentView(R.layout.dialog_exit_app);
 
-        finish();
-        super.onBackPressed();
+        Button yes, no;
+        yes = dialog_app_exit.findViewById(R.id.yes);
+        no = dialog_app_exit.findViewById(R.id.no);
+
+        yes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        no.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog_app_exit.dismiss();
+            }
+        });
+        dialog_app_exit.show();
     }
 
     private void init() {
 
-        facebook = findViewById(R.id.facebook_login);
-
-        google = findViewById(R.id.google_login);
-
-        twitter = findViewById(R.id.twitter_login);
-
         forget = findViewById(R.id.forget);
-
         privacy = findViewById(R.id.privacy);
-
         terms = findViewById(R.id.termsOfService);
-
         mLogo = findViewById(R.id.medicento_logo);
-
         mEmailEditTv = findViewById(R.id.user_code_tv);
-
         phoneEditTv = findViewById(R.id.user_phone_tv);
-
         signUp = findViewById(R.id.signUp);
-
-        code =findViewById(R.id.code);
-
+        code = findViewById(R.id.code);
         relativeLayout = findViewById(R.id.relative);
-
         progressBar = findViewById(R.id.progress_sign_up);
-
         signIn = findViewById(R.id.sign_in_btn);
-
         verifyCode = findViewById(R.id.verifyCode);
-
-        verifyCard = findViewById(R.id.verifyCodeCard);
-
         verifyCancel = findViewById(R.id.verifyCancel);
-
     }
 
 
@@ -148,64 +147,32 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
 
         switch (v.getId()) {
-
             case R.id.termsOfService:
-
                 startActivity(new Intent(SignUpActivity.this, TermsAndCondition.class));
                 break;
 
             case R.id.signUp:
-
                 startActivity(new Intent(SignUpActivity.this, Register.class));
                 break;
 
             case R.id.forget:
-
                 forgetCode();
-
-                break;
-
-            case R.id.google_login:
-
-                Snackbar.make(relativeLayout, "google", Toast.LENGTH_SHORT).show();
-                break;
-
-            case R.id.facebook_login:
-
-                Snackbar.make(relativeLayout, "facebook", Toast.LENGTH_SHORT).show();
-                break;
-
-            case R.id.twitter_login:
-
-                Snackbar.make(relativeLayout, "twitter", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.sign_in_btn:
-
                 hideSoftKeyboard(v);
-
                 usercode = mEmailEditTv.getText().toString();
-
                 if (usercode.isEmpty() && phoneEditTv.getText().toString().isEmpty()) {
-
                     Snackbar.make(relativeLayout, "Please Enter Data To Login", Toast.LENGTH_SHORT).show();
-
-                } else if (!amIConnect()) {
-
-                    showAlertDialog();
-
+                } else if (!amIConnect(SignUpActivity.this)) {
+                    startActivity(new Intent(SignUpActivity.this, NoInternetActivity.class));
                 } else {
-
                     progressBar.setVisibility(View.VISIBLE);
 
                     snackbar = Snackbar.make(relativeLayout, "Please wait signing you in ..", Snackbar.LENGTH_INDEFINITE);
                     snackbar.show();
 
-                    RequestQueue queue = Volley.newRequestQueue(SignUpActivity.this);
-
-                    String url = "https://retailer-app-api.herokuapp.com/user/login?usercode=" + mEmailEditTv.getText().toString();
-                    signUp(url, queue);
-
+                    signUp();
                 }
         }
     }
@@ -240,39 +207,45 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         });
 
 
-
-
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if(phone.getText().toString().isEmpty()) {
+                if(!amIConnect(SignUpActivity.this)) {
+                    startActivity(new Intent(SignUpActivity.this, NoInternetActivity.class));
+                }
+                if (phone.getText().toString().isEmpty()) {
                     Toast.makeText(SignUpActivity.this, "Please Provide Email / Phone Number", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 RequestQueue requestQueue = Volley.newRequestQueue(SignUpActivity.this);
 
-                StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                        "https://retailer-app-api.herokuapp.com/user/forgetPhone?phone=" + phone.getText().toString(),
+                StringRequest stringRequest = new StringRequest(
+                        Request.Method.POST,
+                        "http://54.161.199.63:8080/pharmacy/forget_email/",
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
-
                                 try {
                                     JSONObject jsonObject = new JSONObject(response);
 
-                                    if(jsonObject.getString("message").equals("user found")) {
+                                    String message = JsonUtils.getJsonValueFromKey(jsonObject, "message");
+                                    if(message.equals("Pharmacy Found")) {
+
+                                        JSONObject pharmacy = jsonObject.getJSONObject("pharmacy");
+
+                                        String code_value = JsonUtils.getJsonValueFromKey(pharmacy, "pharma_code");
 
                                         final Dialog dialog1 = new Dialog(SignUpActivity.this);
                                         dialog1.requestWindowFeature(Window.FEATURE_NO_TITLE);
                                         dialog1.setContentView(R.layout.congrats);
 
                                         TextView email = dialog1.findViewById(R.id.phone);
-                                        email.setText("  Your Registered Mobile Number: "+phone.getText().toString());
+                                        email.setText("  Your Registered Mobile Number / Email: " + phone.getText().toString());
 
                                         TextView code = dialog1.findViewById(R.id.code);
-                                        code.setText("Your PharmaCode: "+jsonObject.getString("code"));
+                                        code.setText("Your PharmaCode: " + code_value);
 
                                         Button back1 = dialog1.findViewById(R.id.back);
                                         back1.setOnClickListener(new View.OnClickListener() {
@@ -283,52 +256,53 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                                         });
 
                                         dialog1.show();
-
                                     } else {
-
-                                        final Dialog dialog1 = new Dialog(SignUpActivity.this);
-                                        dialog1.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                                        dialog1.setContentView(R.layout.no_user_found);
-
-                                        Button retry, login;
-                                        retry = dialog1.findViewById(R.id.cancel);
-                                        login = dialog1.findViewById(R.id.login);
-
-                                        retry.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                dialog1.dismiss();
-                                            }
-                                        });
-
-                                        login.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                dialog1.dismiss();
-                                                dialog.dismiss();
-                                            }
-                                        });
-
-                                        dialog1.show();
+                                        Toast.makeText(SignUpActivity.this, "Sorry, you have entered a wrong Email Id/Mobile Number. Please try again.", Toast.LENGTH_SHORT).show();
                                     }
-
                                 } catch (JSONException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(SignUpActivity.this, "Some Error Occured", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(SignUpActivity.this, "Sorry, you have entered a wrong Email Id/Mobile Number. Please try again.", Toast.LENGTH_SHORT).show();
                                 }
-
                             }
-                        }, new Response.ErrorListener() {
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                try {
+                                    if (error == null || error.networkResponse == null) {
+                                        Toast.makeText(SignUpActivity.this, "No Response From Server", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                    String body;
+                                    try {
+                                        body = new String(error.networkResponse.data, "UTF-8");
+                                        JSONObject jsonObject = new JSONObject(body);
+                                        if(jsonObject.has("message")) {
+                                            Toast.makeText(SignUpActivity.this, JsonUtils.getJsonValueFromKey(jsonObject, "message"), Toast.LENGTH_SHORT).show();
+                                        }
+                                    } catch (UnsupportedEncodingException e) {
+                                        Toast.makeText(SignUpActivity.this, "No Response From Server", Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                ) {
+
                     @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(SignUpActivity.this, "Some Error Occured", Toast.LENGTH_SHORT).show();
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("email", phone.getText().toString());
+                        return params;
                     }
-                });
+
+                };
 
                 requestQueue.add(stringRequest);
+
             }
         });
-
 
 
     }
@@ -342,8 +316,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         Paper.init(this);
 
         init();
-
-        mAuth = FirebaseAuth.getInstance();
 
         privacy.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -359,143 +331,78 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
         terms.setOnClickListener(this);
 
-        facebook.setOnClickListener(this);
-
-        google.setOnClickListener(this);
-
-        twitter.setOnClickListener(this);
-
         signUp.setOnClickListener(this);
 
         signIn.setOnClickListener(this);
 
-        verifyCode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String verifycode = code.getText().toString().trim();
-                if(verifycode.isEmpty() || verifycode.length()<6) {
-                    Toast.makeText(SignUpActivity.this, "Enter Code", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                verifyCode(verifycode);
-            }
-        });
-
-        verifyCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                verifyCard.setVisibility(View.GONE);
-            }
-        });
-
     }
 
-    private boolean amIConnect() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
+    private void signUp() {
 
-    private void showAlertDialog() {
+        queue = Volley.newRequestQueue(SignUpActivity.this);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(SignUpActivity.this);
-        builder.setTitle("No Internet Connection");
-        builder.setIcon(R.mipmap.ic_launcher_new);
-        builder.setCancelable(false);
-        builder.setMessage("Please Connect To The Internet")
-                .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        alert.dismiss();
-                    }
-                });
-        alert = builder.create();
-        alert.show();
-
-    }
-
-    private void signUp(String url, RequestQueue queue) {
-
-
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                "http://54.161.199.63:8080/pharmacy/login/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("message_for_perso",response);
-                        sp = null;
+                        progressBar.setVisibility(View.INVISIBLE);
                         try {
+                            JSONObject jsonObject = new JSONObject(response);
 
-                            JSONObject spo = new JSONObject(response);
+                            String message = JsonUtils.getJsonValueFromKey(jsonObject, "message");
+                            JSONObject pharmacy = jsonObject.getJSONObject("pharmacy");
 
-                            snackbar.dismiss();
+                            if (message.equals("Pharmacy Found")) {
 
-                            if(spo.has("message")) {
-                                progressBar.setVisibility(View.INVISIBLE);
-                                Snackbar.make(relativeLayout, "Invalid Login Credentials. Please try again!", Snackbar.LENGTH_SHORT).show();
+                                JSONObject area = pharmacy.getJSONObject("area");
 
-                            } else {
-                                JSONArray spa = spo.getJSONArray("Sales_Person");
-                                JSONObject user = spa.getJSONObject(0);
+                                sp = new SalesPerson(
+                                        JsonUtils.getJsonValueFromKey(pharmacy, "name"),
+                                        0L,
+                                        0,
+                                        0,
+                                        0,
+                                        JsonUtils.getJsonValueFromKey(pharmacy, "id"),
+                                        JsonUtils.getJsonValueFromKey(area, "id"),
+                                        JsonUtils.getJsonValueFromKey(pharmacy, "id"));
 
-                                if(user.has("Allocated_Area")) {
+                                sp.setmAllocatedStateId(JsonUtils.getJsonValueFromKey(area, "state"));
+                                sp.setmAllocatedCityId(JsonUtils.getJsonValueFromKey(area, "city"));
 
-                                    sp = new SalesPerson(user.getString("Name"),
-                                            user.getLong("Total_sales"),
-                                            user.getInt("No_of_order"),
-                                            user.getInt("Returns"),
-                                            user.getLong("Earnings"),
-                                            user.getString("_id"),
-                                            user.getString("Allocated_Area"),
-                                            user.getString("Allocated_Pharma"));
-                                } else {
-                                    sp = new SalesPerson(user.getString("Name"),
-                                            user.getLong("Total_sales"),
-                                            user.getInt("No_of_order"),
-                                            user.getInt("Returns"),
-                                            user.getLong("Earnings"),
-                                            user.getString("_id"),
-                                            "5c4b5e7bed743008af76ef0e",
-                                            user.getString("Allocated_Pharma"));
-                                }
+                                JSONObject city = pharmacy.getJSONObject("city");
+                                JSONObject state = pharmacy.getJSONObject("state");
 
-                                JSONObject jsonObject = user.getJSONObject("user");
-                                if(jsonObject.has("phone")) {
-                                    if(jsonObject.getString("phone").equals("-")) {
-                                        sp.setPhone("");
-                                    } else {
-                                        if (!jsonObject.getString("phone").contains(phoneEditTv.getText().toString())) {
-                                            Snackbar.make(relativeLayout, "Invalid Login Credentials. Please try again!", Snackbar.LENGTH_SHORT).show();
-                                            progressBar.setVisibility(View.INVISIBLE);
-                                            return;
-                                        }
-                                        sp.setPhone(jsonObject.getString("phone"));
-                                        Log.d("phone", sp.getPhone());
-                                    }
-                                } else {
-                                    sp.setPhone("");
-                                }
+                                sp.setAddress(JsonUtils.getJsonValueFromKey(pharmacy, "address"));
+                                sp.setEmail(JsonUtils.getJsonValueFromKey(pharmacy, "email_id"));
+                                sp.setArea_name(JsonUtils.getJsonValueFromKey(area, "name"));
+                                sp.setCity_name(JsonUtils.getJsonValueFromKey(city, "name"));
+                                sp.setState_name(JsonUtils.getJsonValueFromKey(state, "name"));
+
+                                sp.setPhone(phoneEditTv.getText().toString());
                                 sp.setUsercode(usercode);
 
-                                saveData(sp);
+                                Paper.book().write("user", new Gson().toJson(sp));
 
-                                progressBar.setVisibility(View.INVISIBLE);
-                                verifyCard.setVisibility(View.INVISIBLE);
+                                snackbar.dismiss();
+                                Snackbar.make(relativeLayout, "User Logged In", Snackbar.LENGTH_SHORT).show();
+
                                 Intent intent = new Intent(SignUpActivity.this, PlaceOrderActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                                        Intent.FLAG_ACTIVITY_CLEAR_TASK |
+                                        Intent.FLAG_ACTIVITY_NEW_TASK);
                                 intent.putExtra("user", sp);
                                 startActivity(intent);
-
-//                                verifyCard.setVisibility(View.VISIBLE);
-//                                sendVerificationCode(phoneEditTv.getText().toString());
-
-                                }
-
+                                finish();
+                            } else {
+                                snackbar.dismiss();
+                                Snackbar.make(relativeLayout, message, Snackbar.LENGTH_SHORT).show();
+                            }
                         } catch (JSONException e) {
-
                             e.printStackTrace();
-                            progressBar.setVisibility(View.INVISIBLE);
                             snackbar.dismiss();
-                            Snackbar.make(relativeLayout, "Some Error Occured Please try again!", Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(relativeLayout, "Invalid Details", Snackbar.LENGTH_SHORT).show();
                         }
                     }
                 },
@@ -503,95 +410,99 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         mEmailEditTv.setText("");
+                        phoneEditTv.setText("");
 
                         progressBar.setVisibility(View.INVISIBLE);
 
                         snackbar.dismiss();
-                        Snackbar.make(relativeLayout, "Invalid Usercode ", Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(relativeLayout, "Invalid Details", Snackbar.LENGTH_SHORT).show();
                     }
-                });
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("pharma_code", mEmailEditTv.getText().toString());
+                params.put("mobile_no", phoneEditTv.getText().toString());
+
+                return params;
+            }
+        };
+
         queue.add(stringRequest);
     }
 
-
-    private  void sendVerificationCode(String number) {
-
-        PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                "+91"+number,
-                120,
-                TimeUnit.SECONDS,
-                TaskExecutors.MAIN_THREAD,
-                mCallBacks
-        );
-    }
-
-    private  void verifyCode(String code) {
-        try {
-            PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.getCredential(verificationId, code);
-            signInWithCredential(phoneAuthCredential);
-        } catch (Exception e ){
-            verifyCard.setVisibility(View.INVISIBLE);
-            Intent intent = new Intent(SignUpActivity.this, PlaceOrderActivity.class);
-            intent.putExtra("user", sp);
-            startActivity(intent);
-        }
-    }
-
-    private void signInWithCredential(PhoneAuthCredential phoneAuthCredential) {
-        mAuth.signInWithCredential(phoneAuthCredential)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()) {
-
-                            verifyCard.setVisibility(View.INVISIBLE);
-                            Intent intent = new Intent(SignUpActivity.this, PlaceOrderActivity.class);
-                            intent.putExtra("user", sp);
-                            startActivity(intent);
-
-                            finish();
-                        } else {
-                            Toast.makeText(SignUpActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    private  PhoneAuthProvider.OnVerificationStateChangedCallbacks
-            mCallBacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-
-        @Override
-        public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
-            super.onCodeSent(s, forceResendingToken);
-            Toast.makeText(SignUpActivity.this, "Code Sent : "+s, Toast.LENGTH_SHORT).show();
-            verificationId = s;
-        }
-
-        @Override
-        public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
-
-            String code = phoneAuthCredential.getSmsCode();
-
-            if(code != null) {
-                verifyCode(code);
-            }
-        }
-
-        @Override
-        public void onVerificationFailed(FirebaseException e) {
-            Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-
-        }
-    };
-
-    private void saveData(SalesPerson salesPerson) {
-
-        Paper.book().write("user", new Gson().toJson(salesPerson));
-    }
-
     private void hideSoftKeyboard(View view) {
-
         InputMethodManager ime = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         ime.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        activityObject = new JSONObject();
+        try {
+            activityObject.put("activity_name", "SignUp");
+            activityObject.put("start_time", System.currentTimeMillis() + "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        String androidId = "";
+        try {
+            androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            activityObject.put("end_time", System.currentTimeMillis() + "");
+            activityObject.put("android_id", androidId);
+            if (sp != null && sp.getmAllocatedPharmaId() != null) {
+                activityObject.put("pharmacy_id", sp.getmAllocatedPharmaId());
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                "http://54.161.199.63:8080/api/app/record_activity/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(TAG, "onResponse: " + response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        showVolleyError(error);
+                    }
+                }
+        ){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                try {
+                    params.put("activity_name", activityObject.getString("activity_name"));
+                    params.put("start_time", activityObject.getString("start_time"));
+                    params.put("end_time", activityObject.getString("end_time"));
+                    params.put("android_id", activityObject.getString("android_id"));
+                    params.put("pharmacy_id", activityObject.getString("pharmacy_id"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest);
     }
 }

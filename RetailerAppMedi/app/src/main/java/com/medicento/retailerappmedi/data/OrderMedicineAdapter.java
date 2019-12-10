@@ -39,7 +39,7 @@ public class OrderMedicineAdapter extends RecyclerView.Adapter<OrderMedicineAdap
 
         holder.medicine_name.setText(medicines.get(position).getmMedicineName());
         holder.company_name.setText(medicines.get(position).getMedicineCompany());
-        holder.price.setText(" ₹ "+medicines.get(position).getCost());
+        holder.price.setText(" Rs. "+medicines.get(position).getCost());
         holder.qty.setText("Qty: "+medicines.get(position).getmQty());
     }
 

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:keepScreenOn="true"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:weightSum="10"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
+
+        <ImageView
+            android:id="@+id/no_internet"
+            android:src="@drawable/dog"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="5" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_marginTop="10dp"
+                android:textStyle="bold"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/black"
+                android:id="@+id/text"
+                android:text="@string/oops_nno_internet"
+                android:gravity="center"
+                android:layout_below="@id/no_internet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/check"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/text"
+                android:gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="20dp"
+                android:text="@string/oops_seems_your_internet_connection_is_too_slow_please_wait_for_a_moment_and_retry_enjoying_your_favorite_app"
+                />
+
+            <Button
+                android:id="@+id/retry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Retry"
+                android:layout_gravity="center"
+                android:background="@drawable/border_curved"
+                android:textColor="@color/white"
+                android:padding="10dp"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

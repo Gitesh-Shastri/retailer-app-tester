@@ -9,39 +9,39 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.card.MaterialCardView;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -55,15 +55,30 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.medicento.retailerappmedi.Utils.JsonUtils;
+import com.medicento.retailerappmedi.Utils.MedicentoUtils;
+import com.medicento.retailerappmedi.activity.DidntFindMedicineActivity;
+import com.medicento.retailerappmedi.activity.NotificationActivity;
+import com.medicento.retailerappmedi.activity.PaymentActivity;
+import com.medicento.retailerappmedi.activity.RetailerWeb;
+import com.medicento.retailerappmedi.activity.RetailerWebLogOut;
+import com.medicento.retailerappmedi.adapter.MedicineSearchAdapter;
 import com.medicento.retailerappmedi.data.Area;
 import com.medicento.retailerappmedi.data.CountDrawable;
+import com.medicento.retailerappmedi.data.GetMedicineResponse;
 import com.medicento.retailerappmedi.data.ListViewAdapter;
+import com.medicento.retailerappmedi.data.MedicineResponse;
 import com.medicento.retailerappmedi.data.MenuItems;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
@@ -73,48 +88,44 @@ import com.medicento.retailerappmedi.data.Constants;
 import com.medicento.retailerappmedi.data.MakeYourOwn;
 import com.medicento.retailerappmedi.data.Medicine;
 import com.medicento.retailerappmedi.data.MedicineAuto;
+import com.medicento.retailerappmedi.data.MenuItemsBuilder;
 import com.medicento.retailerappmedi.data.OrderedMedicine;
 import com.medicento.retailerappmedi.data.OrderedMedicineAdapter;
 import com.medicento.retailerappmedi.data.SalesPerson;
+import com.medicento.retailerappmedi.data.order_related.OrderItem;
+import com.medicento.retailerappmedi.interfaces.Api;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.Charset;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import io.paperdb.Paper;
-import me.srodrigo.androidhintspinner.HintAdapter;
-import me.srodrigo.androidhintspinner.HintSpinner;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.view.View.GONE;
+import static com.medicento.retailerappmedi.Utils.MedicentoUtils.amIConnect;
+import static com.medicento.retailerappmedi.Utils.MedicentoUtils.getDeviceModel;
+import static com.medicento.retailerappmedi.Utils.MedicentoUtils.showVolleyError;
 
-public class PlaceOrderActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        OrderedMedicineAdapter.OverallCostChangeListener {
+public class PlaceOrderActivity extends AppCompatActivity implements
+        OrderedMedicineAdapter.OverallCostChangeListener, MedicineSearchAdapter.OnItemClickListener {
 
-    TextView pharmacyName;
-    private Timer timer;
-
-    ProgressDialog progressDialog;
-
-    ArrayList<Area> tempareas;
+    private static final String TAG = "PlaceOrderAct";
+    TextView pharmacyName, order_date;
 
     Boolean isSlotChoosen;
 
@@ -129,31 +140,23 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
     SalesPerson sp;
     AutoCompleteTextView mMedicineList;
     Toolbar mToolbar;
-    Button filter, notify;
+    Button filter, notify, message_us;
 
     CardView first_time;
 
-    AutoCompleteTextView state, city, area;
-
     ListView listView;
-
-    ArrayAdapter<String> stateadapter;
-
-    ArrayList<String> states, cities;
 
     MaterialCardView materialCardView;
 
     EditText email, phone;
 
-    Button submit;
-
     TextView cart_sub;
 
+    String date, slot1;
+
     public static OrderedMedicineAdapter mOrderedMedicineAdapter;
-    public static String url = "https://retailer-app-api.herokuapp.com/product/medimap";
-    public static String url1 = "https://retailer-app-api.herokuapp.com/product/updateApp";
+    public static String url = "http://medicento-api.herokuapp.com/product/medimap";
     String versionUpdate;
-    private ProgressDialog pDialog;
     LinearLayout mCostLayout;
     TextView mTotalTv;
     int Count;
@@ -162,25 +165,17 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
     public static ArrayList<Medicine> MedicineDataList;
 
     Boolean isLoading;
-
-    ArrayList<Area> areas;
-
     CardView cardView;
 
     EditText mobile, email_update;
 
-    String area_id;
-
     Menu menu;
 
     Animation mAnimation;
-    Button update;
 
     int TCost;
-    private final int uniqueId = 12345;
-    NotificationCompat.Builder notification;
+
     public static int code;
-    ArrayAdapter<String> mMedicineAdapter;
     AlertDialog alert;
 
     ArrayList<MedicineAuto> medicineAuto;
@@ -191,27 +186,100 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
 
     Button choose_slot;
 
-    ArrayAdapter<String> cityeadapter;
-
     String slot;
 
-    Button showState, showCity, showArea, save;
+    Button showArea, save;
 
     int count;
+    SwipeRefreshLayout swipe;
+
+    Dialog dialog_app_exit, dialog_placing_order;
+    String list_code = "";
+
+    JSONObject activityObject;
+    RecyclerView ordered_medicines_list_rv;
+    MedicineSearchAdapter medicineSearchAdapter;
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        dialog_app_exit = new Dialog(this);
+        dialog_app_exit.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog_app_exit.setContentView(R.layout.dialog_exit_app);
+
+        Button yes, no;
+        yes = dialog_app_exit.findViewById(R.id.yes);
+        no = dialog_app_exit.findViewById(R.id.no);
+
+        yes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        no.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog_app_exit.dismiss();
+            }
+        });
+        dialog_app_exit.show();
     }
+
+    String token = "";
+    private String page_no = "0";
+    private String text = "";
+
+    EditText search_medicine;
+    private boolean isLoadingSearch, isScrolling;
+
+    private ArrayList<Medicine> medicineResponses;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_place_order);
-
         isSlotChoosen = false;
+        isLoadingSearch = false;
+        isScrolling = false;
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        Paper.init(this);
+        activityObject = new JSONObject();
+
+        if (!MedicentoUtils.isMyServiceRunning(FetchMedicineService.class, this)) {
+            Context context = getApplicationContext();
+            Intent intent1;
+            intent1 = new Intent(context, FetchMedicineService.class);
+            context.startService(intent1);
+        }
+
+        Gson gson = new Gson();
+
+        String cache = Paper.book().read("user");
+
+        if (cache != null && !cache.isEmpty()) {
+            sp = gson.fromJson(cache, SalesPerson.class);
+        } else {
+            if (getIntent() != null) {
+                Intent intent = getIntent();
+                sp = (SalesPerson) intent.getSerializableExtra("user");
+            }
+        }
+
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            return;
+                        }
+
+                        token = task.getResult().getToken();
+
+                        sentFirebaseToken();
+                    }
+                });
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -219,21 +287,19 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
 
         email_update = findViewById(R.id.email);
         phone = findViewById(R.id.mobile);
-
-        showCity = findViewById(R.id.showcity);
-        showState = findViewById(R.id.showstate);
         showArea = findViewById(R.id.shwarea);
 
-        update = findViewById(R.id.submit);
+        swipe = findViewById(R.id.swipe);
 
-
-        city = findViewById(R.id.city_spinner);
         first_time = findViewById(R.id.first_time_login);
 
         cardView = findViewById(R.id.card_slot);
 
         dateSpinner = findViewById(R.id.day_spinner);
         slotSpinner = findViewById(R.id.slot_spinner);
+        search_medicine = findViewById(R.id.search_medicine);
+        ordered_medicines_list_rv = findViewById(R.id.ordered_medicines_list_rv);
+        message_us = findViewById(R.id.message_us);
 
         materialCardView = findViewById(R.id.card);
         save = findViewById(R.id.save);
@@ -242,21 +308,25 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
 
         email = findViewById(R.id.email);
         phone = findViewById(R.id.mobile);
+        order_date = findViewById(R.id.order_date);
 
-        submit = findViewById(R.id.submit);
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
 
-        submit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!phone.getText().toString().isEmpty()) {
-                    Toast.makeText(PlaceOrderActivity.this, "Area : " + area_id + "\n Email : " + email.getText().toString() + "\n Phone : " + phone.getText().toString(), Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(PlaceOrderActivity.this, "Please Enter Valid Details", Toast.LENGTH_SHORT).show();
-                }
+        Date today;
+        DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+        today = calendar.getTime();
+        slot1 = "Till 1PM";
+        if (hour >= 8) {
+            if (hour < 16) {
+                slot1 = "Till 7PM";
+            } else {
+                calendar.add(Calendar.DAY_OF_YEAR, 1);
+                today = calendar.getTime();
             }
-        });
-
-        state = findViewById(R.id.state_spinner);
+        }
+        date = dateFormat.format(today);
+        order_date.setText("Expected Delivery: "+date + " " + slot1);
 
         choose_slot = findViewById(R.id.choose);
 
@@ -270,20 +340,12 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
             }
         });
 
-        ArrayAdapter<String> stateadapter = new ArrayAdapter<String>(this, R.layout.spinner_item_states, getResources().getStringArray(R.array.state));
-
-        state.setAdapter(stateadapter);
-
-
-        ArrayAdapter<String> cityeadapter = new ArrayAdapter<String>(this, R.layout.spinner_item_states, getResources().getStringArray(R.array.city));
-
-        city.setAdapter(cityeadapter);
-
-        area = findViewById(R.id.area_spinner);
-
-        ArrayAdapter<String> areaeadapter = new ArrayAdapter<String>(this, R.layout.spinner_item_areas, getResources().getStringArray(R.array.area));
-
-        area.setAdapter(areaeadapter);
+        medicineResponses = new ArrayList<>();
+        medicineSearchAdapter = new MedicineSearchAdapter(this, medicineResponses);
+        medicineSearchAdapter.setOnItemClicklistener(this);
+        ordered_medicines_list_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        ordered_medicines_list_rv.setAdapter(medicineSearchAdapter);
+        ordered_medicines_list_rv.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
         notify = findViewById(R.id.notify);
         mMedicineList = (AutoCompleteTextView) findViewById(R.id.medicine_edit_tv);
@@ -301,41 +363,9 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
         setSupportActionBar(mToolbar);
         Count = 0;
 
-        Paper.init(this);
-
-        Gson gson = new Gson();
-
-        String cache = Paper.book().read("user");
-
-        if (cache != null && !cache.isEmpty()) {
-
-            sp = gson.fromJson(cache, SalesPerson.class);
-
-            if (sp.getPhone() == null || sp.getPhone().isEmpty() || sp.getPhone().length() == 0) {
-                first_time.setVisibility(View.VISIBLE);
-                getArea();
-            } else {
-                first_time.setVisibility(View.GONE);
-            }
-        } else {
-            if (getIntent() != null) {
-                Intent intent = getIntent();
-                sp = (SalesPerson) intent.getSerializableExtra("user");
-            }
-        }
-
         listView = findViewById(R.id.list_menu_items);
 
-        menuItems = new ArrayList<>();
-
-        menuItems.add(new MenuItems("Profile", "1", getResources().getDrawable(R.drawable.ic_man)));
-        menuItems.add(new MenuItems("Recent Order", "2", getResources().getDrawable(R.drawable.ic_trolley)));
-        menuItems.add(new MenuItems("Save List", "3", getResources().getDrawable(R.drawable.ic_save)));
-        menuItems.add(new MenuItems("Sign Out", "1", getResources().getDrawable(R.drawable.ic_logout)));
-
-        ListViewAdapter listViewAdapter = new ListViewAdapter(this, menuItems);
-
-        listView.setAdapter(listViewAdapter);
+        setNavigationItem();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -349,7 +379,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                         startActivity(intent);
                         break;
                     case 1:
-                        if (!IamConnect()) {
+                        if (!amIConnect(PlaceOrderActivity.this)) {
                             final AlertDialog.Builder builder = new AlertDialog.Builder(PlaceOrderActivity.this);
                             builder.setTitle("No Internet Connection");
                             builder.setIcon(R.mipmap.ic_launcher_new);
@@ -370,25 +400,52 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                         }
                         break;
                     case 2:
-                        Gson gson = new Gson();
-                        final String json = mSharedPreferences.getString("saved_medicine", null);
-                        Log.d("saved_medicine", json);
-                        Type type = new TypeToken<ArrayList<OrderedMedicine>>() {
-                        }.getType();
-                        ArrayList<OrderedMedicine> medicineDataList = gson.fromJson(json, type);
-                        for(OrderedMedicine orderedMedicine: medicineDataList) {
-                            mOrderedMedicineAdapter.add(orderedMedicine);
-                        }
-                        setCount(PlaceOrderActivity.this, "" + mOrderedMedicineAdapter.getItemCount());
-                        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-                        drawer.closeDrawer(GravityCompat.START);
+                        intent = new Intent(PlaceOrderActivity.this, PaymentActivity.class);
+                        startActivity(intent);
                         break;
                     case 3:
+                        intent = new Intent(PlaceOrderActivity.this, NotificationActivity.class);
+                        startActivity(intent);
+                        break;
+                    case 4:
+                        intent = new Intent(PlaceOrderActivity.this, DidntFindMedicineActivity.class);
+                        startActivity(intent);
+                        break;
+                    case 5:
+                        intent = new Intent(PlaceOrderActivity.this, RetailerWebLogOut.class);
+                        startActivity(intent);
+                        break;
+                    case 6:
                         clearUserDetails();
                         intent = new Intent(PlaceOrderActivity.this, SignUpActivity.class);
-                        startActivityForResult(intent, Constants.RC_SIGN_IN);
-                        break;
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK |
+                                Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
 
+                }
+            }
+        });
+
+        message_us.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final String orderShareDetails = "*Pharmacy Name* : " + sp.getName() + "\n" +
+                        "*Address* : " + sp.getAddress() + " \n" +
+                        "*Area* : " + sp.getArea_name() + "\n" +
+                        "*City* : " + sp.getCity_name() + "\n" +
+                        "*State* : " + sp.getState_name() + "\n" +
+                        "*Email Id* : " + sp.getEmail() + "\n" +
+                        "*Regd Phone* : " + sp.getPhone() + "\n";
+                Intent share_intent = new Intent(Intent.ACTION_VIEW);
+                try {
+                    String url = "https://api.whatsapp.com/send?phone=+917829349000&text=" + URLEncoder.encode(orderShareDetails, "UTF-8");
+                    share_intent.setPackage("com.whatsapp");
+                    share_intent.setData(Uri.parse(url));
+                    startActivity(share_intent);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -402,29 +459,40 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
 
         if (sp != null) {
             addSalesPersonDetailsToNavDrawer();
-            final String json = mSharedPreferences.getString("saved", null);
-            Type type = new TypeToken<ArrayList<Medicine>>() {
-            }.getType();
-            MedicineDataList = gson.fromJson(json, type);
-            if (MedicineDataList == null) {
-                MedicineDataList = new ArrayList<>();
-                new GetNames().execute();
-            } else {
-                medicine1 = new ArrayList<>();
-                medicineAuto = new ArrayList<>();
-                for (Medicine med : MedicineDataList) {
-                    medicineAuto.add(new MedicineAuto(med.getMedicentoName(), med.getCompanyName(), med.getPrice()));
-                    medicine1.add(med.getMedicentoName());
-                }
+            MedicineDataList = new ArrayList<>();
+//            final String json = mSharedPreferences.getString("saved_medi", null);
+//            Type type = new TypeToken<ArrayList<Medicine>>() {
+//            }.getType();
+//            MedicineDataList = gson.fromJson(json, type);
+//            if (MedicineDataList == null) {
+//                MedicineDataList = new ArrayList<>();
+//                new GetNames().execute();
+//            } else {
+//                medicine1 = new ArrayList<>();
+//                medicineAuto = new ArrayList<>();
+//                for (Medicine med : MedicineDataList) {
+//                    if (med.getPrice() != 0) {
+//                        medicineAuto.add(new MedicineAuto(med.getMedicentoName(), med.getCompanyName(), med.getPrice(), med.getScheme(), med.getDiscount(), med.getOffer_qty(), med.getPacking()));
+//                        medicine1.add(med.getMedicentoName());
+//                    }
+//                }
+//
+//                medicineAdapter = new AutoCompleteAdapter(this, medicineAuto);
+//                mMedicineList.setAdapter(medicineAdapter);
+//                mMedicineList.setEnabled(true);
+//            }
 
-                medicineAdapter = new AutoCompleteAdapter(this, medicineAuto);
-                mMedicineList.setAdapter(medicineAdapter);
-                mMedicineList.setEnabled(true);
-            }
+            medicineAdapter = new AutoCompleteAdapter(this, MedicineDataList);
+            mMedicineList.setAdapter(medicineAdapter);
+            mMedicineList.setEnabled(true);
 
         } else {
-            Intent intent = new Intent(this, SignUpActivity.class);
-            startActivityForResult(intent, Constants.RC_SIGN_IN);
+            Intent intent = new Intent(PlaceOrderActivity.this, SignUpActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK |
+                    Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
         }
 
         mOrderedMedicineAdapter = new OrderedMedicineAdapter(new ArrayList<OrderedMedicine>());
@@ -445,6 +513,83 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                 startActivityForResult(intent, 1);
             }
         });
+
+        search_medicine.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                ordered_medicines_list_rv.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                if (!isLoadingSearch && charSequence.toString().length() > 0) {
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl(Api.BASE_URL)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+
+                    Api api = retrofit.create(Api.class);
+                    medicineResponses.clear();
+                    isLoadingSearch = true;
+                    page_no = "0";
+                    text = charSequence.toString();
+
+                    Call<GetMedicineResponse> getMedicineResponseCall = api.getMedicineResponseCall(charSequence.toString(), page_no);
+
+                    getMedicineResponseCall.enqueue(new Callback<GetMedicineResponse>() {
+                        @Override
+                        public void onResponse(Call<GetMedicineResponse> call, retrofit2.Response<GetMedicineResponse> response) {
+
+                            try {
+                                GetMedicineResponse getMedicineResponse = response.body();
+
+                                for (MedicineResponse medicineResponse : getMedicineResponse.getMedicineResponses()) {
+                                    medicineResponses.add(new Medicine(medicineResponse.getItem_name(),
+                                            medicineResponse.getManfc_name(),
+                                            medicineResponse.getPtr(),
+                                            medicineResponse.getId() + "",
+                                            medicineResponse.getItem_code(),
+                                            medicineResponse.getQty(),
+                                            medicineResponse.getPacking(),
+                                            medicineResponse.getMrp(),
+                                            medicineResponse.getScheme(),
+                                            medicineResponse.getDiscount(),
+                                            medicineResponse.getOffer_qty()
+                                    ));
+
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            medicineSearchAdapter.notifyDataSetChanged();
+
+                            isLoadingSearch = false;
+                            page_no = (Integer.parseInt(page_no) + 1) + "";
+                            Log.d(TAG, "onResponse: " + response.body());
+                        }
+
+                        @Override
+                        public void onFailure(Call<GetMedicineResponse> call, Throwable t) {
+                            medicineSearchAdapter.notifyDataSetChanged();
+                            isLoadingSearch = false;
+                        }
+                    });
+                } else if (charSequence.toString().length() == 0) {
+                    medicineResponses.clear();
+                    page_no = "0";
+                    text = "";
+                    medicineSearchAdapter.notifyDataSetChanged();
+                    ordered_medicines_list_rv.setVisibility(GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
         mMedicineList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -452,12 +597,23 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                 InputMethodManager ime = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 ime.hideSoftInputFromWindow(view1.getWindowToken(), 0);
                 mMedicineList.setText("");
-                Medicine medicine = null;
-                for (Medicine med : MedicineDataList) {
-                    if (med.getMedicentoName().equals(medicineAdapter.getItem(position).getName())) {
-                        medicine = med;
-                        break;
-                    }
+                Medicine medicine = medicineAdapter.getItem(position);
+
+                if (mOrderedMedicineAdapter.checkMedicineQuantity(medicine)) {
+                    final Dialog dialog1 = new Dialog(PlaceOrderActivity.this);
+                    dialog1.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    dialog1.setContentView(R.layout.maximum_limit);
+
+                    Button back1 = dialog1.findViewById(R.id.okay);
+                    back1.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog1.dismiss();
+                        }
+                    });
+
+                    dialog1.show();
+                    return;
                 }
                 mOrderedMedicineAdapter.add(new OrderedMedicine(medicine.getMedicentoName(),
                         medicine.getCompanyName(),
@@ -468,20 +624,37 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                         medicine.getMstock(),
                         medicine.getPacking(),
                         medicine.getMrp(),
-                        medicine.getScheme()));
-                float cost = Float.parseFloat(mTotalTv.getText().toString().substring(1));
+                        medicine.getOffer_qty(),
+                        medicine.getDiscount(),
+                        medicine.getOffer_qty()));
+                float cost;
+                try {
+                    cost = Float.parseFloat(mTotalTv.getText().toString().substring(3));
+                } catch (Exception e) {
+                    cost = 0;
+                    e.printStackTrace();
+                }
                 float overall = cost + medicine.getPrice();
-                mTotalTv.setText(getString(R.string.ruppe_symbol) + overall);
+                mTotalTv.setText(String.format("Rs.%.2f", overall));
                 count += 1;
-                setCount(PlaceOrderActivity.this, "" + mOrderedMedicineAdapter.getItemCount());
+                setCount(PlaceOrderActivity.this);
                 Gson gson = new Gson();
                 String json = gson.toJson(mOrderedMedicineAdapter.getList());
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.putString("saved_medicine", json);
                 editor.apply();
                 mOrderedMedicinesListView.smoothScrollToPosition(0);
+                saveOrder();
             }
         });
+
+        mMedicineList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mMedicineList.showDropDown();
+            }
+        });
+
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 
             @Override
@@ -493,7 +666,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 int pos = (int) viewHolder.itemView.getTag();
                 mOrderedMedicineAdapter.remove(pos);
-                setCount(PlaceOrderActivity.this, "" + mOrderedMedicineAdapter.getItemCount());
+                setCount(PlaceOrderActivity.this);
                 Gson gson = new Gson();
                 String json = gson.toJson(mOrderedMedicineAdapter.getList());
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
@@ -507,325 +680,192 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
         mAnimation.setRepeatCount(Animation.INFINITE);
         mAnimation.setRepeatMode(Animation.REVERSE);
 
-        showState.setOnClickListener(new View.OnClickListener() {
+        swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onClick(View v) {
-                state.showDropDown();
+            public void onRefresh() {
+                getMedicineList();
+                swipe.setRefreshing(false);
             }
         });
 
-        showCity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                city.showDropDown();
-            }
-        });
+        if (getIntent() != null && getIntent().hasExtra("re_order_items")) {
+            if (mOrderedMedicineAdapter != null) {
 
-        showArea.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                area.showDropDown();
-            }
-        });
+                gson = new Gson();
+                String json1 = gson.toJson(new ArrayList<OrderedMedicine>());
+                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                editor.putString("saved_medicine", json1);
+                editor.apply();
 
-        update.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(email.getText().toString().isEmpty()
-                &&phone.getText().toString().isEmpty()) {
-                    Toast.makeText(PlaceOrderActivity.this, "Please Enter Details", Toast.LENGTH_SHORT).show();
-                    return;
-                } else {
+                mOrderedMedicineAdapter.reset();
 
-                    if(progressDialog.isShowing()) {
-                        progressDialog.dismiss();
+                ArrayList<OrderItem> orderItems = (ArrayList<OrderItem>) getIntent().getSerializableExtra("re_order_items");
+
+                for (OrderItem orderItem : orderItems) {
+                    for (Medicine med : MedicineDataList) {
+                        if (med.getMedicentoName().equals(orderItem.getName()) && med.getCompanyName().equals(orderItem.getCompany())) {
+                            mOrderedMedicineAdapter.add(new OrderedMedicine(med.getMedicentoName(),
+                                    med.getCompanyName(),
+                                    orderItem.getQty(),
+                                    med.getPrice(),
+                                    med.getCode(),
+                                    orderItem.getQty() * med.getPrice(),
+                                    med.getMstock(),
+                                    med.getPacking(),
+                                    med.getMrp(),
+                                    med.getScheme(),
+                                    med.getDiscount(),
+                                    med.getOffer_qty()));
+                            float cost;
+                            try {
+                                cost = Float.parseFloat(mTotalTv.getText().toString().substring(1));
+                            } catch (Exception e) {
+                                cost = 0;
+                                e.printStackTrace();
+                            }
+                            float overall = cost + orderItem.getQty() * med.getPrice();
+                            mTotalTv.setText(String.format("Rs.%.2f", overall));
+                            count += 1;
+                            setCount(PlaceOrderActivity.this);
+
+                            gson = new Gson();
+                            String json = gson.toJson(mOrderedMedicineAdapter.getList());
+                            editor = mSharedPreferences.edit();
+                            editor.putString("saved_medicine", json);
+                            editor.apply();
+
+                            mOrderedMedicinesListView.smoothScrollToPosition(0);
+                            break;
+                        }
                     }
-                    progressDialog = new ProgressDialog(PlaceOrderActivity.this);
-                    progressDialog.setMessage("Please Wait Just Give Us A Few Seconds ...");
-                    progressDialog.show();
-                    progressDialog.setCancelable(false);
-
-                    String url = "https://retailer-app-api.herokuapp.com/pharma/updatePharma?id="+sp.getId();
-                    url += "&area="+area_id;
-                    url += "&phone="+phone.getText().toString();
-                    url += "&email="+email.getText().toString();
-                    RequestQueue requestQueue = Volley.newRequestQueue(PlaceOrderActivity.this);
-                    StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                            url,
-                            new Response.Listener<String>() {
-                                @Override
-                                public void onResponse(String response) {
-                                    progressDialog.dismiss();
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(response);
-                                        if(jsonObject.has("message")) {
-                                            Toast.makeText(PlaceOrderActivity.this, "Updated", Toast.LENGTH_SHORT).show();
-                                            first_time.setVisibility(View.GONE);
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                        Toast.makeText(PlaceOrderActivity.this, "Some Error Occured Please Try Again !", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            },
-                            new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    progressDialog.dismiss();
-                                    Toast.makeText(PlaceOrderActivity.this, "Some Error Occured Please Try Again !", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                    requestQueue.add(stringRequest);
                 }
             }
-        });
+        }
+
     }
 
-
-    private void getArea() {
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Please Wait Just Give Us A Few Seconds ...");
-        progressDialog.show();
-        progressDialog.setCancelable(false);
+    private void sentFirebaseToken() {
+        String androidId = "";
+        try {
+            androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
-
-        areas = new ArrayList<>();
-        states = new ArrayList<>();
-        cities = new ArrayList<>();
-
-        StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                Constants.AREA_FETCH_URL,
+        final String finalAndroidId = androidId;
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                "http://54.161.199.63:8080/api/app/save_user_info/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        try {
-                            JSONObject areaOnject = new JSONObject(response);
-                            JSONArray areasArray = areaOnject.getJSONArray("areas");
-                            for (int i = 0; i < areasArray.length(); i++) {
-                                JSONObject jsonObject = areasArray.getJSONObject(i);
-                                areas.add(new Area(jsonObject.getString("area_name"),
-                                        jsonObject.getString("_id"),
-                                        jsonObject.getString("area_state"),
-                                        jsonObject.getString("area_city")));
-                            }
-                            tempareas = new ArrayList<>();
-                            tempareas.add(new Area("Area Not Available",
-                                    "0",
-                                    "none",
-                                    "none"));
-                            for (Area area : areas) {
-                                if (!states.contains(area.getState())) {
-                                    states.add(area.getState());
-                                }
-                                if (area.getState().equals(areas.get(1).getState())) {
-                                    if (!cities.contains(area.getCity())) {
-                                        cities.add(area.getCity());
-                                    }
-                                    if (!tempareas.get(0).getName().equals(area.getName())) {
-                                        if (cities.get(0).equals(area.getCity())) {
-                                            tempareas.add(area);
-                                        }
-                                    }
-                                }
-                            }
-                            Collections.sort(states, String.CASE_INSENSITIVE_ORDER);
-
-                            stateadapter = new ArrayAdapter<String>(PlaceOrderActivity.this, R.layout.spinner_item_states, states);
-
-                            state.setAdapter(stateadapter);
-
-                            state.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    cities.clear();
-                                    tempareas.clear();
-                                    for (Area area : areas) {
-                                        if (area.getState().equals(stateadapter.getItem(position).toString())) {
-                                            if (!cities.contains(area.getCity())) {
-                                                cities.add(area.getCity());
-                                            }
-                                            if (cities.size() > 0) {
-                                                if (cities.get(0).equals(area.getCity())) {
-                                                    tempareas.add(area);
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    Collections.sort(cities, String.CASE_INSENSITIVE_ORDER);
-
-                                    cityeadapter = new ArrayAdapter<String>(PlaceOrderActivity.this, R.layout.spinner_item_states, cities);
-
-                                    city.setAdapter(cityeadapter);
-
-                                    city.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                        @Override
-                                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                            tempareas.clear();
-                                            for (Area area : areas) {
-                                                if (area.getCity().equals(cityeadapter.getItem(position))) {
-                                                    tempareas.add(area);
-                                                }
-                                            }
-
-                                            area = findViewById(R.id.area_spinner);
-
-                                            if (!tempareas.isEmpty()) {
-                                                Collections.sort(tempareas, new Comparator<Area>() {
-                                                    @Override
-                                                    public int compare(Area c1, Area c2) {
-                                                        //You should ensure that list doesn't contain null values!
-                                                        return c1.getName().compareTo(c2.getName());
-                                                    }
-                                                });
-                                            }
-                                            tempareas.add(0, new Area("Area Not Available",
-                                                    "0",
-                                                    "none",
-                                                    "none"));
-
-                                            final ArrayAdapter<Area> areaeadapter = new ArrayAdapter<Area>(PlaceOrderActivity.this, R.layout.spinner_item_areas, tempareas);
-
-                                            area.setAdapter(areaeadapter);
-
-                                            area.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                                @Override
-                                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                                    area_id = areaeadapter.getItem(position).getId();
-                                                }
-                                            });
-
-                                        }
-                                    });
-
-
-                                    area = findViewById(R.id.area_spinner);
-
-                                    if (!tempareas.isEmpty()) {
-                                        Collections.sort(tempareas, new Comparator<Area>() {
-                                            @Override
-                                            public int compare(Area c1, Area c2) {
-                                                //You should ensure that list doesn't contain null values!
-                                                return c1.getName().compareTo(c2.getName());
-                                            }
-                                        });
-                                    }
-
-                                    tempareas.add(0, new Area("Area Not Available",
-                                            "0",
-                                            "none",
-                                            "none"));
-
-                                    final ArrayAdapter<Area> areaeadapter = new ArrayAdapter<Area>(PlaceOrderActivity.this, R.layout.spinner_item_areas, tempareas);
-
-                                    area.setAdapter(areaeadapter);
-
-                                    area.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                        @Override
-                                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                            area_id = areaeadapter.getItem(position).getId();
-                                        }
-                                    });
-
-
-                                }
-                            });
-
-                            Collections.sort(cities, String.CASE_INSENSITIVE_ORDER);
-
-                            cityeadapter = new ArrayAdapter<String>(PlaceOrderActivity.this, R.layout.spinner_item_states, cities);
-
-                            city.setAdapter(cityeadapter);
-
-                            city.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    tempareas.clear();
-                                    for (Area area : areas) {
-                                        if (area.getCity().equals(cityeadapter.getItem(position))) {
-                                            tempareas.add(area);
-                                        }
-                                    }
-
-                                    area = findViewById(R.id.area_spinner);
-
-                                    if (!tempareas.isEmpty()) {
-                                        Collections.sort(tempareas, new Comparator<Area>() {
-                                            @Override
-                                            public int compare(Area c1, Area c2) {
-                                                //You should ensure that list doesn't contain null values!
-                                                return c1.getName().compareTo(c2.getName());
-                                            }
-                                        });
-                                    }
-
-                                    tempareas.add(0, new Area("Area Not Available",
-                                            "0",
-                                            "none",
-                                            "none"));
-
-                                    final ArrayAdapter<Area> areaeadapter = new ArrayAdapter<Area>(PlaceOrderActivity.this, R.layout.spinner_item_areas, tempareas);
-
-                                    area.setAdapter(areaeadapter);
-
-                                    area.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                        @Override
-                                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                            area_id = areaeadapter.getItem(position).getId();
-                                        }
-                                    });
-
-                                }
-                            });
-
-                            area = findViewById(R.id.area_spinner);
-
-                            if (!tempareas.isEmpty()) {
-                                Collections.sort(tempareas, new Comparator<Area>() {
-                                    @Override
-                                    public int compare(Area c1, Area c2) {
-                                        //You should ensure that list doesn't contain null values!
-                                        return c1.getName().compareTo(c2.getName());
-                                    }
-                                });
-                            }
-                            tempareas.add(0, new Area("Area Not Available",
-                                    "0",
-                                    "none",
-                                    "none"));
-
-                            final ArrayAdapter<Area> areaeadapter = new ArrayAdapter<Area>(PlaceOrderActivity.this, R.layout.spinner_item_areas, tempareas);
-
-                            area.setAdapter(areaeadapter);
-
-                            area.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    area_id = areaeadapter.getItem(position).getId();
-                                }
-                            });
-
-                            progressDialog.dismiss();
-                        } catch (
-                                JSONException e) {
-
-                            progressDialog.dismiss();
-                            e.printStackTrace();
-                        }
+                        Log.d(TAG, "onResponse: " + response);
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
-                        progressDialog.dismiss();
+                        showVolleyError(error);
                     }
                 }
-        );
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("android_id", finalAndroidId);
+                params.put("reg_id", token);
+                params.put("android_version", Constants.VERSION);
+                params.put("manufacture_name", MedicentoUtils.getDeviceManufacture());
+                params.put("model_name", getDeviceModel());
+                params.put("user_ip", "");
+
+                if (sp != null && sp.getmAllocatedPharmaId() != null) {
+                    params.put("pharmacy_id", sp.getmAllocatedPharmaId());
+                }
+
+                return params;
+            }
+        };
         requestQueue.add(stringRequest);
 
+        requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest1 = new StringRequest(
+                Request.Method.POST,
+                "http://54.161.199.63:8080/api/app/register_device/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(TAG, "onResponse: " + response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        showVolleyError(error);
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("dev_id", finalAndroidId);
+                params.put("reg_id", token);
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest1);
+
+    }
+
+    private void setNavigationItem() {
+        menuItems = new ArrayList<>();
+
+        menuItems.add(
+                new MenuItemsBuilder().setName("Profile").
+                        setId("1").setDrawable(getResources().getDrawable(R.drawable.ic_man))
+                        .setDescription("Contact Details/ DL Details")
+                        .createMenuItems());
+        menuItems.add(
+                new MenuItemsBuilder().setName("Recent Order")
+                        .setId("2")
+                        .setDrawable(getResources().getDrawable(R.drawable.ic_trolley))
+                        .setDescription("Return - Cancel - Reorder - View Details")
+                        .createMenuItems());
+        menuItems.add(
+                new MenuItemsBuilder().setName("Payment Details")
+                        .setId("3")
+                        .setDrawable(getResources().getDrawable(R.drawable.ic_purse))
+                        .setDescription("Credit Amt - Payments - Due Date")
+                        .createMenuItems());
+        menuItems.add(
+                new MenuItemsBuilder().setName("Notifications")
+                        .setId("4")
+                        .setDrawable(getResources().getDrawable(R.drawable.ic_notification))
+                        .setDescription("Order Updates - App Updates")
+                        .createMenuItems());
+        menuItems.add(
+                new MenuItemsBuilder().setName("Did't find your medicine??")
+                        .setId("5")
+                        .setDrawable(getResources().getDrawable(R.drawable.ic_search_file))
+                        .setDescription("We will try arranging from other Distributors")
+                        .createMenuItems());
+        menuItems.add(
+                new MenuItemsBuilder().setName("Retailer Web")
+                        .setId("7")
+                        .setDrawable(getResources().getDrawable(R.drawable.ic_computer_black_24dp))
+                        .setDescription("Sign in to Retailer Web Portal via QR Code")
+                        .createMenuItems());
+        menuItems.add(
+                new MenuItemsBuilder().setName("Sign Out")
+                        .setId("6")
+                        .setDrawable(getResources().getDrawable(R.drawable.ic_logout))
+                        .setDescription("Signing off Medicento Retailer App")
+                        .createMenuItems());
+
+        ListViewAdapter listViewAdapter = new ListViewAdapter(this, menuItems);
+
+        listView.setAdapter(listViewAdapter);
     }
 
 
@@ -838,22 +878,22 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                 mNavigationView = findViewById(R.id.nav_view);
                 addSalesPersonDetailsToNavDrawer();
                 Gson gson = new Gson();
-                final String json = mSharedPreferences.getString("saved", null);
+                final String json = mSharedPreferences.getString("saved_medi", null);
                 Type type = new TypeToken<ArrayList<Medicine>>() {
                 }.getType();
                 MedicineDataList = gson.fromJson(json, type);
                 if (MedicineDataList == null) {
                     MedicineDataList = new ArrayList<>();
-                    new GetNames().execute();
+                    //     new GetNames().execute();
                 } else {
                     medicine1 = new ArrayList<>();
                     medicineAuto = new ArrayList<>();
                     for (Medicine med : MedicineDataList) {
-                        medicineAuto.add(new MedicineAuto(med.getMedicentoName(), med.getCompanyName(), med.getPrice()));
+                        medicineAuto.add(new MedicineAuto(med.getMedicentoName(), med.getCompanyName(), med.getPrice(), med.getScheme()));
                         medicine1.add(med.getMedicentoName());
                     }
 
-                    medicineAdapter = new AutoCompleteAdapter(this, medicineAuto);
+                    medicineAdapter = new AutoCompleteAdapter(this, MedicineDataList);
                     mMedicineList.setAdapter(medicineAdapter);
                     mMedicineList.setEnabled(true);
                 }
@@ -861,46 +901,6 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
             } else {
                 Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
                 finish();
-            }
-        } else if (requestCode == 1) {
-            if (resultCode == RESULT_OK) {
-                String result = data.getStringExtra("result");
-                if (result.equals("company")) {
-                    ArrayList<Medicine> manu = (ArrayList<Medicine>) data.getSerializableExtra("list");
-                    ArrayList<String> medicine2 = new ArrayList<>();
-                    medicineAuto = new ArrayList<>();
-                    for (Medicine manu1 : manu) {
-                        medicineAuto.add(new MedicineAuto(manu1.getMedicentoName(), manu1.getCompanyName(), manu1.getPrice()));
-                        medicine1.add(manu1.getMedicentoName());
-                    }
-
-                    medicineAdapter = new AutoCompleteAdapter(this, medicineAuto);
-                    mMedicineList.setAdapter(medicineAdapter);
-                    } else if (result.equals("offer")) {
-                    ArrayList<Medicine> manu = (ArrayList<Medicine>) data.getSerializableExtra("list");
-                    ArrayList<String> medicine2 = new ArrayList<>();
-                    for (Medicine manu1 : manu) {
-                        medicine2.add(manu1.getMedicentoName());
-                    }
-                    mMedicineAdapter = new ArrayAdapter<String>(PlaceOrderActivity.this, R.layout.support_simple_spinner_dropdown_item, medicine2);
-                    mMedicineList.setAdapter(mMedicineAdapter);
-                }
-                Toast.makeText(PlaceOrderActivity.this, "Result : " + result, Toast.LENGTH_SHORT).show();
-            }
-            if (resultCode == RESULT_CANCELED) {
-                Toast.makeText(PlaceOrderActivity.this, "Canceled ", Toast.LENGTH_SHORT).show();
-            }
-        } else if (requestCode == 3) {
-            if (resultCode == RESULT_OK) {
-
-                makeYourOwns = (ArrayList<MakeYourOwn>) data.getSerializableExtra("make");
-                mOrderedMedicineAdapter = new OrderedMedicineAdapter(new ArrayList<OrderedMedicine>());
-                mOrderedMedicinesListView.setAdapter(mOrderedMedicineAdapter);
-                mOrderedMedicineAdapter.setOverallCostChangeListener(this);
-                mOrderedMedicineAdapter.setContext(this);
-                for (OrderedMedicine med : (ArrayList<OrderedMedicine>) data.getSerializableExtra("myList")) {
-                    mOrderedMedicineAdapter.add(med);
-                }
             }
         }
     }
@@ -910,13 +910,11 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
         String cache = Paper.book().read("user");
 
         if (cache != null && !cache.isEmpty()) {
-
             sp = new Gson().fromJson(cache, SalesPerson.class);
         }
 
         if (sp != null) {
             mNavigationView = findViewById(R.id.nav_view);
-            mNavigationView.setNavigationItemSelectedListener(this);
 
             LinearLayout linearLayout = findViewById(R.id.header_header);
             View headerView = mNavigationView.getHeaderView(0);
@@ -937,10 +935,67 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putString("saved_medicine", json);
         editor.apply();
-        Log.d(getString(R.string.TAG), "count" + qty);
-        mTotalTv.setText(getString(R.string.ruppe_symbol) + newCost + "");
-        setCount(PlaceOrderActivity.this, Integer.toString(mOrderedMedicineAdapter.getItemCount()));
+        setCount(PlaceOrderActivity.this);
     }
+
+    @Override
+    public void onItemClick1(int position) {
+        Medicine medicine = medicineResponses.get(position);
+
+        if (mOrderedMedicineAdapter.checkMedicineQuantity(medicine)) {
+            final Dialog dialog1 = new Dialog(PlaceOrderActivity.this);
+            dialog1.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog1.setContentView(R.layout.maximum_limit);
+
+            Button back1 = dialog1.findViewById(R.id.okay);
+            back1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog1.dismiss();
+                }
+            });
+
+            dialog1.show();
+
+            medicineResponses.clear();
+            medicineSearchAdapter.notifyDataSetChanged();
+            return;
+        }
+        mOrderedMedicineAdapter.add(new OrderedMedicine(medicine.getMedicentoName(),
+                medicine.getCompanyName(),
+                1,
+                medicine.getPrice(),
+                medicine.getCode(),
+                medicine.getPrice(),
+                medicine.getMstock(),
+                medicine.getPacking(),
+                medicine.getMrp(),
+                medicine.getOffer_qty(),
+                medicine.getDiscount(),
+                medicine.getOffer_qty()));
+        float cost;
+        try {
+            cost = Float.parseFloat(mTotalTv.getText().toString().substring(3));
+        } catch (Exception e) {
+            cost = 0;
+            e.printStackTrace();
+        }
+        float overall = cost + medicine.getPrice();
+        mTotalTv.setText(String.format("Rs.%.2f", overall));
+        count += 1;
+        setCount(PlaceOrderActivity.this);
+        Gson gson = new Gson();
+        String json = gson.toJson(mOrderedMedicineAdapter.getList());
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putString("saved_medicine", json);
+        editor.apply();
+        mOrderedMedicinesListView.smoothScrollToPosition(0);
+        medicineResponses.clear();
+        medicineSearchAdapter.notifyDataSetChanged();
+        ordered_medicines_list_rv.setVisibility(GONE);
+        saveOrder();
+    }
+
 
     private class GetNames extends AsyncTask<Void, Void, Void> {
 
@@ -959,37 +1014,42 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
         protected Void doInBackground(Void... arg0) {
             JsonParser sh = new JsonParser();
 
-            // Making a request to url and getting response
-            String jsonStr = sh.makeServiceCall(url+"?sp="+sp.getmAllocatedPharmaId());
-            Log.e("Gitesh", "Response from url: " + jsonStr);
+            String jsonStr = sh.makeServiceCall(url + "?sp=" + sp.getmAllocatedPharmaId());
 
             if (jsonStr != null) {
                 try {
                     JSONObject jsonObj = new JSONObject(jsonStr);
 
-                    // Getting JSON Array node
                     JSONArray medicine = jsonObj.getJSONArray("products");
                     medicine1 = new ArrayList<>();
                     medicineAuto = new ArrayList<>();
-
-                    // looping through All Contacts
+                    MedicineDataList = new ArrayList<>();
                     for (int i = 0; i < medicine.length(); i++) {
                         JSONObject c = medicine.getJSONObject(i);
-                        MedicineDataList.add(new Medicine(
-                                c.getString("medicento_name"),
-                                c.getString("company_name"),
-                                c.getInt("price"),
-                                c.getString("_id"),
-                                c.getInt("stock"),
-                                c.getString("item_code")
-                        ));
-                        MedicineDataList.get(i).setPacking(c.getString("packing"));
-                        MedicineDataList.get(i).setMrp(c.getInt("mrp"));
-                        MedicineDataList.get(i).setScheme(c.getString("scheme"));
-                        medicineAuto.add(new MedicineAuto(c.getString("medicento_name"),
-                                c.getString("company_name"),
-                                c.getInt("price")));
-                        medicine1.add(c.getString("medicento_name"));
+                        if (c.getInt("price") != 0) {
+                            MedicineDataList.add(new Medicine(
+                                    c.getString("medicento_name"),
+                                    c.getString("company_name"),
+                                    c.getInt("price"),
+                                    c.getString("_id"),
+                                    c.getString("item_code"),
+                                    c.getInt("stock"),
+                                    c.getString("packing"),
+                                    c.getInt("price"),
+                                    returnStringValueOfJsonKey(c, "scheme"),
+                                    c.getString("discount"),
+                                    c.getString("offer_qty")
+
+                            ));
+                            medicineAuto.add(new MedicineAuto(c.getString("medicento_name"),
+                                    c.getString("company_name"),
+                                    c.getInt("price"),
+                                    returnStringValueOfJsonKey(c, "scheme"),
+                                    c.getString("discount"),
+                                    c.getString("offer_qty"),
+                                    c.getString("packing")));
+                            medicine1.add(c.getString("medicento_name"));
+                        }
                     }
                 } catch (final JSONException e) {
                     Log.e("Gitesh", "Json parsing error: " + e.getMessage());
@@ -1022,18 +1082,17 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            // Dismiss the progress dialog
-
             materialCardView.setVisibility(View.INVISIBLE);
 
-            medicineAdapter = new AutoCompleteAdapter(PlaceOrderActivity.this, medicineAuto);
-            mMedicineList.setAdapter(medicineAdapter);
-            mMedicineList.setEnabled(true);
-
+            if (medicineAuto != null) {
+                medicineAdapter = new AutoCompleteAdapter(PlaceOrderActivity.this, MedicineDataList);
+                mMedicineList.setAdapter(medicineAdapter);
+                mMedicineList.setEnabled(true);
+            }
             Gson gson = new Gson();
             String json = gson.toJson(MedicineDataList);
             SharedPreferences.Editor editor = mSharedPreferences.edit();
-            editor.putString("saved", json);
+            editor.putString("saved_medi", json);
             editor.apply();
 
             runOnUiThread(new Runnable() {
@@ -1043,6 +1102,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                 }
             });
             addSalesPersonDetailsToNavDrawer();
+            isLoading = false;
         }
 
     }
@@ -1050,31 +1110,55 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         this.menu = menu;
-        setCount(this, "0");
+        setCount(this);
         return true;
     }
 
-    public void setCount(Context context, String count) {
-        if(!isSlotChoosen) {
-            MenuItem menuItem = menu.findItem(R.id.action_proceed);
-            LayerDrawable icon = (LayerDrawable) menuItem.getIcon();
+    public void setCount(Context context) {
+        try {
+            if (!isSlotChoosen) {
+                MenuItem menuItem = menu.findItem(R.id.action_proceed);
+                LayerDrawable icon = (LayerDrawable) menuItem.getIcon();
 
-            CountDrawable badge;
+                CountDrawable badge;
 
-            cart_sub.setText("Cart Sub Total (" + count + " Items ) : ");
+                // Reuse drawable if possible
+                Drawable reuse = icon.findDrawableByLayerId(R.id.counter);
+                if (reuse != null && reuse instanceof CountDrawable) {
+                    badge = (CountDrawable) reuse;
+                } else {
+                    badge = new CountDrawable(context);
+                }
 
-            // Reuse drawable if possible
-            Drawable reuse = icon.findDrawableByLayerId(R.id.counter);
-            if (reuse != null && reuse instanceof CountDrawable) {
-                badge = (CountDrawable) reuse;
-            } else {
-                badge = new CountDrawable(context);
+                badge.setCount(mOrderedMedicineAdapter.getItemCount() + "");
+                icon.mutate();
+                icon.setDrawableByLayerId(R.id.counter, badge);
             }
 
-            badge.setCount(count);
-            icon.mutate();
-            icon.setDrawableByLayerId(R.id.counter, badge);
+            cart_sub.setText("Cart Sub Total (" + mOrderedMedicineAdapter.getItemCount() + " Items ) : ");
+
+            float price = 0;
+
+            ArrayList<OrderedMedicine> medicines = mOrderedMedicineAdapter.getList();
+
+            for (OrderedMedicine medicine : medicines) {
+                price += medicine.getRate() * medicine.getQty();
+            }
+            mTotalTv.setText(String.format("Rs.%.2f", price));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
+
+    private String returnStringValueOfJsonKey(JSONObject jsonObject, String key) {
+        if (jsonObject.has(key) && jsonObject.isNull(key)) {
+            try {
+                return jsonObject.getString(key);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return "";
     }
 
     @Override
@@ -1086,174 +1170,10 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (isSlotChoosen) {
-            isSlotChoosen=false;
-            makeYourOwns = new ArrayList<>();
-            String json = extractJsonFromOrderItemsList(mOrderedMedicineAdapter.getList(), makeYourOwns, sp.getmAllocatedPharmaId(), sp.getId(), slot);
-            new PlaceOrder().execute(json);
-        } else {
-            item.setIcon(R.drawable.ic_buy);
-            if (id == R.id.action_proceed) {
-                isSlotChoosen=true;
-                if (!IamConnect()) {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(PlaceOrderActivity.this);
-                    builder.setTitle("No Internet Connection");
-                    builder.setIcon(R.mipmap.ic_launcher_new);
-                    builder.setCancelable(false);
-                    builder.setMessage("Please Connect To The Internet")
-                            .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    alert.dismiss();
-                                }
-                            });
-                    alert = builder.create();
-                    alert.show();
-                } else {
-                    if (mOrderedMedicineAdapter.getItemCount() > 0) {
 
-                        Date today, tomorrow;
+        if (id == R.id.action_proceed) {
 
-                        cardView.setVisibility(View.VISIBLE);
-
-                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-                        String str = sdf.format(new Date());
-
-                        if ((7 < Integer.valueOf(str.substring(0, 2))) && (Integer.valueOf(str.substring(0, 2)) <= 18)) {
-                            Calendar calendar = Calendar.getInstance();
-                            today = calendar.getTime();
-
-                            calendar.add(Calendar.DAY_OF_YEAR, 1);
-                            tomorrow = calendar.getTime();
-
-
-                            DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
-
-                            String todayAsString = dateFormat.format(today);
-                            String tomorrowAsString = dateFormat.format(tomorrow);
-
-                            ArrayList<String> dates = new ArrayList<>();
-                            dates.add(todayAsString);
-                            dates.add(tomorrowAsString);
-
-                            ArrayAdapter<String> dates_adapter = new ArrayAdapter<String>(this,
-                                    android.R.layout.simple_spinner_item, dates);
-
-                            dateSpinner.setAdapter(dates_adapter);
-
-                            dateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                                @Override
-                                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                                    if (i == 0) {
-                                        ArrayList<String> slots = new ArrayList<>();
-                                        slots.add(" Till 7 PM");
-
-
-                                        ArrayAdapter<String> slots_adapter = new ArrayAdapter<String>(PlaceOrderActivity.this,
-                                                android.R.layout.simple_spinner_item, slots);
-
-                                        slotSpinner.setAdapter(slots_adapter);
-                                    } else {
-                                        ArrayList<String> slots = new ArrayList<>();
-                                        slots.add(" Till 1 PM");
-                                        slots.add(" Till 7 PM");
-
-
-                                        ArrayAdapter<String> slots_adapter = new ArrayAdapter<String>(PlaceOrderActivity.this,
-                                                android.R.layout.simple_spinner_item, slots);
-
-                                        slotSpinner.setAdapter(slots_adapter);
-                                    }
-                                }
-
-                                @Override
-                                public void onNothingSelected(AdapterView<?> adapterView) {
-
-                                }
-                            });
-
-                        } else {
-
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.add(Calendar.DAY_OF_YEAR, 1);
-                            today = calendar.getTime();
-
-                            calendar.add(Calendar.DAY_OF_YEAR, 1);
-                            tomorrow = calendar.getTime();
-
-
-                            DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
-
-                            String todayAsString = dateFormat.format(today);
-                            String tomorrowAsString = dateFormat.format(tomorrow);
-
-                            ArrayList<String> dates = new ArrayList<>();
-                            dates.add(todayAsString);
-                            dates.add(tomorrowAsString);
-
-                            ArrayAdapter<String> dates_adapter = new ArrayAdapter<String>(this,
-                                    android.R.layout.simple_spinner_item, dates);
-
-                            dateSpinner.setAdapter(dates_adapter);
-
-                            ArrayList<String> slots = new ArrayList<>();
-                            slots.add(" Till 1 PM");
-                            slots.add(" Till 7 PM");
-
-
-                            ArrayAdapter<String> slots_adapter = new ArrayAdapter<String>(PlaceOrderActivity.this,
-                                    android.R.layout.simple_spinner_item, slots);
-
-                            slotSpinner.setAdapter(slots_adapter);
-
-                        }
-
-                    } else {
-                        Toast.makeText(PlaceOrderActivity.this, "Please Select Some Medicine", Toast.LENGTH_SHORT).show();
-                        return super.onOptionsItemSelected(item);
-                    }
-                }
-            }
-        }
-          /* else if (id == R.id.offer) {
-                if(!amIConnect()) {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(PlaceOrderActivity.this);
-                    builder.setTitle("No Internet Connection");
-                    builder.setIcon(R.mipmap.ic_launcher_new);
-                    builder.setCancelable(false);
-                    builder.setMessage("Please Connect To The Internet")
-                            .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    alert.dismiss();
-                                }
-                            });
-                    alert = builder.create();
-                    alert.show();
-                } else {
-                  Intent intent = new Intent(PlaceOrderActivity.this, Offers_page.class);
-                    startActivity(intent);
-
-                }
-        } */
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        Intent intent = null;
-        if (id == R.id.sign_out) {
-            clearUserDetails();
-            intent = new Intent(this, SignUpActivity.class);
-            startActivityForResult(intent, Constants.RC_SIGN_IN);
-        } else if (id == R.id.about_me) {
-            intent = new Intent(this, SalesPersonDetails.class);
-            intent.putExtra("usercode", usercode);
-            intent.putExtra("SalesPerson", sp);
-            startActivity(intent);
-        } else if (id == R.id.Recentorder) {
-            if (!IamConnect()) {
+            if (!amIConnect(PlaceOrderActivity.this)) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(PlaceOrderActivity.this);
                 builder.setTitle("No Internet Connection");
                 builder.setIcon(R.mipmap.ic_launcher_new);
@@ -1267,43 +1187,167 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                         });
                 alert = builder.create();
                 alert.show();
-            } else {
-                intent = new Intent(this, RecentOrderActivity.class);
-                intent.putExtra("SalesPerson", sp);
-                startActivity(intent);
+                return true;
             }
+            if (mOrderedMedicineAdapter.getItemCount() == 0) {
+                Toast.makeText(PlaceOrderActivity.this, "Please Select Some Medicine", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+            slot = date + slot1;
+            placeOrder();
+
+//            if (isSlotChoosen) {
+//                return true;
+//            }
+
+//            isSlotChoosen = true;
+//            item.setIcon(R.drawable.ic_buy);
+//            Date today, tomorrow;
+//
+//            cardView.setVisibility(View.VISIBLE);
+//
+//            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+//            DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+//
+//            String str = sdf.format(new Date());
+//            Calendar calendar = Calendar.getInstance();
+//            ArrayList<String> slots = new ArrayList<>();
+//
+//            if ((1 > Integer.valueOf(str.substring(0, 2))) || (Integer.valueOf(str.substring(0, 2)) >= 16)) {
+//
+//                calendar.add(Calendar.DAY_OF_YEAR, 1);
+//                today = calendar.getTime();
+//
+//                calendar.add(Calendar.DAY_OF_YEAR, 1);
+//                tomorrow = calendar.getTime();
+//
+//                String todayAsString = dateFormat.format(today);
+//                String tomorrowAsString = dateFormat.format(tomorrow);
+//
+//                ArrayList<String> dates = new ArrayList<>();
+//                dates.add(todayAsString);
+//                dates.add(tomorrowAsString);
+//
+//                ArrayAdapter<String> dates_adapter = new ArrayAdapter<String>(this,
+//                        android.R.layout.simple_spinner_item, dates);
+//
+//                dateSpinner.setAdapter(dates_adapter);
+//
+//                slots.add(" Till 1 PM");
+//                slots.add(" Till 7 PM");
+//
+//                ArrayAdapter<String> slots_adapter = new ArrayAdapter<String>(PlaceOrderActivity.this,
+//                        android.R.layout.simple_spinner_item, slots);
+//
+//                slotSpinner.setAdapter(slots_adapter);
+//
+//            } else {
+//                today = calendar.getTime();
+//
+//                calendar.add(Calendar.DAY_OF_YEAR, 1);
+//                tomorrow = calendar.getTime();
+//
+//                String todayAsString = dateFormat.format(today);
+//                String tomorrowAsString = dateFormat.format(tomorrow);
+//
+//                ArrayList<String> dates = new ArrayList<>();
+//                dates.add(todayAsString);
+//                dates.add(tomorrowAsString);
+//
+//                ArrayAdapter<String> dates_adapter = new ArrayAdapter<String>(this,
+//                        android.R.layout.simple_spinner_item, dates);
+//
+//                dateSpinner.setAdapter(dates_adapter);
+//
+//                dateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//                    @Override
+//                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                        ArrayList<String> slots = new ArrayList<>();
+//                        if (i > 0) {
+//                            slots.add(" Till 1 PM");
+//                        }
+//                        slots.add(" Till 7 PM");
+//                        ArrayAdapter<String> slots_adapter = new ArrayAdapter<String>(PlaceOrderActivity.this,
+//                                android.R.layout.simple_spinner_item, slots);
+//                        slotSpinner.setAdapter(slots_adapter);
+//                    }
+//
+//                    @Override
+//                    public void onNothingSelected(AdapterView<?> adapterView) {
+//                    }
+//                });
+//            }
+        } else if (id == R.id.action_notification) {
+            startActivity(new Intent(PlaceOrderActivity.this, NotificationActivity.class));
         }
-        startActivity(intent);
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
     private void clearUserDetails() {
-
         Paper.book().delete("user");
-
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        String androidId = "";
+        try {
+            androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            activityObject.put("end_time", System.currentTimeMillis() + "");
+            activityObject.put("android_id", androidId);
+            if (sp != null && sp.getmAllocatedPharmaId() != null) {
+                activityObject.put("pharmacy_id", sp.getmAllocatedPharmaId());
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                "http://54.161.199.63:8080/api/app/record_activity/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(TAG, "onResponse: " + response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        showVolleyError(error);
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                Log.d(TAG, "getParams: " + activityObject.toString());
+                try {
+                    params.put("activity_name", activityObject.getString("activity_name"));
+                    params.put("start_time", activityObject.getString("start_time"));
+                    params.put("end_time", activityObject.getString("end_time"));
+                    params.put("android_id", activityObject.getString("android_id"));
+                    params.put("pharmacy_id", activityObject.getString("pharmacy_id"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest);
 
         String cache = Paper.book().read("user");
-
         if (cache == null || cache.isEmpty()) {
             Intent intent = new Intent(PlaceOrderActivity.this, SignUpActivity.class);
             startActivity(intent);
-        } else {
-            timer = new Timer();
-            if (progressDialog != null) {
-                if (progressDialog.isShowing()) {
-                    progressDialog.dismiss();
-                }
-            }
-            LogOutTimerTask logOutTimerTask = new LogOutTimerTask();
-            timer.schedule(logOutTimerTask, 1200000);
-
         }
     }
 
@@ -1316,61 +1360,89 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
     protected void onResume() {
         super.onResume();
 
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
+        try {
+            activityObject.put("activity_name", "PlaceOrder");
+            activityObject.put("start_time", System.currentTimeMillis() + "");
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-
-        Gson gson = new Gson();
-        final String json = mSharedPreferences.getString("saved_medicine", null);
-        Log.d("saved_medicine", json);
-        Type type = new TypeToken<ArrayList<OrderedMedicine>>() {
-        }.getType();
-        ArrayList<OrderedMedicine> medicineDataList = gson.fromJson(json, type);
-        for(OrderedMedicine orderedMedicine: medicineDataList) {
-            mOrderedMedicineAdapter.add(orderedMedicine);
-        }
-        FirebaseMessaging.getInstance().subscribeToTopic("all");
 
         String cache = Paper.book().read("user");
+
+        String code_cache = Paper.book().read("list_code");
+        if (code_cache != null && !code_cache.isEmpty()) {
+            list_code = code_cache;
+        }
 
         if (cache == null || cache.isEmpty()) {
             Intent intent = new Intent(PlaceOrderActivity.this, SignUpActivity.class);
             startActivity(intent);
         } else {
+            Gson gson = new Gson();
+            final String json = mSharedPreferences.getString("saved_medicine", null);
+            Type type = new TypeToken<ArrayList<OrderedMedicine>>() {
+            }.getType();
+            ArrayList<OrderedMedicine> medicineDataList = gson.fromJson(json, type);
+            if (medicineDataList != null) {
+                if (mOrderedMedicineAdapter != null) {
+                    mOrderedMedicineAdapter.reset();
+                    for (OrderedMedicine orderedMedicine : medicineDataList) {
+                        mOrderedMedicineAdapter.addMedicines(orderedMedicine);
+                    }
+                    mOrderedMedicineAdapter.setOverallCostChangeListener(this);
+                }
+            }
 
-            if (!IamConnect()) {
+            FirebaseMessaging.getInstance().subscribeToTopic("all");
+
+            if (!amIConnect(PlaceOrderActivity.this)) {
                 alertDialogForInternet();
             } else {
-
-                final int[] count1 = new int[1];
                 RequestQueue queue = Volley.newRequestQueue(this);
-                String url = "https://retailer-app-api.herokuapp.com/product/updateApp";
+                String url = "http://54.161.199.63:8080/api/app/get_app_versioncode_list_status/?id=" + sp.getmAllocatedPharmaId();
+                Log.d(TAG, "onResume: " + url);
                 StringRequest str = new StringRequest(Request.Method.GET, url,
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
                                 try {
-                                    Log.i("Code1", response);
-                                    strcode = response;
+                                    Log.d(TAG, "onResponse: " + response);
                                     JSONObject spo = new JSONObject(response);
-                                    JSONArray version = spo.getJSONArray("Version");
-                                    for (int i = 0; i < version.length(); i++) {
-                                        JSONObject v = version.getJSONObject(i);
-                                        versionUpdate = v.getString("version");
-                                    }
+                                    versionUpdate = JsonUtils.getStringValueFromJsonKey(spo, "app_version");
+
+                                    String notifi = JsonUtils.getJsonValueFromKey(spo, "count");
+
                                     if (!versionUpdate.equals(Constants.VERSION)) {
                                         alertDialogForUpdate();
                                     }
-                                    code = spo.getInt("code");
-                                    count1[0] = spo.getInt("count");
-                                    int count = mSharedPreferences.getInt("count", 0);
-                                    if (code == 101 && count <= spo.getInt("count")) {
-                                        SharedPreferences.Editor editor = mSharedPreferences.edit();
-                                        editor.putInt("count", count1[0] + 1);
-                                        editor.apply();
+
+                                    try {
+                                        MenuItem menuItem = menu.findItem(R.id.action_notification);
+                                        LayerDrawable icon = (LayerDrawable) menuItem.getIcon();
+
+                                        CountDrawable badge;
+
+                                        // Reuse drawable if possible
+                                        Drawable reuse = icon.findDrawableByLayerId(R.id.counter);
+                                        if (reuse != null && reuse instanceof CountDrawable) {
+                                            badge = (CountDrawable) reuse;
+                                        } else {
+                                            badge = new CountDrawable(PlaceOrderActivity.this);
+                                        }
+
+                                        badge.setCount(notifi);
+                                        icon.mutate();
+                                        icon.setDrawableByLayerId(R.id.counter, badge);
+                                    } catch (Exception e) {
+                                        Log.d(TAG, "onResponse: " + Log.getStackTraceString(e));
+                                        e.printStackTrace();
+                                    }
+
+                                    String code_check = JsonUtils.getStringValueFromJsonKey(spo, "app_version");
+                                    if (!code_check.equals(list_code)) {
+                                        Paper.book().write("list_code", code_check);
                                         if (!isLoading) {
-                                            new GetNames().execute();
+//                                            new GetNames().execute();
                                         }
                                     }
                                 } catch (JSONException e) {
@@ -1383,6 +1455,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
                     }
                 });
                 queue.add(str);
+
             }
 
         }
@@ -1390,8 +1463,6 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
 
 
     private void alertDialogForUpdate() {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(PlaceOrderActivity.this);
 
         final Dialog dialog1 = new Dialog(this);
         dialog1.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -1446,165 +1517,315 @@ public class PlaceOrderActivity extends AppCompatActivity implements NavigationV
 
     }
 
-    private class LogOutTimerTask extends TimerTask {
+    private boolean isPlacingOrder = false;
 
-        @Override
-        public void run() {
-            Intent intent = new Intent(PlaceOrderActivity.this, SignUpActivity.class);
-            startActivity(intent);
-        }
-    }
+    private void placeOrder() {
 
+        RequestQueue requestQueue = Volley.newRequestQueue(PlaceOrderActivity.this);
 
-    public class PlaceOrder extends AsyncTask<String, String, String> {
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                "http://54.161.199.63:8080/orders/place_order/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (dialog_placing_order != null) {
+                            dialog_placing_order.dismiss();
+                        }
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pDialog = new ProgressDialog(PlaceOrderActivity.this);
-            pDialog.setTitle("Placing Order");
-            pDialog.setMessage("Please wait...");
-            pDialog.setCancelable(false);
-            pDialog.show();
-        }
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
 
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            pDialog.dismiss();
-            Log.d("info", s);
-            String message = "Something Went Wrong Please Try Again!!";
-            try {
-                JSONObject jsonObject = new JSONObject(s);
-                message = jsonObject.getString("message");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+                            String message = JsonUtils.getJsonValueFromKey(jsonObject, "message");
+                            String order_id = JsonUtils.getJsonValueFromKey(jsonObject, "order_id");
 
-            if (message.equals("Order has been placed successfully")) {
-                Intent intent = new Intent(PlaceOrderActivity.this, OrderConfirmed.class);
-                intent.putExtra("date", slot);
-                intent.putExtra("pharmacy", pharmacyName.getText().toString());
-                intent.putExtra("slots", slot);
-                intent.putExtra("orderDetails", mOrderedMedicineAdapter.getList());
-                intent.putExtra("TotalCost", Float.valueOf(mTotalTv.getText().toString().substring(1)));
-                intent.putExtra("json", s);
-                startActivity(intent);
-            } else {
-                Toast.makeText(PlaceOrderActivity.this, message, Toast.LENGTH_SHORT).show();
-            }
-        }
+                            if (message.equals("Order Placed")) {
+                                Intent intent = new Intent(PlaceOrderActivity.this, OrderConfirmed.class);
 
-        @Override
-        protected String doInBackground(String... strings) {
-            String jsonResponse = null;
-            url = Constants.PLACE_ORDER_URL;
-            String jsonData = strings[0];
-            HttpURLConnection urlConnection = null;
-            InputStream inputStream = null;
-            try {
-                URL url1 = new URL(url);
-                urlConnection = (HttpURLConnection) url1.openConnection();
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setDoOutput(true);
-                urlConnection.setUseCaches(false);
-                urlConnection.setConnectTimeout(10000);
-                urlConnection.setReadTimeout(15000);
-                urlConnection.setRequestProperty("Content-Type", "application/json");
-                urlConnection.connect();
-                OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
-                writer.write(jsonData);
-                writer.close();
-                if (urlConnection.getResponseCode() == 200) {
-                    inputStream = urlConnection.getInputStream();
-                    jsonResponse = readFromStream(inputStream);
-                } else {
-                    Log.e("Git", "Error response code : " + urlConnection.getResponseCode());
-                }
-            } catch (IOException e) {
-                Log.e("Git", "Error IOException");
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (inputStream != null) {
-                    try {
-                        inputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                                intent.putExtra("pharmacy", pharmacyName.getText().toString());
+
+                                intent.putExtra("slots", slot);
+                                intent.putExtra("orderDetails", mOrderedMedicineAdapter.getList());
+                                intent.putExtra("TotalCost", mOrderedMedicineAdapter.getTotalCost());
+                                intent.putExtra("order_id", order_id);
+
+                                intent.putExtra("json", response);
+
+                                Gson gson = new Gson();
+                                String json1 = gson.toJson(new ArrayList<OrderedMedicine>());
+                                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                editor.putString("saved_medicine", json1);
+                                editor.apply();
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(PlaceOrderActivity.this, "Order Cannot Be Placed Try Again.", Toast.LENGTH_SHORT).show();
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(PlaceOrderActivity.this, "Parsing Error", Toast.LENGTH_SHORT).show();
+                        }
+
+                        isPlacingOrder = false;
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (dialog_placing_order != null) {
+                            dialog_placing_order.dismiss();
+                        }
+                        isPlacingOrder = false;
+                        Toast.makeText(PlaceOrderActivity.this, "Error In The Network.", Toast.LENGTH_SHORT).show();
+                        showVolleyError(error);
                     }
                 }
-            }
-            return jsonResponse;
-        }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
 
-    }
-
-
-    private static String readFromStream(InputStream inputStream) throws IOException {
-        StringBuilder output = new StringBuilder();
-        if (inputStream != null) {
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
-            BufferedReader reader = new BufferedReader(inputStreamReader);
-            String line = reader.readLine();
-            while (line != null) {
-                output.append(line);
-                line = reader.readLine();
-            }
-        }
-        return output.toString();
-    }
-
-    private static String extractJsonFromOrderItemsList(ArrayList<OrderedMedicine> data, ArrayList<MakeYourOwn> data1, String pId, String sId, String slot) {
-        JSONArray orderItems = new JSONArray();
-        try {
-            for (OrderedMedicine orderedMedicine : data) {
-                JSONObject object = new JSONObject();
-                object.put("medicento_name", orderedMedicine.getMedicineName());
-                object.put("company_name", orderedMedicine.getMedicineCompany());
-                object.put("pharma_id", pId);
-                object.put("code", orderedMedicine.getCode());
-                object.put("qty", String.valueOf(orderedMedicine.getQty()));
-                object.put("rate", String.valueOf(orderedMedicine.getRate()));
-                object.put("cost", String.valueOf(orderedMedicine.getCost()));
-                object.put("mrp", String.valueOf(orderedMedicine.getMrp()));
-                object.put("scheme", String.valueOf(orderedMedicine.getScheme()));
-                object.put("source", "Retailer App");
-                object.put("salesperson_id", sId);
-                object.put("slot", slot);
-                orderItems.put(object);
-            }
-            JSONArray allDataArray = new JSONArray();
-            for (MakeYourOwn makeYourOwn : makeYourOwns) {
-                JSONObject each = new JSONObject();
+                JSONObject jsonObject = new JSONObject();
+                JSONArray orderItems = new JSONArray();
                 try {
-                    Log.i("Make", makeYourOwn.getName());
-                    each.put("Chosen", makeYourOwn.getName());
+                    for (OrderedMedicine orderedMedicine : mOrderedMedicineAdapter.getList()) {
+                        JSONObject object = new JSONObject();
+                        object.put("medicine_name", orderedMedicine.getMedicineName());
+                        object.put("company_name", orderedMedicine.getMedicineCompany());
+                        object.put("Itemcode", orderedMedicine.getCode());
+                        object.put("Quantity", orderedMedicine.getQty());
+                        object.put("price", orderedMedicine.getRate());
+                        object.put("cost", orderedMedicine.getCost());
+                        object.put("mrp", orderedMedicine.getMrp());
+                        try {
+                            object.put("scheme", orderedMedicine.getOffer_qty());
+                        } catch (Exception e) {
+                            object.put("scheme", "-");
+                            e.printStackTrace();
+                        }
+                        orderItems.put(object);
+                    }
+
+                    jsonObject.put("items", orderItems);
+                    params.put("order_items", jsonObject.toString());
+                    params.put("pharmacy_id", sp.getmAllocatedPharmaId());
+
+
+                    String order_cache = Paper.book().read("order_id");
+                    if (order_cache != null && !order_cache.isEmpty()) {
+                        order_id = order_cache;
+                        params.put("order_id", order_id);
+                    }
+                    params.put("date", date);
+                    params.put("slot_time", slot1);
+                    params.put("source", "Retailer App");
+                    params.put("area_id", "5");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                allDataArray.put(each);
+                return params;
             }
-            JSONObject object = new JSONObject();
-            try {
-                object.put("choosen_data", allDataArray);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            orderItems.put(object);
-        } catch (JSONException e) {
-            Log.v("Saf", e.toString());
+        };
+
+        if (!isPlacingOrder) {
+
+            dialog_placing_order = new Dialog(this);
+            dialog_placing_order.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog_placing_order.setCancelable(false);
+            dialog_placing_order.setContentView(R.layout.dialog_placing_order);
+
+            dialog_placing_order.show();
+            isPlacingOrder = true;
+
+            stringRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+                    3,
+                    2));
+            requestQueue.add(stringRequest);
         }
-        Log.i("orderItems", orderItems.toString());
-        return orderItems.toString();
     }
 
-    private Boolean IamConnect() {
+    private String order_id = "";
 
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    private void saveOrder() {
 
+        RequestQueue requestQueue = Volley.newRequestQueue(PlaceOrderActivity.this);
+
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                "http://54.161.199.63:8080/orders/save_upcoming_order/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            Log.d(TAG, "onResponse: " + response);
+                            JSONObject jsonObject = new JSONObject(response);
+
+                            order_id = JsonUtils.getJsonValueFromKey(jsonObject, "order_data");
+                            Paper.book().write("order_id", order_id);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(PlaceOrderActivity.this, "Error In The Network.", Toast.LENGTH_SHORT).show();
+                        showVolleyError(error);
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+
+                JSONObject jsonObject = new JSONObject();
+                JSONArray orderItems = new JSONArray();
+                try {
+                    for (OrderedMedicine orderedMedicine : mOrderedMedicineAdapter.getList()) {
+                        JSONObject object = new JSONObject();
+                        object.put("medicine_name", orderedMedicine.getMedicineName());
+                        object.put("company_name", orderedMedicine.getMedicineCompany());
+                        object.put("Itemcode", orderedMedicine.getCode());
+                        object.put("Quantity", orderedMedicine.getQty());
+                        object.put("price", orderedMedicine.getRate());
+                        object.put("cost", orderedMedicine.getCost());
+                        object.put("mrp", orderedMedicine.getMrp());
+                        try {
+                            object.put("scheme", orderedMedicine.getOffer_qty());
+                        } catch (Exception e) {
+                            object.put("scheme", "-");
+                            e.printStackTrace();
+                        }
+                        orderItems.put(object);
+                    }
+
+                    jsonObject.put("items", orderItems);
+                    params.put("order_items", jsonObject.toString());
+                    params.put("pharmacy_id", sp.getmAllocatedPharmaId());
+
+                    String order_cache = Paper.book().read("order_id");
+                    if (order_cache != null && !order_cache.isEmpty()) {
+                        order_id = order_cache;
+                        params.put("order_id", order_id);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return params;
+            }
+        };
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+                3,
+                2));
+        requestQueue.add(stringRequest);
+    }
+
+    private void getMedicineList() {
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.GET,
+                "http://54.161.199.63:8080/distributor/get_medicine/?distributor_id=1",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+
+                            String message = JsonUtils.getJsonValueFromKey(jsonObject, "message");
+                            if (message.equals("Medicines Found")) {
+
+                                JSONArray medicine = jsonObject.getJSONArray("medicines");
+
+                                medicine1 = new ArrayList<>();
+                                medicineAuto = new ArrayList<>();
+                                MedicineDataList = new ArrayList<>();
+
+                                for (int i = 0; i < medicine.length(); i++) {
+
+                                    JSONObject c = medicine.getJSONObject(i);
+
+                                    if (JsonUtils.getIntegerValueFromJsonKey(c, "mrp") != 0) {
+
+                                        Log.d(TAG, "onResponse: " + JsonUtils.getIntegerValueFromJsonKey(c, "ptr"));
+
+                                        MedicineDataList.add(new Medicine(
+                                                JsonUtils.getJsonValueFromKey(c, "Item_name"),
+                                                JsonUtils.getJsonValueFromKey(c, "manfc_name"),
+                                                JsonUtils.getIntegerValueFromJsonKey(c, "ptr"),
+                                                JsonUtils.getJsonValueFromKey(c, "id"),
+                                                JsonUtils.getJsonValueFromKey(c, "item_code"),
+                                                JsonUtils.getIntegerValueFromJsonKey(c, "qty"),
+                                                JsonUtils.getJsonValueFromKey(c, "packing"),
+                                                JsonUtils.getIntegerValueFromJsonKey(c, "mrp"),
+                                                JsonUtils.getJsonValueFromKey(c, "scheme"),
+                                                JsonUtils.getJsonValueFromKey(c, "discount"),
+                                                JsonUtils.getJsonValueFromKey(c, "offer_qty")
+
+                                        ));
+
+                                        medicineAuto.add(new MedicineAuto(JsonUtils.getJsonValueFromKey(c, "Item_name"),
+                                                JsonUtils.getJsonValueFromKey(c, "manfc_name"),
+                                                JsonUtils.getIntegerValueFromJsonKey(c, "ptr"),
+                                                JsonUtils.getJsonValueFromKey(c, "scheme"),
+                                                JsonUtils.getJsonValueFromKey(c, "discount"),
+                                                JsonUtils.getJsonValueFromKey(c, "offer_qty"),
+                                                JsonUtils.getJsonValueFromKey(c, "packing")));
+                                        medicine1.add(JsonUtils.getJsonValueFromKey(c, "Item_name"));
+
+                                    }
+                                }
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        materialCardView.setVisibility(View.INVISIBLE);
+
+                        if (medicineAuto != null) {
+                            medicineAdapter = new AutoCompleteAdapter(PlaceOrderActivity.this, MedicineDataList);
+                            mMedicineList.setAdapter(medicineAdapter);
+                            mMedicineList.setEnabled(true);
+                        }
+                        Gson gson = new Gson();
+                        String json = gson.toJson(MedicineDataList);
+                        SharedPreferences.Editor editor = mSharedPreferences.edit();
+                        editor.putString("saved_medi", json);
+                        editor.apply();
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(PlaceOrderActivity.this, "Now You Can Choose Medicine", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        addSalesPersonDetailsToNavDrawer();
+                        isLoading = false;
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        materialCardView.setVisibility(View.INVISIBLE);
+                        showVolleyError(error);
+                    }
+                }
+        );
+
+        if (!isLoading) {
+            isLoading = true;
+
+            materialCardView.setVisibility(View.VISIBLE);
+            stringRequest.setRetryPolicy(new DefaultRetryPolicy(60000,
+                    0,
+                    2));
+            requestQueue.add(stringRequest);
+        }
     }
 
 }

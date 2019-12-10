@@ -4,14 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_gravity="center"
     app:cardElevation="6dp"
-    android:layout_margin="10dp"
+    app:cardCornerRadius="6dp"
     android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp">
+        android:orientation="vertical">
 
         <ImageView
             android:visibility="gone"
@@ -25,6 +24,8 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:textColor="#000"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:text="Congratulations !"
             android:gravity="center"
             android:layout_width="match_parent"
@@ -32,20 +33,28 @@
 
 
         <TextView
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
-            android:textColor="#000"
+            android:textColor="#D0000000"
             android:text="Your have successfully registered"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
         <TextView
+            android:textSize="14sp"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
             android:textColor="#000"
+            android:layout_marginBottom="10dp"
             android:text="@string/please_find_below_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <TextView
+            android:layout_marginLeft="10dp"
             android:id="@+id/code"
+            android:drawablePadding="10dp"
             android:drawableLeft="@drawable/ic_person_bluec_24dp"
             android:layout_marginTop="10dp"
             android:textColor="@color/colorPrimary"
@@ -55,30 +64,33 @@
             android:layout_height="wrap_content" />
 
         <TextView
+            android:layout_marginLeft="10dp"
             android:id="@+id/phone"
+            android:drawablePadding="10dp"
             android:drawableLeft="@drawable/ic_phone_in_talk_black_24dp"
             android:layout_marginTop="10dp"
             android:textColor="@color/colorPrimary"
             android:textSize="12sp"
-            android:text="  Your Regd Mobile Number: "
+            android:text="Your Regd Mobile Number: "
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <TextView
+            android:layout_marginLeft="10dp"
             android:id="@+id/email"
+            android:drawablePadding="10dp"
             android:drawableLeft="@drawable/ic_email_black_24dp"
             android:layout_marginTop="10dp"
             android:textColor="@color/colorPrimary"
             android:textSize="12sp"
-            android:text="  Your Regd Email Address: "
+            android:text="Your Regd Email Address: "
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
 
         <Button
-            android:drawableLeft="@drawable/ic_double_left_chevron"
             android:paddingLeft="15dp"
-            android:layout_width="120dp"
+            android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_marginTop="10dp"
             android:layout_gravity="center"

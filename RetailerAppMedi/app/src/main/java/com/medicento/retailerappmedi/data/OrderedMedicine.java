@@ -11,8 +11,32 @@ public class OrderedMedicine implements Serializable {
     private float mCost;
     private int stock;
     private String packing;
-    private int mrp;
+    private float mrp;
     private String scheme;
+    private String discount, offer_qty;
+
+    public String getDiscount() {
+        return discount;
+    }
+
+    public String getOffer_qty() {
+        return offer_qty;
+    }
+
+    public OrderedMedicine(String mMedicineName, String mMedicineCompany, int mQty, float mRate, String code, float mCost, int stock, String packing, float mrp, String scheme, String discount, String offer_qty) {
+        this.mMedicineName = mMedicineName;
+        this.mMedicineCompany = mMedicineCompany;
+        this.mQty = mQty;
+        this.mRate = mRate;
+        this.code = code;
+        this.mCost = mCost;
+        this.stock = stock;
+        this.packing = packing;
+        this.mrp = mrp;
+        this.scheme = scheme;
+        this.discount = discount;
+        this.offer_qty = offer_qty;
+    }
 
     public OrderedMedicine(String mMedicineName, String mMedicineCompany, int mQty, float mRate, String code, float mCost, int stock, String packing) {
         this.mMedicineName = mMedicineName;
@@ -25,7 +49,7 @@ public class OrderedMedicine implements Serializable {
         this.packing = packing;
     }
 
-    public OrderedMedicine(String mMedicineName, String mMedicineCompany, int mQty, float mRate, String code, float mCost, int stock, String packing, int mrp, String scheme) {
+    public OrderedMedicine(String mMedicineName, String mMedicineCompany, int mQty, float mRate, String code, float mCost, int stock, String packing, float mrp, String scheme) {
         this.mMedicineName = mMedicineName;
         this.mMedicineCompany = mMedicineCompany;
         this.mQty = mQty;
@@ -38,7 +62,7 @@ public class OrderedMedicine implements Serializable {
         this.scheme = scheme;
     }
 
-    public int getMrp() {
+    public float getMrp() {
         return mrp;
     }
 

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:padding="10dp"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="What's making you cancel the order ?"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
+        android:text="Before cancelling, let us know why you're leaving. Your response may be shared with the team." />
+
+    <RelativeLayout
+        android:paddingRight="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="165dp">
+
+        <RadioGroup
+            android:id="@+id/reason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/behaviour_delivery"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Behaviour of the  Delivery Person."
+                android:textSize="13sp" />
+
+            <RadioButton
+                android:id="@+id/better_discounts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="I found Better Discounts."
+                android:textSize="13sp" />
+
+            <RadioButton
+                android:id="@+id/technical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Technical Issues."
+                android:textSize="13sp" />
+
+            <RadioButton
+                android:id="@+id/late_delivery"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Late Delivery."
+                android:textSize="13sp" />
+
+            <RadioButton
+                android:id="@+id/other"
+                android:layout_width="27dp"
+                android:layout_height="wrap_content" />
+
+        </RadioGroup>
+
+        <EditText
+            android:layout_marginLeft="27dp"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/other_reasons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Other"
+            android:textSize="13sp" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:weightSum="2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <Button
+            android:id="@+id/back"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_toLeftOf="@id/cancel_order"
+            android:background="@color/colorPrimary"
+            android:drawableLeft="@drawable/ic_double_left_chevron"
+            android:minHeight="0dp"
+            android:padding="5dp"
+            android:text="Back"
+            android:textColor="@color/white" />
+
+
+        <Button
+            android:id="@+id/cancel_order"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@color/red"
+            android:drawablePadding="10dp"
+            android:minHeight="0dp"
+            android:padding="5dp"
+            android:text="Submit"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

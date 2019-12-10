@@ -68,6 +68,18 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
         return mMedicinesList.size();
     }
 
+    public boolean checkMedicineQuantity(Medicine medicine) {
+        for (int i = 0; i < mMedicinesList.size(); i++) {
+            OrderedMedicine med = mMedicinesList.get(i);
+            if(med.getMedicineName().equals(medicine.getMedicentoName())) {
+                if(med.getStock() > medicine.getMstock()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public void add(OrderedMedicine medicine) {
         for (OrderedMedicine med: mMedicinesList) {
             if (medicine.getMedicineName().equals(med.getMedicineName())) {
@@ -85,6 +97,12 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
                 }
             }
         }
+        mMedicinesList.add(0, medicine);
+        mOverallCost += medicine.getCost();
+        notifyItemInserted(0);
+    }
+
+    public void addMedicines(OrderedMedicine medicine) {
         mMedicinesList.add(0, medicine);
         mOverallCost += medicine.getCost();
         notifyItemInserted(0);
@@ -135,11 +153,20 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
             OrderedMedicine medicine = mMedicinesList.get(pos);
             MedName.setText(medicine.getMedicineName());
             MedCompany.setText(medicine.getMedicineCompany());
-            MedRate.setText("PTR : "+"\u20B9"+medicine.getCost() + "");
+            MedRate.setText("PTR : "+"\u20B9"+medicine.getRate() + "");
             MedCost.setText("Packing : "+medicine.getPacking() + "");
             MedQty.setText(medicine.getQty() + "");
             stock.setText("Stock" + medicine.getStock());
-            scheme.setText("Scheme : " + medicine.getScheme());
+            scheme.setText("Scheme : " + medicine.getOffer_qty());
+            try {
+                if(medicine.getScheme().isEmpty()) {
+                    if(!medicine.getDiscount().isEmpty()) {
+                        scheme.setText("Scheme : "+medicine.getOffer_qty() +"");
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -149,7 +176,7 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
                for (int i = 0; i < mMedicinesList.size(); i++) {
                    OrderedMedicine med = mMedicinesList.get(i);
                    if (med.getMedicineName().equals(mMedicinesList.get(pos).getMedicineName())) {
-                       if(med.getStock() <= 0) {
+                       if(med.getStock()+100 <= 0) {
 
                            final Dialog dialog1 = new Dialog(context);
                            dialog1.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -177,8 +204,8 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
                        med.setStock(stock);
                        mMedicinesList.set(i, med);
                        mOverallCost += med.getRate();
-                       if (mOverallCostChangeListener != null) mOverallCostChangeListener.onCostChanged(mOverallCost,1, "add");
                        notifyDataSetChanged();
+                       if (mOverallCostChangeListener != null) mOverallCostChangeListener.onCostChanged(mOverallCost,1, "add");
                        return;
                    }
                }
@@ -203,6 +230,7 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
                        med.setCost(cost);
                        mMedicinesList.set(i, med);
                        notifyDataSetChanged();
+                       if (mOverallCostChangeListener != null) mOverallCostChangeListener.onCostChanged(mOverallCost, 1,"sub");
                        return;
                    }
                }
@@ -217,6 +245,14 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
 
     public interface OverallCostChangeListener {
         void onCostChanged(float newCost, int qty,String type);
+    }
+
+    public Float getTotalCost() {
+        Float cost = 0f;
+        for (OrderedMedicine med: mMedicinesList) {
+            cost += med.getCost();
+        }
+        return cost;
     }
 
 }

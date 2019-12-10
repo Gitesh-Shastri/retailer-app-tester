@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:keepScreenOn="true"
+    android:layout_height="match_parent"
+    tools:context=".activity.DidntFindMedicineActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Just type in your medicine name and quantity.We will try arranging it from distributors of the city and will update if available."
+            android:textColor="@color/colorGreenDark"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_marginBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:text="Medicine name"
+            android:textColor="@color/black" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp">
+
+            <EditText
+                android:layout_marginLeft="10dp"
+                android:id="@+id/medicines_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:hint="Enter your medicine name"
+                android:layout_marginRight="5dp"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/submit"
+                android:padding="5dp"
+                android:textSize="14sp" />
+
+            <Button
+                android:layout_centerVertical="true"
+                android:id="@+id/submit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/border_curved"
+                android:minWidth="100dp"
+                android:minHeight="0dp"
+                android:padding="5dp"
+                android:text="Submit"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+        </RelativeLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_marginTop="10dp"
+            android:id="@+id/didnt_find_rv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/place_order"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#b22828"
+        android:text="Place Order"
+        android:textAllCaps="false"
+        android:textColor="@color/white" />
+
+</RelativeLayout>

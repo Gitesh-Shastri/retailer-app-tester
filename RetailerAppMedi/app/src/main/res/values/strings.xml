@@ -17,6 +17,14 @@
         <item>Abbott Laboratories</item>
         <item>MediShop</item>
     </string-array>
+    <string-array name="select_reason">
+        <item>Select return reason</item>
+        <item>Items were damaged.</item>
+        <item>Issue with scheme/discount</item>
+        <item>I found a better scheme/discount.</item>
+        <item>Unmatched Item.</item>
+        <item>Items were already expired</item>
+    </string-array>
     <string-array name="area">
         <item>Select Area</item>
         <item>100 Feet Ring Road</item>
@@ -80,10 +88,10 @@
     <string name="by_joining_you_agree_to_medicento_s">By joining you agree to Medicento\'s</string>
     <string name="terms_of_service">Terms of Service</string>
     <string name="pharmacy_registration">Pharmacy Registration</string>
-    <string name="alreday_have_an_promocode_login_here">Already Have a Pharmacode?</string>
+    <string name="alreday_have_an_promocode_login_here">Already have a Pharmacode?</string>
     <string name="create_account">Create Account</string>
     <string name="by_clicking_create_account_you_agree_to_the_medicento">By Clicking Create Account, You Agree to the</string>
-    <string name="ruppe_symbol">₹</string>
+    <string name="ruppe_symbol">Rs.</string>
     <string name="pharmacode">pharmacode :</string>
     <string name="order_mode"><b>Order Mode</b>: Retailer App</string>
     <string name="order_person_name"><b>Order Person</b></string>
@@ -93,5 +101,8 @@
     <string name="new_version_is_available_n_please_update_app">New Version is available.\nPlease Update App</string>
     <string name="we_couldn_t_find_your_email_id_mobile_no">We Couldn\'t find your \n Email ID/ Mobile No.</string>
     <string name="please_re_enter_or_get_in_touch_with_us_at_91_9731785240">Please Re-enter or get in \n touch with us at (+91)-9731785240</string>
-
+    <string name="already_have_a_pharmacode">Already Have a PharmaCode?</string>
+    <string name="login_here">LOGIN HERE</string>
+    <string name="oops_nno_internet">OOPS! No Internet</string>
+    <string name="oops_seems_your_internet_connection_is_too_slow_please_wait_for_a_moment_and_retry_enjoying_your_favorite_app">Oops, seems your internet connection is too slow, Please wait for a moment and retry enjoying your favorite app.</string>
 </resources>

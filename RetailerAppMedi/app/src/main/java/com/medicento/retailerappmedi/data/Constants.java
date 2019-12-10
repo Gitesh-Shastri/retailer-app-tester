@@ -5,17 +5,18 @@ public class Constants {
 
     public static final String SHARED_PREFS = "sharedPrefs";
 
-    public static final String AREA_FETCH_URL = "https://retailer-app-api.herokuapp.com/area";
+    public static final String AREA_FETCH_URL = "https://retailer-app-api.herokuapp.com/area/area_by_name";
+    public static final String STATE_FETCH_URL = "https://retailer-app-api.herokuapp.com/area/get_states";
     public static final String CREATE_ACCOUNT_URL = "https://retailer-app-api.herokuapp.com/user/login";
 
     public static final String USER_LOGIN_URL = "https://medicento-api.herokuapp.com/user/login";
     public static final String MEDICINE_DATA_URL = "https://medicento-api.herokuapp.com/product/medimap";
-    public static final String PLACE_ORDER_URL = "https://medicento-api.herokuapp.com/product/neworder";
+    public static final String PLACE_ORDER_URL = "http://medicento-api.herokuapp.com/product/neworder";
 
     public static final int RC_SIGN_IN = 123;
 
     public static final String SALE_PHARMAID = "pharmaid";
-    public static final String VERSION = "2.2.4";
+    public static final String VERSION = "2.3.6";
     public static final String SALE_PERSON_ID = "sales";
     public static final String SALE_PHAMA_CODE = "pharmacode";
     public static final String SALE_PHARMA_NAME = "Name";

@@ -2,6 +2,8 @@ package com.medicento.retailerappmedi;
 
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,12 +34,14 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CanceledFragment extends Fragment {
+public class CanceledFragment extends Fragment{
     private static String url = "";
 
     private static OrderAdapterDelivered mOrder;
     RecyclerView iv;
     View view;
+
+    private Context context;
 
     public CanceledFragment() {
         // Required empty public constructor
@@ -57,6 +61,7 @@ public class CanceledFragment extends Fragment {
                 iv = (RecyclerView) view.findViewById(R.id.listview3);
                 iv.setLayoutManager(new LinearLayoutManager(getActivity()));
                 iv.setHasFixedSize(true);
+        context = inflater.getContext();
 
                 mOrder = new OrderAdapterDelivered(orders);
                 iv.setAdapter(mOrder);

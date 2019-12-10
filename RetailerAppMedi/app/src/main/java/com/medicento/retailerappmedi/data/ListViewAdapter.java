@@ -31,12 +31,15 @@ public class ListViewAdapter extends ArrayAdapter<MenuItems> {
 
         TextView tvName = (TextView) convertView.findViewById(R.id.text);
 
+        TextView description = (TextView) convertView.findViewById(R.id.description);
+
+
         // Populate the data into the template view using the data object
 
         tvName.setText(menuItems.getName());
 
         imageView.setImageDrawable(menuItems.getDrawable());
-
+        description.setText(menuItems.description);
 
         // Return the completed view to render on screen
 

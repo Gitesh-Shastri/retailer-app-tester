@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relative"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingRight="20dp"
-    android:id="@+id/relative"
     android:paddingLeft="20dp"
+    android:paddingRight="20dp"
     tools:context=".Register">
 
     <TextView
+        android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:id="@+id/text"
-        android:textSize="16sp"
-        android:textStyle="bold"
+        android:gravity="center"
         android:text="@string/pharmacy_registration"
         android:textColor="@color/colorAccent"
-        android:gravity="center" />
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -31,175 +31,232 @@
             android:orientation="vertical">
 
             <EditText
-                android:inputType="textCapWords"
-                android:textSize="13sp"
+                android:textColorHint="@color/black"
+                android:textColor="#000"
+                android:id="@+id/shop_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Shop Name *"
-                android:id="@+id/shop_name"
+                android:inputType="textCapWords"
                 android:maxLines="1"
-                />
+                android:textSize="13sp" />
 
 
-            <Spinner
-                android:textSize="11sp"
-                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+            <RelativeLayout
+                android:layout_centerVertical="true"
+                android:layout_width="match_parent"
+                android:background="@drawable/outline_spinner"
+                android:padding="10dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/state_spinner"
-                />
+                android:layout_height="wrap_content">
 
             <Spinner
-                android:textSize="11sp"
-                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                android:textSize="10sp"
+                android:id="@+id/state_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_centerVertical="true"
+                android:layout_width="match_parent"
+                android:background="@drawable/outline_spinner"
+                android:padding="10dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
+                android:layout_height="wrap_content">
+
+            <Spinner
+                android:textSize="10sp"
+                android:id="@+id/city_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/city_spinner"
-                />
+                android:layout_marginBottom="5dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_centerVertical="true"
+                android:layout_width="match_parent"
+                android:background="@drawable/outline_spinner"
+                android:padding="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_height="wrap_content">
+
+            <Spinner
+                android:textSize="10sp"
+                android:id="@+id/area_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp" />
+
+            </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-
-                <Spinner
-                    style="@style/Base.Widget.AppCompat.Spinner.Underlined"
-                    android:textSize="11sp"
-                    android:layout_marginBottom="5dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/area_spinner"
-                    android:layout_toLeftOf="@+id/add"
-                    android:layout_marginRight="5dp"
-                    />
+                android:layout_height="wrap_content"
+                android:visibility="gone">
 
                 <Button
                     android:id="@+id/add"
-                    android:layout_centerVertical="true"
-                    android:drawableLeft="@drawable/ic_add_plus"
-                    android:layout_alignParentRight="true"
                     android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
                     android:background="@android:color/transparent"
-                    android:layout_height="20dp" />
+                    android:drawableLeft="@drawable/ic_add_plus" />
 
             </RelativeLayout>
 
 
-
             <EditText
-                android:inputType="textCapWords"
-                android:textSize="13sp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:textColorHint="@color/black"
+                android:textColor="#000"
                 android:id="@+id/shop_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:hint="Address *"
-                android:maxLines="1"
-                />
-
-
-            <EditText
-                android:textSize="13sp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/owner_pincode"
-                android:hint="Pincode"
-                android:inputType="number"
-                android:maxLines="1"
-                />
-
-            <EditText
                 android:inputType="textCapWords"
-                android:textSize="13sp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/owner_name"
-                android:hint="Owner Name"
                 android:maxLines="1"
-                />
+                android:textSize="13sp" />
 
-            <EditText
-                android:textSize="13sp"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/phone_number"
-                android:hint="Phone Number *"
-                android:inputType="phone"
-                />
+                android:orientation="horizontal"
+                android:weightSum="2">
 
-            <EditText
-                android:textSize="13sp"
-                android:hint="Email Address *"
-                android:id="@+id/email"
-                android:inputType="textEmailAddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                <EditText
+                    android:textColorHint="@color/black"
+                    android:textColor="#000"
+                    android:id="@+id/owner_pincode"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Pincode"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="13sp" />
 
-            <EditText
-                android:textSize="13sp"
+                <EditText
+                    android:textColorHint="@color/black"
+                    android:textColor="#000"
+                    android:id="@+id/owner_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Owner Name"
+                    android:inputType="textCapWords"
+                    android:maxLines="1"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <EditText
+                    android:textColorHint="@color/black"
+                    android:maxLength="10"
+                    android:id="@+id/phone_number"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:hint="Phone Number *"
+                    android:inputType="phone"
+                    android:textSize="13sp" />
+
+                <EditText
+                    android:textColorHint="@color/black"                    android:textColor="#000"
+                    android:id="@+id/email"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:hint="Email Address *"
+                    android:inputType="textEmailAddress"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <EditText
+                android:textColorHint="@color/black"
+                android:textColor="#000"
                 android:id="@+id/drug_license"
-                android:maxLines="1"
-                android:inputType="textCapWords"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:hint="Drug License Number *"
-                />
+                android:inputType="textCapWords"
+                android:maxLines="1"
+                android:textSize="13sp" />
 
             <EditText
-                android:textSize="13sp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:textColorHint="@color/black"
                 android:id="@+id/gst_license"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:hint="GST Number *"
                 android:inputType="text"
                 android:maxLines="1"
-                />
+                android:textSize="13sp" />
+
+        </LinearLayout>
 
         </LinearLayout>
 
     </ScrollView>
 
     <TextView
-        android:gravity="center"
+        android:textColor="#000"
+        android:id="@+id/agree"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/agree"
         android:layout_above="@+id/termsOfService_l"
         android:layout_marginBottom="10dp"
-        android:text="@string/by_clicking_create_account_you_agree_to_the_medicento"
-        />
+        android:gravity="center"
+        android:text="@string/by_clicking_create_account_you_agree_to_the_medicento" />
 
     <LinearLayout
-        android:weightSum="10"
         android:id="@+id/termsOfService_l"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_above="@id/create"
-        android:layout_height="wrap_content">
+        android:weightSum="10">
 
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="5"
-            />
+            android:layout_weight="5" />
 
         <TextView
-            android:layout_toLeftOf="@id/termsOfService"
-            android:text="Medicento's "
             android:id="@+id/label"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/termsOfService"
+            android:text="Medicento's " />
 
         <Button
-            android:layout_centerHorizontal="true"
+            android:id="@+id/termsOfService"
             android:layout_width="wrap_content"
             android:layout_height="20dp"
-            android:id="@+id/termsOfService"
-            android:background="@android:color/transparent"
-            android:text="@string/terms_of_service"
-            android:gravity="center"
+            android:layout_centerHorizontal="true"
             android:layout_marginBottom="10dp"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:text="@string/terms_of_service"
             android:textColor="#0000ff"
             android:textSize="12sp" />
 
@@ -209,13 +266,12 @@
         android:id="@+id/create"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:text="@string/create_account"
         android:layout_above="@id/login_l"
-        android:layout_marginBottom="10dp"
         android:layout_centerInParent="true"
-        android:textColor="@color/white"
+        android:layout_marginBottom="10dp"
         android:background="@color/official_color"
-        />
+        android:text="@string/create_account"
+        android:textColor="@color/white" />
 
     <LinearLayout
         android:id="@+id/login_l"
@@ -228,20 +284,18 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="20dp"
-            android:text="@string/alreday_have_an_promocode_login_here"
-            />
+            android:text="@string/alreday_have_an_promocode_login_here" />
 
         <Button
-            android:background="@android:color/transparent"
+            android:id="@+id/login"
             android:layout_width="wrap_content"
             android:layout_height="20dp"
-            android:textSize="12sp"
-            android:id="@+id/login"
-            android:text="Login Here"
-            android:textColor="#060BF0"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="20dp"
-            />
+            android:background="@android:color/transparent"
+            android:text="Login Here"
+            android:textColor="#060BF0"
+            android:textSize="12sp" />
     </LinearLayout>
 
 

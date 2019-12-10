@@ -9,50 +9,48 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:padding="5dp"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:padding="5dp">
 
         <TextView
-            android:layout_marginTop="5dp"
-            android:layout_marginStart="4dp"
             android:id="@+id/medicine_name"
             android:layout_width="match_parent"
-            android:layout_toLeftOf="@id/medicine_quantity"
             android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="5dp"
+            android:layout_toLeftOf="@id/medicine_quantity"
             android:textColor="@color/colorPrimaryDark"
-            android:textStyle="bold"
-            tools:text="Medicine" />
+            android:textStyle="bold" />
 
         <TextView
-            android:layout_marginTop="5dp"
-            android:layout_marginStart="4dp"
             android:id="@+id/medicine_company"
-            android:layout_toLeftOf="@id/medicine_cost"
-            android:layout_below="@id/medicine_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorPrimary"
-            tools:text="Company" />
+            android:layout_below="@id/medicine_name"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="5dp"
+            android:layout_toLeftOf="@id/medicine_cost"
+            android:textColor="@color/colorPrimary" />
 
         <TextView
-            android:layout_alignParentRight="true"
-            android:layout_marginLeft="5dp"
             android:id="@+id/medicine_quantity"
             android:layout_width="wrap_content"
-            android:textColor="#000"
             android:layout_height="wrap_content"
-            tools:text="Qty : 123" />
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="5dp"
+            android:textColor="#000"
+            tools:text="Qty : " />
 
         <TextView
-            android:layout_marginTop="5dp"
-            android:textColor="@color/colorGreen"
             android:id="@+id/medicine_cost"
-            android:layout_below="@id/medicine_quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/medicine_quantity"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            tools:text=" ₹ 123"/>
+            android:layout_marginTop="5dp"
+            android:textColor="@color/colorGreen"
+            tools:text=" Rs. " />
 
     </RelativeLayout>
 

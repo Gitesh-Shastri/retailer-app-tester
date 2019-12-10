@@ -33,8 +33,8 @@ public class RecentOrderItems extends RecyclerView.Adapter<RecentOrderItems.View
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
 
         viewHolder.name.setText(mRecentOrderItems.get(i).getName());
-        viewHolder.price.setText(mRecentOrderItems.get(i).getPrice());
-        viewHolder.qty.setText(mRecentOrderItems.get(i).getQty());
+        viewHolder.price.append(mRecentOrderItems.get(i).getPrice());
+        viewHolder.qty.append(mRecentOrderItems.get(i).getQty());
 
     }
 
@@ -51,7 +51,7 @@ public class RecentOrderItems extends RecyclerView.Adapter<RecentOrderItems.View
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.medicine_name);
-            qty = itemView.findViewById(R.id.medicine_qty);
+            qty = itemView.findViewById(R.id.medicine_quantity);
             price = itemView.findViewById(R.id.medicine_cost);
         }
     }
