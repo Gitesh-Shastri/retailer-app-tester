@@ -200,6 +200,8 @@ public class PlaceOrderActivity extends AppCompatActivity implements
     RecyclerView ordered_medicines_list_rv;
     MedicineSearchAdapter medicineSearchAdapter;
 
+    JSONObject jsonObject;
+
     @Override
     public void onBackPressed() {
         dialog_app_exit = new Dialog(this);
@@ -326,7 +328,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements
             }
         }
         date = dateFormat.format(today);
-        order_date.setText("Expected Delivery: "+date + " " + slot1);
+        order_date.setText("" + date + " " + slot1);
 
         choose_slot = findViewById(R.id.choose);
 
@@ -640,9 +642,17 @@ public class PlaceOrderActivity extends AppCompatActivity implements
                 setCount(PlaceOrderActivity.this);
                 Gson gson = new Gson();
                 String json = gson.toJson(mOrderedMedicineAdapter.getList());
-                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                editor.putString("saved_medicine", json);
-                editor.apply();
+                if (jsonObject == null) {
+                    jsonObject = new JSONObject();
+                }
+                try {
+                    jsonObject.put(sp.getmAllocatedPharmaId(), json);
+                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                    editor.putString("saved_medicine_pharma", jsonObject.toString());
+                    editor.apply();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 mOrderedMedicinesListView.smoothScrollToPosition(0);
                 saveOrder();
             }
@@ -669,9 +679,17 @@ public class PlaceOrderActivity extends AppCompatActivity implements
                 setCount(PlaceOrderActivity.this);
                 Gson gson = new Gson();
                 String json = gson.toJson(mOrderedMedicineAdapter.getList());
-                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                editor.putString("saved_medicine", json);
-                editor.apply();
+                if (jsonObject == null) {
+                    jsonObject = new JSONObject();
+                }
+                try {
+                    jsonObject.put(sp.getmAllocatedPharmaId(), json);
+                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                    editor.putString("saved_medicine_pharma", jsonObject.toString());
+                    editor.apply();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }).attachToRecyclerView(mOrderedMedicinesListView);
         mAnimation = new AlphaAnimation(1, 0);
@@ -692,50 +710,72 @@ public class PlaceOrderActivity extends AppCompatActivity implements
             if (mOrderedMedicineAdapter != null) {
 
                 gson = new Gson();
-                String json1 = gson.toJson(new ArrayList<OrderedMedicine>());
-                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                editor.putString("saved_medicine", json1);
-                editor.apply();
+                String json = gson.toJson(mOrderedMedicineAdapter.getList());
+                if (jsonObject == null) {
+                    jsonObject = new JSONObject();
+                }
+                try {
+                    jsonObject.put(sp.getmAllocatedPharmaId(), json);
+                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                    editor.putString("saved_medicine_pharma", jsonObject.toString());
+                    editor.apply();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
                 mOrderedMedicineAdapter.reset();
 
                 ArrayList<OrderItem> orderItems = (ArrayList<OrderItem>) getIntent().getSerializableExtra("re_order_items");
 
-                for (OrderItem orderItem : orderItems) {
-                    for (Medicine med : MedicineDataList) {
-                        if (med.getMedicentoName().equals(orderItem.getName()) && med.getCompanyName().equals(orderItem.getCompany())) {
-                            mOrderedMedicineAdapter.add(new OrderedMedicine(med.getMedicentoName(),
-                                    med.getCompanyName(),
-                                    orderItem.getQty(),
-                                    med.getPrice(),
-                                    med.getCode(),
-                                    orderItem.getQty() * med.getPrice(),
-                                    med.getMstock(),
-                                    med.getPacking(),
-                                    med.getMrp(),
-                                    med.getScheme(),
-                                    med.getDiscount(),
-                                    med.getOffer_qty()));
-                            float cost;
-                            try {
-                                cost = Float.parseFloat(mTotalTv.getText().toString().substring(1));
-                            } catch (Exception e) {
-                                cost = 0;
-                                e.printStackTrace();
+                final String json1 = mSharedPreferences.getString("medicines_saved", null);
+                Type type = new TypeToken<ArrayList<Medicine>>() {
+                }.getType();
+                if (json1 != null) {
+                    MedicineDataList = new Gson().fromJson(json1, type);
+
+                    for (OrderItem orderItem : orderItems) {
+                        for (Medicine med : MedicineDataList) {
+                            if (med.getMedicentoName().equals(orderItem.getName()) && med.getCompanyName().equals(orderItem.getCompany())) {
+                                mOrderedMedicineAdapter.add(new OrderedMedicine(med.getMedicentoName(),
+                                        med.getCompanyName(),
+                                        orderItem.getQty(),
+                                        med.getPrice(),
+                                        med.getCode(),
+                                        orderItem.getQty() * med.getPrice(),
+                                        med.getMstock(),
+                                        med.getPacking(),
+                                        med.getMrp(),
+                                        med.getScheme(),
+                                        med.getDiscount(),
+                                        med.getOffer_qty()));
+                                float cost;
+                                try {
+                                    cost = Float.parseFloat(mTotalTv.getText().toString().substring(1));
+                                } catch (Exception e) {
+                                    cost = 0;
+                                    e.printStackTrace();
+                                }
+                                float overall = cost + orderItem.getQty() * med.getPrice();
+                                mTotalTv.setText(String.format("Rs.%.2f", overall));
+                                count += 1;
+                                setCount(PlaceOrderActivity.this);
+
+                                gson = new Gson();
+                                json = gson.toJson(mOrderedMedicineAdapter.getList());
+                                if (jsonObject == null) {
+                                    jsonObject = new JSONObject();
+                                }
+                                try {
+                                    jsonObject.put(sp.getmAllocatedPharmaId(), json);
+                                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                    editor.putString("saved_medicine_pharma", jsonObject.toString());
+                                    editor.apply();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                mOrderedMedicinesListView.smoothScrollToPosition(0);
+                                break;
                             }
-                            float overall = cost + orderItem.getQty() * med.getPrice();
-                            mTotalTv.setText(String.format("Rs.%.2f", overall));
-                            count += 1;
-                            setCount(PlaceOrderActivity.this);
-
-                            gson = new Gson();
-                            String json = gson.toJson(mOrderedMedicineAdapter.getList());
-                            editor = mSharedPreferences.edit();
-                            editor.putString("saved_medicine", json);
-                            editor.apply();
-
-                            mOrderedMedicinesListView.smoothScrollToPosition(0);
-                            break;
                         }
                     }
                 }
@@ -932,9 +972,17 @@ public class PlaceOrderActivity extends AppCompatActivity implements
     public void onCostChanged(float newCost, int qty, String type) {
         Gson gson = new Gson();
         String json = gson.toJson(mOrderedMedicineAdapter.getList());
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putString("saved_medicine", json);
-        editor.apply();
+        if (jsonObject == null) {
+            jsonObject = new JSONObject();
+        }
+        try {
+            jsonObject.put(sp.getmAllocatedPharmaId(), json);
+            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            editor.putString("saved_medicine_pharma", jsonObject.toString());
+            editor.apply();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         setCount(PlaceOrderActivity.this);
     }
 
@@ -986,9 +1034,17 @@ public class PlaceOrderActivity extends AppCompatActivity implements
         setCount(PlaceOrderActivity.this);
         Gson gson = new Gson();
         String json = gson.toJson(mOrderedMedicineAdapter.getList());
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putString("saved_medicine", json);
-        editor.apply();
+        if (jsonObject == null) {
+            jsonObject = new JSONObject();
+        }
+        try {
+            jsonObject.put(sp.getmAllocatedPharmaId(), json);
+            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            editor.putString("saved_medicine_pharma", jsonObject.toString());
+            editor.apply();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         mOrderedMedicinesListView.smoothScrollToPosition(0);
         medicineResponses.clear();
         medicineSearchAdapter.notifyDataSetChanged();
@@ -1379,17 +1435,38 @@ public class PlaceOrderActivity extends AppCompatActivity implements
             startActivity(intent);
         } else {
             Gson gson = new Gson();
-            final String json = mSharedPreferences.getString("saved_medicine", null);
-            Type type = new TypeToken<ArrayList<OrderedMedicine>>() {
-            }.getType();
-            ArrayList<OrderedMedicine> medicineDataList = gson.fromJson(json, type);
-            if (medicineDataList != null) {
-                if (mOrderedMedicineAdapter != null) {
-                    mOrderedMedicineAdapter.reset();
-                    for (OrderedMedicine orderedMedicine : medicineDataList) {
-                        mOrderedMedicineAdapter.addMedicines(orderedMedicine);
+            final String json = mSharedPreferences.getString("saved_medicine_pharma", null);
+            if (json == null) {
+                jsonObject = new JSONObject();
+                try {
+                    jsonObject.put(sp.getmAllocatedPharmaId(), "");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    jsonObject = new JSONObject(json);
+                    if (jsonObject.has(sp.getmAllocatedPharmaId())) {
+                        try {
+                            String data = jsonObject.getString(sp.getmAllocatedPharmaId());
+                            Type type = new TypeToken<ArrayList<OrderedMedicine>>() {
+                            }.getType();
+                            ArrayList<OrderedMedicine> medicineDataList = gson.fromJson(data, type);
+                            if (medicineDataList != null) {
+                                if (mOrderedMedicineAdapter != null) {
+                                    mOrderedMedicineAdapter.reset();
+                                    for (OrderedMedicine orderedMedicine : medicineDataList) {
+                                        mOrderedMedicineAdapter.addMedicines(orderedMedicine);
+                                    }
+                                    mOrderedMedicineAdapter.setOverallCostChangeListener(this);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    mOrderedMedicineAdapter.setOverallCostChangeListener(this);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -1534,10 +1611,10 @@ public class PlaceOrderActivity extends AppCompatActivity implements
                         }
 
                         try {
-                            JSONObject jsonObject = new JSONObject(response);
+                            JSONObject jsonObject1 = new JSONObject(response);
 
-                            String message = JsonUtils.getJsonValueFromKey(jsonObject, "message");
-                            String order_id = JsonUtils.getJsonValueFromKey(jsonObject, "order_id");
+                            String message = JsonUtils.getJsonValueFromKey(jsonObject1, "message");
+                            String order_id = JsonUtils.getJsonValueFromKey(jsonObject1, "order_id");
 
                             if (message.equals("Order Placed")) {
                                 Intent intent = new Intent(PlaceOrderActivity.this, OrderConfirmed.class);
@@ -1552,10 +1629,26 @@ public class PlaceOrderActivity extends AppCompatActivity implements
                                 intent.putExtra("json", response);
 
                                 Gson gson = new Gson();
-                                String json1 = gson.toJson(new ArrayList<OrderedMedicine>());
-                                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                                editor.putString("saved_medicine", json1);
-                                editor.apply();
+                                if (jsonObject != null) {
+                                    try {
+                                        jsonObject.put(sp.getmAllocatedPharmaId(), "");
+                                        SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                        editor.putString("saved_medicine_pharma", jsonObject.toString());
+                                        editor.apply();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    jsonObject = new JSONObject();
+                                    try {
+                                        jsonObject.put(sp.getmAllocatedPharmaId(), "");
+                                        SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                        editor.putString("saved_medicine_pharma", jsonObject.toString());
+                                        editor.apply();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                                 startActivity(intent);
                             } else {
                                 Toast.makeText(PlaceOrderActivity.this, "Order Cannot Be Placed Try Again.", Toast.LENGTH_SHORT).show();

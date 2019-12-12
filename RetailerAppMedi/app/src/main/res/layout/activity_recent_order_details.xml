@@ -204,7 +204,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
-                        android:text="We are deeply regretted for the cause inconvenience caused!!"
+                        android:text="We deeply regret for the inconvenience caused to you!"
                         android:textColor="@color/black" />
 
 

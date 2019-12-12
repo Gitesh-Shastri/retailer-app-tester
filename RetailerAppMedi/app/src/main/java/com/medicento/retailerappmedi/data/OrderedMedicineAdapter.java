@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -86,6 +87,7 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
                 if (medicine.getMedicineCompany().equals(med.getMedicineCompany())) {
                     int qty = med.getQty();
                     int stock = med.getStock();
+                    stock--;
                     qty++;
                     float cost = med.getRate()*qty;
                     med.setQty(qty);
@@ -97,6 +99,7 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
                 }
             }
         }
+        medicine.setStock(medicine.getStock()-1);
         mMedicinesList.add(0, medicine);
         mOverallCost += medicine.getCost();
         notifyItemInserted(0);
@@ -176,7 +179,7 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
                for (int i = 0; i < mMedicinesList.size(); i++) {
                    OrderedMedicine med = mMedicinesList.get(i);
                    if (med.getMedicineName().equals(mMedicinesList.get(pos).getMedicineName())) {
-                       if(med.getStock()+100 <= 0) {
+                       if(med.getStock() == 0) {
 
                            final Dialog dialog1 = new Dialog(context);
                            dialog1.requestWindowFeature(Window.FEATURE_NO_TITLE);

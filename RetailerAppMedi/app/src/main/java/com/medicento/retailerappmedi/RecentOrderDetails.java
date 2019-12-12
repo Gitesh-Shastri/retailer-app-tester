@@ -103,7 +103,7 @@ public class RecentOrderDetails extends AppCompatActivity {
 
             order_id.append(recentOrderDelivered.getpOrderId());
 
-            grand_total.append("Rs. 0");
+            grand_total.setText("Rs. 0");
 
         }
 
@@ -112,7 +112,7 @@ public class RecentOrderDetails extends AppCompatActivity {
 
             order_id.append(recentOrderDelivered.getpOrderId());
 
-            grand_total.append("Rs. "+recentOrderDelivered.getTotal()+"");
+            grand_total.setText("Rs. "+recentOrderDelivered.getTotal()+"");
 
         }
 
@@ -229,7 +229,7 @@ public class RecentOrderDetails extends AppCompatActivity {
 
                             created.setText(JsonUtils.getJsonValueFromKey(order_details, "created_at"));
 
-                            grand_total.append("Rs. "+recentOrderDelivered.getTotal()+"");
+                            grand_total.setText("Rs. "+recentOrderDelivered.getTotal()+"");
 
                             total_items_in_order = order_items.length();
 

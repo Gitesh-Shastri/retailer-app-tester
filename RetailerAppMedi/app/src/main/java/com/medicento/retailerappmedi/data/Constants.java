@@ -16,7 +16,7 @@ public class Constants {
     public static final int RC_SIGN_IN = 123;
 
     public static final String SALE_PHARMAID = "pharmaid";
-    public static final String VERSION = "2.3.6";
+    public static final String VERSION = "2.3.8";
     public static final String SALE_PERSON_ID = "sales";
     public static final String SALE_PHAMA_CODE = "pharmacode";
     public static final String SALE_PHARMA_NAME = "Name";
