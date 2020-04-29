@@ -8,12 +8,14 @@ import android.provider.Settings;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -25,6 +27,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.medicento.retailerappmedi.activity.MainActivity;
+import com.medicento.retailerappmedi.adapter.ItemAdapter;
 import com.medicento.retailerappmedi.data.Constants;
 import com.medicento.retailerappmedi.data.OrderMedicineAdapter;
 import com.medicento.retailerappmedi.data.OrderedMedicine;
@@ -45,7 +49,7 @@ import static com.medicento.retailerappmedi.Utils.MedicentoUtils.showVolleyError
 
 public class OrderConfirmed extends AppCompatActivity {
 
-    TextView mOrderIdTv, mSelectedPharmacyTv, mDeliveryDateTv, mTotalCostTv;
+    TextView mOrderIdTv, mSelectedPharmacyTv, mDeliveryDateTv, mTotalCostTv, delivery_slot_tv, click_to_view;
     SalesPharmacy mSelectedPharmacy;
     RecyclerView mRecyclerView;
     OrderMedicineAdapter mAdapter;
@@ -59,10 +63,15 @@ public class OrderConfirmed extends AppCompatActivity {
 
     String orderShareDetails;
     JSONObject activityObject;
+    RecyclerView item_rv;
+    ArrayList<OrderedMedicine> orderedMedicines;
+    ItemAdapter itemAdapter;
+    ImageView close;
+    CardView detail_card;
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(OrderConfirmed.this, PlaceOrderActivity.class);
+        Intent intent = new Intent(OrderConfirmed.this, HomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
                 Intent.FLAG_ACTIVITY_CLEAR_TASK |
                 Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -74,20 +83,32 @@ public class OrderConfirmed extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_confirmed);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         Intent i = getIntent();
 
-
         mOrderIdTv = findViewById(R.id.order_id_tv);
+        click_to_view = findViewById(R.id.click_to_view);
         mSelectedPharmacyTv = findViewById(R.id.selected_pharmacy_tv);
+        delivery_slot_tv = findViewById(R.id.delivery_slot_tv);
         mDeliveryDateTv = findViewById(R.id.delivery_date_tv);
         mTotalCostTv = findViewById(R.id.total_cost_tv);
-
+        item_rv = findViewById(R.id.item_rv);
+        close = findViewById(R.id.close);
+        detail_card = findViewById(R.id.detail_card);
 
         mRecyclerView = findViewById(R.id.order_confirmed_rv);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setHasFixedSize(true);
 
-        ArrayList<OrderedMedicine> orderedMedicines = (ArrayList<OrderedMedicine>) getIntent().getSerializableExtra("orderDetails");
+        orderedMedicines = (ArrayList<OrderedMedicine>) getIntent().getSerializableExtra("orderDetails");
+
+        itemAdapter = new ItemAdapter(orderedMedicines, this);
+        item_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        item_rv.setAdapter(itemAdapter);
 
         mAdapter = new OrderMedicineAdapter(this, orderedMedicines);
         mRecyclerView.setAdapter(mAdapter);
@@ -97,10 +118,27 @@ public class OrderConfirmed extends AppCompatActivity {
         }
 
 
+        detail_card.setVisibility(View.GONE);
+
+        click_to_view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                detail_card.setVisibility(View.VISIBLE);
+            }
+        });
+
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                detail_card.setVisibility(View.GONE);
+            }
+        });
+
         if(i != null && i.hasExtra("order_id")) {
             mOrderIdTv.setText(i.getStringExtra("order_id"));
-            mDeliveryDateTv.setText(i.getStringExtra("slots"));
-            mTotalCostTv.setText(String.format("Rs.%.2f", i.getFloatExtra("TotalCost", 0f)));
+            mDeliveryDateTv.setText(i.getStringExtra("date"));
+            delivery_slot_tv.setText(i.getStringExtra("slots"));
+            mTotalCostTv.setText(String.format("₹ %.2f", i.getFloatExtra("TotalCost", 0f)));
 
             mSelectedPharmacyTv.setText(i.getStringExtra("pharmacy"));
         }
@@ -171,7 +209,7 @@ public class OrderConfirmed extends AppCompatActivity {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/api/app/record_activity/",
+                "http://stage.medicento.com:8080/api/app/record_activity/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

@@ -20,7 +20,7 @@
         android:layout_height="75dp"
         android:contentDescription="@string/nav_header_desc"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:src="@mipmap/ic_launcher_new"
+        android:src="@drawable/medicento_logo"
         />
 
     <TextView
@@ -29,7 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/sea_blue"
         style="@style/Base.TextAppearance.AppCompat.Medium"
         android:textStyle="bold"
         android:text="@string/nav_header_title"
@@ -37,7 +37,7 @@
 
     <TextView
         android:layout_gravity="center"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/sea_blue"
         android:id="@+id/user_email_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

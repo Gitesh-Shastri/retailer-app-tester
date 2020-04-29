@@ -8,12 +8,12 @@
         app:showAsAction="always"
         android:icon="@drawable/offer"
         />  -->
-    <item
-        android:id="@+id/action_notification"
-        android:orderInCategory="100"
-        android:title="@string/action_proceed"
-        app:showAsAction="always"
-        android:icon="@drawable/counter_noti"/>
+<!--    <item-->
+<!--        android:id="@+id/action_notification"-->
+<!--        android:orderInCategory="100"-->
+<!--        android:title="@string/action_proceed"-->
+<!--        app:showAsAction="always"-->
+<!--        android:icon="@drawable/counter_noti"/>-->
     <item
         android:id="@+id/action_proceed"
         android:orderInCategory="100"

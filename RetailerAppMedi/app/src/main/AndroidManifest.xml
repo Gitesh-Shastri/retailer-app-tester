@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -21,21 +23,50 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".activity.ChangeAddressActivity"></activity>
+        <activity android:name=".activity.UploadPurchaseActivity" />
+        <activity android:name=".activity.PaymentGateWayActivity" />
+        <activity android:name=".activity.PaymentMethodActivity" />
+        <activity android:name=".activity.ParticularOrderActivity" />
+        <activity android:name=".create_account.ConfirmAddressDistributorActivity" />
+        <activity android:name=".CartPageActivity" />
+        <activity android:name=".EssentialsActivity" />
+        <activity android:name=".AccountCredentialdsActivity" />
+        <activity android:name=".activity.ForgetPasswordActivity" />
+        <activity
+            android:name=".HomeActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".create_account.ConfirmAddressActivity" />
+        <activity android:name=".activity.ConfirmationAccountActivity" />
+        <activity android:name=".create_account.RegisterDistributorActivity" />
+        <activity
+            android:name=".create_account.RegisterMedicentoActivity"
+            android:label="Register"
+            android:parentActivityName=".create_account.CreateAccountActivity" />
+        <activity
+            android:name=".create_account.CreateAccountActivity"
+            android:label="Create Account"
+            android:parentActivityName=".SignUpActivity" />
+
         <service
             android:name=".FetchMedicineService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity
             android:name=".activity.DidntFindActivity"
             android:label="Order Confirmation"
             android:parentActivityName=".activity.DidntFindMedicineActivity" />
-        <activity android:name=".activity.MainActivity" />
+        <activity
+            android:name=".activity.MainActivity"
+            android:keepScreenOn="true"
+            android:label="Retailer App Medi"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".activity.RetailerWeb" />
         <activity
             android:name=".activity.RetailerWebLogOut"
             android:label="Retailer Web"
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName="activity.MainActivity" />
         <activity
             android:name=".activity.NoInternetActivity"
             android:keepScreenOn="true"
@@ -44,16 +75,16 @@
             android:name=".activity.DidntFindMedicineActivity"
             android:keepScreenOn="true"
             android:label="Didn&apos;t Find Your Medicines ?"
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName="activity.MainActivity" />
         <activity
             android:name=".activity.PaymentActivity"
             android:keepScreenOn="true"
             android:label="Payment Due"
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName="activity.MainActivity" />
         <activity
             android:name=".activity.NotificationActivity"
             android:label="Notifications"
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName="activity.MainActivity" />
         <activity
             android:name=".activity.ReturnActivity"
             android:keepScreenOn="true"
@@ -93,13 +124,13 @@
             android:name=".SalesPersonDetails"
             android:keepScreenOn="true"
             android:label="Sales Person Details"
-            android:parentActivityName=".PlaceOrderActivity"
+            android:parentActivityName="activity.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".RecentOrderActivity"
             android:keepScreenOn="true"
             android:label="Recent Order"
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName="activity.MainActivity" />
         <activity
             android:name=".SignUpActivity"
             android:keepScreenOn="true"
@@ -120,37 +151,37 @@
             android:name=".OrderConfirmed"
             android:keepScreenOn="true"
             android:label="Order Confirmed ... "
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName="activity.MainActivity" />
         <activity
             android:name=".SurveyMedi"
             android:keepScreenOn="true"
             android:label="Distributor Review"
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName="activity.MainActivity" />
         <activity
             android:name=".Filter"
             android:keepScreenOn="true"
             android:label="Filter"
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName="activity.MainActivity" />
         <activity
             android:name=".Company"
             android:keepScreenOn="true"
             android:label="Company/Manufacturer"
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName="activity.MainActivity" />
         <activity
             android:name=".AddToCart"
             android:keepScreenOn="true"
             android:label="Your Cart"
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName="activity.MainActivity" />
         <activity
             android:name=".Offers_page"
             android:keepScreenOn="true"
             android:label="Offers"
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName="activity.MainActivity" />
         <activity
             android:name=".Medicine_List"
             android:keepScreenOn="true"
             android:label="Your Medicine List"
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName=".activity.MainActivity" />
         <activity android:name=".Filter1" />
 
         <meta-data
@@ -170,7 +201,7 @@
             android:name=".TermsAndCondition"
             android:keepScreenOn="true"
             android:label="Medicento"
-            android:parentActivityName=".PlaceOrderActivity" />
+            android:parentActivityName=".activity.MainActivity" />
         <activity
             android:name=".RecentOrderDetails"
             android:keepScreenOn="true"

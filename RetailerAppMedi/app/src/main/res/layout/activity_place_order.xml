@@ -52,6 +52,7 @@
                 android:textAllCaps="false"
                 android:textColor="@color/white" />
         </LinearLayout>
+
     </android.support.design.widget.NavigationView>
 
 </android.support.v4.widget.DrawerLayout>

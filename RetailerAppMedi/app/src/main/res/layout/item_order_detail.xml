@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/expensePane"
+    android:padding="5dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:textColor="@color/red"
+        android:padding="5dp"
+        android:id="@+id/issue_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:visibility="gone"
+            android:id="@+id/selected_medicine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/medicine_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="5dp"
+            android:layout_toLeftOf="@id/packing"
+            android:layout_toRightOf="@id/selected_medicine"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/medicine_company"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/medicine_name"
+            android:layout_marginTop="5dp"
+            android:layout_toLeftOf="@id/medicine_cost"
+            android:layout_toRightOf="@id/selected_medicine"
+            android:textColor="@color/colorPrimary"
+            android:textSize="10sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/packing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_toLeftOf="@id/medicine_quantity"
+            android:textColor="#000"
+            android:textSize="10sp"
+            tools:text="Packing : " />
+
+        <TextView
+            android:id="@+id/medicine_quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:textColor="#000"
+            android:textSize="10sp"
+            tools:text="Qty : " />
+
+        <TextView
+            android:id="@+id/medicine_cost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/medicine_quantity"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="5dp"
+            android:textColor="@color/colorGreen"
+            android:textSize="10sp"
+            android:visibility="gone"
+            tools:text=" Rs. " />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/reason"
+            android:layout_alignParentLeft="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:textColor="@color/colorGreen"
+            android:textSize="10sp"
+            tools:text="" />
+
+        <Switch
+            android:visibility="gone"
+            android:id="@+id/dispute"
+            android:text="Dispute"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+    <EditText
+        android:background="@drawable/border_outline"
+        android:padding="5dp"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        android:id="@+id/reason_dispute"
+        android:layout_margin="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Reason"
+        />
+
+</LinearLayout>

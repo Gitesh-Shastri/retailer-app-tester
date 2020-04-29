@@ -164,7 +164,7 @@ public class Register extends AppCompatActivity {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                "http://54.161.199.63:8080/pharmacy/signup/",
+                "http://stage.medicento.com:8080/pharmacy/signup/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -276,7 +276,7 @@ public class Register extends AppCompatActivity {
 
         StringRequest stringRequest = new StringRequest(
                 Request.Method.GET,
-                "http://54.161.199.63:8080/api/area/state/",
+                "http://stage.medicento.com:8080/api/area/state/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -356,7 +356,7 @@ public class Register extends AppCompatActivity {
 
         StringRequest stringRequest = new StringRequest(
                 Request.Method.GET,
-                "http://54.161.199.63:8080/api/area/city/?state="+state.getId(),
+                "http://stage.medicento.com:8080/api/area/city/?state="+state.getId(),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -439,7 +439,7 @@ public class Register extends AppCompatActivity {
 
         StringRequest stringRequest = new StringRequest(
                 Request.Method.GET,
-                "http://54.161.199.63:8080/api/area/area/?city="+city.getId(),
+                "http://stage.medicento.com:8080/api/area/area/?city="+city.getId(),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

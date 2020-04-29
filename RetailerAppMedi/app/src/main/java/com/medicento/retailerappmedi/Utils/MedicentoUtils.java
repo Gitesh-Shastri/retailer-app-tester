@@ -23,11 +23,20 @@ public class MedicentoUtils {
             String body;
             try {
                 body = new String(error.networkResponse.data, "UTF-8");
-                Log.e("error_message", body);
+                logLargeString(body);
             } catch (UnsupportedEncodingException e) {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void logLargeString(String str) {
+        if(str.length() > 3000) {
+            Log.e("error_message", str.substring(0, 3000));
+            logLargeString(str.substring(3000));
+        } else {
+            Log.e("error_message", str); // continuation
         }
     }
 

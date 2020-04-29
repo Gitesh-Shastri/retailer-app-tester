@@ -124,7 +124,7 @@ public class DidntFindMedicineActivity extends AppCompatActivity {
 
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/orders/place_orders_didnt_find/",
+                "http://stage.medicento.com:8080/orders/place_orders_didnt_find/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

@@ -158,7 +158,7 @@ public class ReturnActivity extends AppCompatActivity {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/orders/get_order_details/",
+                "http://stage.medicento.com:8080/orders/get_order_details/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -271,7 +271,7 @@ public class ReturnActivity extends AppCompatActivity {
         RequestQueue requestQueue = Volley.newRequestQueue(ReturnActivity.this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/orders/return_order/",
+                "http://stage.medicento.com:8080/orders/return_order/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

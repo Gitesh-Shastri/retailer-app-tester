@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/border_outline_grey"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:padding="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/scheme"
+            android:textColor="@color/sea_blue"
+            android:text="JP TONE INJ"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:id="@+id/name"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/red"
+            android:minWidth="90dp"
+            android:text="Scheme:  5/1- 0/0"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:layout_alignParentRight="true"
+            android:id="@+id/scheme"
+            />
+
+        <TextView
+            android:layout_below="@id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#555555"
+            android:text="Jagsona Pal"
+            android:layout_toLeftOf="@id/packing_icon"
+            android:id="@+id/company"
+            android:textSize="10sp"
+            />
+
+        <TextView
+            android:layout_below="@id/company"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#555555"
+            android:text="PTR : "
+            android:textSize="10sp"
+            android:id="@+id/ptr"
+            />
+
+        <ImageView
+            android:layout_marginLeft="5dp"
+            android:id="@+id/packing_icon"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@id/packing"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:src="@drawable/package_box" />
+
+        <TextView
+            android:id="@+id/packing"
+            android:textSize="10sp"
+            android:layout_below="@id/company"
+            android:layout_centerHorizontal="true"
+            android:text="Packaging : 20"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/opensanssemi"
+            />
+
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/scheme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/sub"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="10dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/add"
+                />
+
+            <TextView
+                android:id="@+id/qty"
+                android:layout_gravity="center_vertical"
+                android:textSize="14sp"
+                android:layout_marginRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1" />
+
+            <ImageView
+                android:id="@+id/add"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="10dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/sub"
+                />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</android.support.v7.widget.LinearLayoutCompat>

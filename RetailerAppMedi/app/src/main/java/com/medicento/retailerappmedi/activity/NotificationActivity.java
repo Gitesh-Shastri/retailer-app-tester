@@ -143,7 +143,7 @@ public class NotificationActivity extends AppCompatActivity {
 
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/pharmacy/get_notifications/",
+                "http://stage.medicento.com:8080/pharmacy/get_notifications/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -206,7 +206,7 @@ public class NotificationActivity extends AppCompatActivity {
 
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/api/app/remove_notifications/",
+                "http://stage.medicento.com:8080/api/app/remove_notifications/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -271,7 +271,7 @@ public class NotificationActivity extends AppCompatActivity {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/api/app/record_activity/",
+                "http://stage.medicento.com:8080/api/app/record_activity/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

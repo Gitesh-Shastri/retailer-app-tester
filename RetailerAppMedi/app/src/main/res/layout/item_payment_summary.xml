@@ -6,48 +6,130 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <RelativeLayout
+    <LinearLayout
         android:padding="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
         <ImageView
+            android:visibility="gone"
             android:layout_centerVertical="true"
             android:id="@+id/image"
-            android:layout_width="30dp"
+            android:layout_width="20dp"
             android:layout_marginRight="10dp"
-            android:layout_height="30dp"
+            android:layout_height="20dp"
             android:src="@drawable/ic_purse" />
 
         <TextView
-            android:layout_toLeftOf="@id/order_amount"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/order_content"
+            android:layout_toRightOf="@id/image"
             android:textColor="@color/black"
-            android:textSize="17sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:id="@+id/order_summary"
-            android:layout_toRightOf="@id/image"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1.5"
             android:layout_height="wrap_content" />
 
         <TextView
+            android:layout_centerVertical="true"
+            android:textSize="12sp"
+            android:id="@+id/order_content"
+            android:layout_toLeftOf="@id/order_amount"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_centerVertical="true"
             android:textColor="@color/black"
-            android:textSize="17sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:id="@+id/order_amount"
             android:layout_alignParentRight="true"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content" />
 
         <TextView
-            android:layout_marginTop="10dp"
+            android:layout_centerVertical="true"
+            android:textColor="@color/black"
             android:textSize="12sp"
-            android:id="@+id/order_content"
-            android:layout_below="@id/order_summary"
-            android:layout_toRightOf="@id/image"
-            android:layout_width="match_parent"
+            android:textStyle="bold"
+            android:id="@+id/net_due"
+            android:layout_alignParentRight="true"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content" />
 
-    </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/paid_amount"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/order_content"
+            android:layout_toRightOf="@id/image"
+            android:textColor="@color/orange"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:id="@+id/amount"
+            android:layout_width="0dp"
+            android:layout_weight="1.5"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_centerVertical="true"
+            android:textSize="12sp"
+            android:layout_toLeftOf="@id/order_amount"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_centerVertical="true"
+            android:textColor="@color/colorAccent"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:id="@+id/days_ago"
+            android:layout_alignParentRight="true"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_centerVertical="true"
+            android:textColor="@color/red"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:id="@+id/paid_status"
+            android:layout_alignParentRight="true"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/expanded_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_arrow_drop_down_black_24dp"
+        android:layout_gravity="center_horizontal"
+        />
+
+    <android.support.v7.widget.RecyclerView
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/order_items_rv"
+        />
 
     <View
         android:layout_width="match_parent"

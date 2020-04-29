@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.medicento.retailerappmedi.HomeActivity;
 import com.medicento.retailerappmedi.OrderConfirmed;
 import com.medicento.retailerappmedi.PlaceOrderActivity;
 import com.medicento.retailerappmedi.R;
@@ -107,7 +108,7 @@ public class DidntFindActivity extends AppCompatActivity {
 
 
     public void new_order(View view) {
-        Intent intent = new Intent(DidntFindActivity.this, PlaceOrderActivity.class);
+        Intent intent = new Intent(DidntFindActivity.this, HomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
                 Intent.FLAG_ACTIVITY_CLEAR_TASK |
                 Intent.FLAG_ACTIVITY_NEW_TASK);

@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f0f0f0"
+    android:orientation="vertical"
+    tools:context=".create_account.RegisterDistributorActivity">
+
+    <TextView
+        android:layout_marginTop="10dp"
+        android:id="@+id/medi_tv"
+        android:layout_below="@id/medicento_logo"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome to Medicento!"
+        android:textColor="#434343"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/medi_tv"
+        android:gravity="center_horizontal"
+        android:text="Let us quickly get to know so that \nwe can get you the best help :)"
+        android:textColor="#434343"
+        android:textSize="12sp"/>
+
+    <RadioGroup
+        android:orientation="horizontal"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/trader"
+            android:theme="@style/MyRadioButton"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/light_grey_label"
+            android:text="Are you a Trader?"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+
+        <RadioButton
+            android:id="@+id/distributor"
+            android:theme="@style/MyRadioButton"
+            android:layout_gravity="end"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/light_grey_label"
+            android:text="Are you a Distributor?"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+
+    </RadioGroup>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/register_ll"
+            android:padding="10dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/border_more_grey"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Distributor Name* : "
+                android:textSize="13sp"
+                android:padding="10dp"
+                android:textColor="@color/light_grey_label"
+                />
+
+            <EditText
+                android:inputType="textCapWords"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textSize="13sp"
+                android:id="@+id/name_et"
+                android:padding="10dp"
+                android:textColor="#555555"
+                android:background="@drawable/border_grey"
+                android:hint="Enter your Distributor Name"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:text="Mobile Number : "
+                android:padding="10dp"
+                android:textColor="@color/light_grey_label"
+                />
+
+            <EditText
+                android:id="@+id/number"
+                android:inputType="number"
+                android:maxLength="10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textSize="13sp"
+                android:padding="10dp"
+                android:textColor="#555555"
+                android:background="@drawable/border_grey"
+                android:hint="Enter your Mobile Number"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="GST Number* : "
+                android:textSize="13sp"
+                android:padding="10dp"
+                android:textColor="@color/light_grey_label"
+                />
+
+            <EditText
+                android:inputType="textCapCharacters"
+                android:id="@+id/gst"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textSize="13sp"
+                android:padding="10dp"
+                android:textColor="#555555"
+                android:background="@drawable/border_grey"
+                android:hint="Enter your GST Number"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Trade License Number : "
+                android:textSize="13sp"
+                android:padding="10dp"
+                android:textColor="@color/light_grey_label"
+                />
+
+            <EditText
+                android:inputType="textCapCharacters"
+                android:id="@+id/trade"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textSize="13sp"
+                android:padding="10dp"
+                android:textColor="#555555"
+                android:background="@drawable/border_grey"
+                android:hint="Enter your Trade License Number"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="FSSAI License Number : "
+                android:textSize="13sp"
+                android:padding="10dp"
+                android:textColor="@color/light_grey_label"
+                />
+
+            <EditText
+                android:inputType="textCapCharacters"
+                android:id="@+id/fssai"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textSize="13sp"
+                android:padding="10dp"
+                android:textColor="#555555"
+                android:background="@drawable/border_grey"
+                android:hint="Enter your FSSAI License Number"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Drug License Number : "
+                android:textSize="13sp"
+                android:padding="10dp"
+                android:textColor="@color/light_grey_label"
+                />
+
+            <EditText
+                android:inputType="textCapCharacters"
+                android:id="@+id/drug"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="30dp"
+                android:textSize="13sp"
+                android:padding="10dp"
+                android:textColor="#555555"
+                android:background="@drawable/border_grey"
+                android:hint="Enter your Drug License Number"
+                />
+
+        </LinearLayout>
+
+        <Button
+            android:layout_marginTop="-35dp"
+            android:layout_below="@+id/register_ll"
+            android:id="@+id/sign_in_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="0dp"
+            android:padding="10dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/border_green"
+            android:text="Submit"
+            android:textColor="#fff"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_marginTop="10dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/sign_in_btn"
+            android:textColor="@color/red"
+            android:textSize="12sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/message"
+            />
+
+    </RelativeLayout>
+
+</LinearLayout>

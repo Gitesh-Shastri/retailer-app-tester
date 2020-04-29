@@ -8,6 +8,9 @@ public class MedicineOrdered {
 
     private boolean isReturned, isAlreadyReturned;
 
+    public MedicineOrdered() {
+    }
+
     public boolean isAlreadyReturned() {
         return isAlreadyReturned;
     }

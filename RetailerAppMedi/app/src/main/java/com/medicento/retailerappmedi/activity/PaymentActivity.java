@@ -152,7 +152,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultL
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/pharmacy/get_payment_details/",
+                "http://stage.medicento.com:8080/pharmacy/get_payment_details/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

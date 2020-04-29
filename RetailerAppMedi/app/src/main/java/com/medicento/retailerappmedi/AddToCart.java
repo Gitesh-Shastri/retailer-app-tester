@@ -57,7 +57,7 @@ import java.util.List;
 
 import io.paperdb.Paper;
 
-import static com.medicento.retailerappmedi.PlaceOrderActivity.mOrderedMedicineAdapter;
+import static com.medicento.retailerappmedi.activity.MainActivity.mOrderedMedicineAdapter;
 
 public class AddToCart extends AppCompatActivity implements OrderedMedicineAdapter.OverallCostChangeListener{
     RecyclerView mOrderedMedicinesListView;

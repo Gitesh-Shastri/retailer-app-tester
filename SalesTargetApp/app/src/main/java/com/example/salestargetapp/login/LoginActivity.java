@@ -19,16 +19,19 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.salestargetapp.R;
 import com.example.salestargetapp.dashboard.DashboardActivity;
+import com.example.salestargetapp.data.Area;
 import com.example.salestargetapp.data.Constants;
 import com.example.salestargetapp.data.SalesPerson;
 import com.example.salestargetapp.pharmacy_selection.PharmacySelectionActivity;
 import com.example.salestargetapp.utils.CommonUtils;
 import com.google.gson.Gson;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +51,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private RequestQueue requestQueue;
 
+    private ArrayList<Area> areas;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +62,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         String cache = Paper.book().read("user");
         if (cache != null && !cache.isEmpty()) {
-            startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
+            startActivity(new Intent(LoginActivity.this, PharmacySelectionActivity.class));
             finish();
         }
 
@@ -108,6 +113,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     public void onResponse(String response) {
                         Log.d("data", "onResponse: " + response);
                         sign_in_progress.setVisibility(View.GONE);
+                        areas = new ArrayList<>();
                         try {
                             JSONObject baseObject = new JSONObject(response);
                             if(baseObject.has("message") && baseObject.getString("message").equals("User Logged In")) {
@@ -120,7 +126,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                         user.getInt("id")+"",
                                         user.getInt("area")+"",
                                         "123");
-                                startActivity(new Intent(LoginActivity.this, PharmacySelectionActivity.class));
+
+                                salesPerson.setUsercode(email_edit_tv.getText().toString());
+
+                                JSONArray m2mareas = user.getJSONArray("m2marea");
+
+                                for (int i=0;i<m2mareas.length();i++) {
+                                    JSONObject jsonObject = m2mareas.getJSONObject(i);
+                                    areas.add(new Area(jsonObject.getString("name"), jsonObject.getInt("id")+""));
+                                }
+
+                                Paper.book().write("user", new Gson().toJson(salesPerson));
+
+                                startActivity(new Intent(LoginActivity.this, PharmacySelectionActivity.class).putExtra("areas", areas));
+                                finish();
                             } else {
                                 showToast("Invalid Details!");
                             }

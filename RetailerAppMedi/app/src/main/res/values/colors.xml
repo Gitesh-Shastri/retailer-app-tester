@@ -14,4 +14,14 @@
 
     <color name="red">#da3c21</color>
     <color name="black">#000000</color>
+    <color name="orange">#FFA500</color>
+    <color name="blue">#1989cd</color>
+    <color name="grey">#c6c6c6</color>
+    <color name="green_lime">#12989e</color>
+    <color name="light_grey_label">#666666</color>
+    <color name="grey_edit_text">#aeaeae</color>
+    <color name="grey_joining">#5a5a5a</color>
+    <color name="forget">#6B6B6B</color>
+    <color name="sea_blue">#18989e</color>
+    <color name="dark_grey">#555555</color>
 </resources>

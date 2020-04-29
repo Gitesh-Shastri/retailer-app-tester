@@ -6,8 +6,8 @@ android {
         applicationId "com.medicento.retailerappmedi"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 41
-        versionName "2.3.8"
+        versionCode 43
+        versionName "2.3.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -32,13 +32,11 @@ dependencies {
     implementation 'uk.co.chrisjenx:calligraphy:2.3.0'
 
     implementation 'com.google.firebase:firebase-config:16.1.2'
-
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
     implementation 'com.google.firebase:firebase-auth:16.1.0'
     implementation 'com.google.firebase:firebase-core:16.0.6'
 
     implementation 'com.google.code.gson:gson:2.8.5'
-
-    implementation 'com.github.lsjwzh.RecyclerViewPager:lib:v1.1.2'
 
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
 
@@ -64,5 +62,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.6.2'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.2'
     implementation 'com.razorpay:checkout:1.5.12'
+
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
 }
 apply plugin: 'com.google.gms.google-services'

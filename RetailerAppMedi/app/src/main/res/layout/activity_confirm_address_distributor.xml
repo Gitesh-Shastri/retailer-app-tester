@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".create_account.ConfirmAddressDistributorActivity">
+
+    <RelativeLayout
+        android:id="@+id/upper"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:background="@drawable/border_less_curve"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_marginLeft="10dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:id="@+id/back"
+            android:src="@drawable/ic_arrow_back_white_20dp"
+            />
+
+        <TextView
+            android:gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:textStyle="bold"
+            android:padding="5dp"
+            android:textSize="15sp"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:text="Address Confirmation"
+            />
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_marginTop="10dp"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/light_grey_label"
+        android:textStyle="bold"
+        android:text="Name : "
+        />
+
+    <TextView
+        android:inputType="textCapWords"
+        android:background="@drawable/border_grey"
+        android:textColor="#555555"
+        android:padding="5dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/name"
+        />
+
+    <TextView
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/light_grey_label"
+        android:textStyle="bold"
+        android:text="Address : "
+        />
+
+    <EditText
+        android:inputType="textCapWords"
+        android:minLines="2"
+        android:textColor="#555555"
+        android:padding="5dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/border_grey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/address"
+        />
+
+    <TextView
+        android:padding="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/light_grey_label"
+        android:textStyle="bold"
+        android:text="State : "
+        />
+
+    <EditText
+        android:inputType="textCapWords"
+        android:textColor="#555555"
+        android:padding="5dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/border_grey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/state"
+        />
+
+    <TextView
+        android:padding="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/light_grey_label"
+        android:textStyle="bold"
+        android:text="City : "
+        />
+
+    <EditText
+        android:inputType="textCapWords"
+        android:textColor="#555555"
+        android:padding="5dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/border_grey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/city"
+        />
+
+    <TextView
+        android:padding="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/light_grey_label"
+        android:textStyle="bold"
+        android:text="Area : "
+        />
+
+    <EditText
+        android:inputType="textCapWords"
+        android:textColor="#555555"
+        android:padding="5dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/border_grey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/area"
+        />
+
+    <TextView
+        android:padding="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/light_grey_label"
+        android:textStyle="bold"
+        android:text="Pincode : "
+        />
+
+    <EditText
+        android:maxLength="7"
+        android:inputType="number"
+        android:textColor="#555555"
+        android:padding="5dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/border_grey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/pincode"
+        />
+
+    <Button
+        android:maxLength="7"
+        android:inputType="number"
+        android:layout_marginTop="20dp"
+        android:id="@+id/sign_in_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        android:padding="10dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/border_green"
+        android:text="Submit"
+        android:textColor="#fff"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:visibility="gone"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@id/sign_in_btn"
+        android:textColor="@color/red"
+        android:textSize="12sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/message"
+        />
+
+    <ProgressBar
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progress_bar"
+        android:layout_gravity="center_horizontal"
+        />
+
+</LinearLayout>

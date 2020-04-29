@@ -162,7 +162,7 @@ public class RecentOrderActivity extends AppCompatActivity implements OrderAdapt
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/orders/get_pharmacy_orders/",
+                "http://stage.medicento.com:8080/orders/get_pharmacy_orders/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -308,7 +308,7 @@ public class RecentOrderActivity extends AppCompatActivity implements OrderAdapt
                 RequestQueue requestQueue = Volley.newRequestQueue(RecentOrderActivity.this);
                 StringRequest stringRequest = new StringRequest(
                         Request.Method.POST,
-                        "http://54.161.199.63:8080/orders/cancel_order/",
+                        "http://stage.medicento.com:8080/orders/cancel_order/",
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
@@ -465,7 +465,7 @@ public class RecentOrderActivity extends AppCompatActivity implements OrderAdapt
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/api/app/record_activity/",
+                "http://stage.medicento.com:8080/api/app/record_activity/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

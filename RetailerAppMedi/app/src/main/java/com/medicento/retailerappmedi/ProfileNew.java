@@ -102,7 +102,7 @@ public class ProfileNew extends AppCompatActivity {
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                "http://54.161.199.63:8080/pharmacy/view_profile/",
+                "http://stage.medicento.com:8080/pharmacy/view_profile/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -214,7 +214,7 @@ public class ProfileNew extends AppCompatActivity {
         RequestQueue requestQueue = Volley.newRequestQueue(ProfileNew.this);
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                "http://54.161.199.63:8080/pharmacy/update_profile/",
+                "http://stage.medicento.com:8080/pharmacy/update_profile/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

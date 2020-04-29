@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingBottom="5dp"
+    android:paddingTop="5dp"
+    android:background="@color/white"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="#555555"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/scheme"
+        android:id="@+id/name"
+        />
+
+    <TextView
+        android:textColor="#E6001B"
+        android:text="Scheme: 5/1 - 0/0"
+        android:textSize="10sp"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/scheme"
+        />
+
+    <LinearLayout
+        android:weightSum="5"
+        android:layout_below="@id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textSize="10sp"
+            android:text="Ranbaxy Classic"
+            android:textColor="#555555"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:id="@+id/company_name"
+            />
+
+        <TextView
+            android:textSize="10sp"
+            android:gravity="center_horizontal"
+            android:text="10S"
+            android:textColor="#555555"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/name"
+            android:id="@+id/packing"
+            />
+
+        <TextView
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#555555"
+            android:gravity="end"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:id="@+id/price"
+            />
+
+    </LinearLayout>
+
+</RelativeLayout>

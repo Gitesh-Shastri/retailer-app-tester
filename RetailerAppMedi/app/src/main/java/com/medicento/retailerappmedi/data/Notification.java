@@ -1,6 +1,8 @@
 package com.medicento.retailerappmedi.data;
 
-public class Notification {
+import java.io.Serializable;
+
+public class Notification implements Serializable {
 
     private String type, title, message, order_id, status, id, created_at, time;
 

@@ -3,308 +3,349 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relative"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#f0f0f0"
     android:orientation="vertical"
-    android:id="@+id/relative"
-    tools:context=".SignUpActivity"
-    android:background="@color/colorBackground">
+    tools:context=".SignUpActivity">
 
     <ImageView
-        android:contentDescription="@string/medicento_logo"
-        android:layout_marginTop="20dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerInParent="true"
         android:id="@+id/medicento_logo"
         android:layout_width="120dp"
-        android:layout_marginBottom="10dp"
         android:layout_height="120dp"
-        app:srcCompat="@drawable/mdlf" />
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
+        android:contentDescription="@string/medicento_logo"
+        app:srcCompat="@drawable/medicento_logo" />
+
+    <RelativeLayout
+        android:id="@+id/loginlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/medicento_logo"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/register_ll"
+            android:padding="10dp"
+            android:orientation="vertical"
+            android:background="@drawable/border_more_grey"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:textStyle="bold"
+                android:id="@+id/pharma"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/registered_4_digit_pharmacode"
+                android:textColor="@color/light_grey_label"
+                android:textSize="13sp" />
+
+            <EditText
+                android:id="@+id/user_code_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:autofillHints="Enter Code "
+                android:background="@drawable/border_grey"
+                android:hint="@string/enter_pharma_code"
+                android:inputType="number"
+                android:maxLength="4"
+                android:padding="10dp"
+                android:textColorHint="@color/grey_edit_text"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="13sp"
+                tools:layout_editor_absoluteX="20dp" />
+
+
+            <TextView
+                android:textStyle="bold"
+                android:id="@+id/phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:text="Registered Mobile Number :"
+                android:textColor="@color/light_grey_label"
+                android:textSize="13sp" />
+
+            <EditText
+                android:id="@+id/user_phone_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="30dp"
+                android:autofillHints="Enter Phone "
+                android:background="@drawable/border_grey"
+                android:hint="Enter Mobile Number"
+                android:inputType="number"
+                android:padding="10dp"
+                android:textColorHint="@color/grey_edit_text"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="13sp"
+                tools:layout_editor_absoluteX="20dp" />
+
+        </LinearLayout>
+
+        <Button
+            android:layout_marginTop="-25dp"
+            android:layout_below="@+id/register_ll"
+            android:id="@+id/sign_in_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="0dp"
+            android:padding="10dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/border_green"
+            android:text="@string/log_in"
+            android:textColor="#fff"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_centerHorizontal="true"
+            android:id="@+id/forget"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/sign_in_btn"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@android:color/transparent"
+            android:focusable="true"
+            android:textStyle="bold"
+            android:text="Forgot your Pharma Code?"
+            android:textColor="@color/grey_joining"
+            android:textSize="11sp" />
+
+    </RelativeLayout>
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardElevation="8dp"
-        app:cardCornerRadius="10dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
         android:layout_below="@id/medicento_logo"
-        android:id="@+id/loginlayout">
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:visibility="gone"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="8dp">
 
-        <LinearLayout
+
+        <TextView
+            android:id="@+id/sign_in"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="17sp"
-                android:gravity="center"
-                android:text="@string/pharmacy_login"
-                android:textStyle="bold"
-                android:id="@+id/sign_in"
-                android:background="@color/colorPrimaryDark"
-                android:textColor="@color/white" />
-
-            <TextView
-                android:layout_marginTop="10dp"
-                android:textSize="15sp"
-                android:layout_marginLeft="10dp"
-                android:layout_width="match_parent"
-                android:layout_marginBottom="5dp"
-                android:id="@+id/pharma"
-                android:layout_height="wrap_content"
-                android:text="@string/registered_4_digit_pharmacode"
-                android:textColor="@color/colorAccent" />
-
-            <EditText
-                android:background="@drawable/border"
-                android:id="@+id/user_code_tv"
-                android:autofillHints="Enter Code "
-                android:layout_width="match_parent"
-                android:gravity="center"
-                android:textSize="16sp"
-                android:maxLength="4"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_height="wrap_content"
-                android:hint="@string/enter_pharma_code"
-                android:inputType="number"
-                android:textColor="@color/colorPrimaryDark"
-                tools:layout_editor_absoluteX="20dp" />
-
-
-            <TextView
-                android:layout_marginTop="10dp"
-                android:textSize="15sp"
-                android:layout_width="match_parent"
-                android:layout_marginLeft="10dp"
-                android:layout_marginBottom="5dp"
-                android:id="@+id/phone"
-                android:layout_height="wrap_content"
-                android:text="Registered Mobile Number"
-                android:textColor="@color/colorAccent" />
-
-            <EditText
-                android:textSize="16sp"
-                android:background="@drawable/border"
-                android:id="@+id/user_phone_tv"
-                android:autofillHints="Enter Phone "
-                android:layout_width="match_parent"
-                android:gravity="center"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:hint="Enter Phone Number"
-                android:inputType="number"
-                android:textColor="@color/colorPrimaryDark"
-                tools:layout_editor_absoluteX="20dp" />
-
-
-        </LinearLayout>
+            android:background="@color/colorPrimaryDark"
+            android:gravity="center"
+            android:text="@string/pharmacy_login"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:textStyle="bold" />
 
     </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.CardView
-        android:visibility="gone"
         android:id="@+id/verifyCodeCard"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_margin="10dp"
-        app:cardElevation="20dp"
-        android:layout_height="wrap_content">
+        android:visibility="gone"
+        app:cardElevation="20dp">
 
         <LinearLayout
-            android:padding="10dp"
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
 
             <EditText
-                android:inputType="text"
-                android:maxLines="1"
-                android:textSize="16sp"
+                android:id="@+id/code"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:id="@+id/code"
                 android:hint="Enter Verification Code"
-                />
+                android:inputType="text"
+                android:maxLines="1"
+                android:textSize="16sp" />
 
             <Button
                 android:id="@+id/verifyCode"
                 android:layout_width="match_parent"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:layout_marginTop="10dp"
                 android:layout_height="35dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginBottom="5dp"
                 android:background="@drawable/border_curved"
                 android:text="Verify Code"
                 android:textColor="#fff"
-                android:textStyle="bold"
                 android:textSize="16sp"
-                android:layout_marginBottom="5dp" />
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/verifyCancel"
                 android:layout_width="match_parent"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:layout_marginTop="10dp"
                 android:layout_height="35dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginBottom="5dp"
                 android:background="@drawable/border_red"
                 android:text="Cancel"
                 android:textColor="#fff"
-                android:textStyle="bold"
                 android:textSize="16sp"
-                android:layout_marginBottom="5dp" />
+                android:textStyle="bold" />
 
         </LinearLayout>
 
     </android.support.v7.widget.CardView>
 
-    <Button
-        android:id="@+id/sign_in_btn"
-        android:layout_width="match_parent"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="10dp"
-        android:layout_below="@id/loginlayout"
-        android:layout_height="35dp"
-        android:background="@drawable/border_curved"
-        android:text="@string/log_in"
-        android:textColor="#fff"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:layout_marginBottom="5dp" />
-
     <TextView
-        android:layout_marginRight="30dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textColor="#0000ff"
-        android:text="Forgot your PharmaCode?"
-        android:layout_marginLeft="30dp"
-        android:textSize="12sp"
-        android:focusable="true"
-        android:id="@+id/forget"
-        android:layout_above="@id/signUp"
-        android:background="@android:color/transparent"
-        android:layout_marginBottom="10dp" />
-
-
-    <TextView
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/or_login_with"
-        android:layout_below="@id/sign_in_btn"
-        android:gravity="center"
         android:id="@+id/or"
-        android:textColor="@color/colorPrimaryDark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/sign_in_btn"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:text="@string/or_login_with"
+        android:textColor="@color/colorPrimaryDark"
+        android:visibility="gone" />
 
     <LinearLayout
-        android:visibility="gone"
         android:id="@+id/social"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
-        android:weightSum="9"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/or"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="30dp"
         android:orientation="horizontal"
-        android:layout_below="@+id/or" >
+        android:visibility="gone"
+        android:weightSum="9">
 
         <ImageView
-        android:contentDescription="facebook"
-        android:layout_width="0dp"
-            android:layout_weight="3"
             android:id="@+id/facebook_login"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_facebook_circular_logo" />
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:contentDescription="facebook"
+            android:src="@drawable/ic_facebook_circular_logo" />
 
         <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="3"
-            android:layout_height="wrap_content"
             android:id="@+id/twitter_login"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
             android:src="@drawable/ic_twitter" />
 
         <ImageView
             android:id="@+id/google_login"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_google_plus"
             android:layout_weight="3"
-            />
+            android:src="@drawable/ic_google_plus" />
 
     </LinearLayout>
 
     <Button
+        android:textSize="13sp"
+        android:textStyle="bold"
         android:id="@+id/signUp"
+        android:minHeight="0dp"
+        android:padding="10dp"
         android:layout_width="match_parent"
-        android:layout_marginRight="30dp"
-        android:layout_marginLeft="30dp"
-        android:layout_height="30dp"
-        android:text="CREATE AN ACCOUNT"
+        android:layout_height="wrap_content"
         android:layout_above="@id/joining"
-        android:layout_marginBottom="10dp"
-        android:drawableRight="@drawable/ic_person_add_black_24dp"
+        android:layout_gravity="center"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/border_green"
+        android:text="CREATE AN ACCOUNT"
         android:textColor="#FFFFFF"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:background="@drawable/border_curved"
-        android:layout_gravity="center"
-        android:paddingRight="20dp"
-        />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <TextView
+        android:textStyle="bold"
+        android:textColor="@color/grey_joining"
         android:id="@+id/joining"
+        android:textSize="10sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@id/terms_ll"
         android:gravity="center"
-        android:layout_above="@id/termsOfService"
-        android:text="@string/by_joining_you_agree_to_medicento_s"
-        />
+        android:text="@string/by_joining_you_agree_to_medicento_s" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/termsOfService"
-
-        android:text="@string/terms_of_service"
-        android:gravity="center"
-        android:layout_above="@id/privacy"
-        android:layout_marginBottom="10dp"
-        android:textColor="#0000ff"
-        android:textSize="12sp" />
-
-    <Button
-        android:id="@+id/privacy"
-        android:text="privacy policy"
+    <LinearLayout
         android:layout_centerHorizontal="true"
+        android:id="@+id/terms_ll"
+        android:paddingBottom="10dp"
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:background="@android:color/transparent"
-        android:textColor="#0000ff"
-        android:textSize="14sp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10dp"
-        />
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <TextView
+            android:id="@+id/termsOfService"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:text="@string/terms_of_service"
+            android:textStyle="bold"
+            android:textColor="#289195"
+            android:textSize="10sp" />
+
+        <TextView
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:text=" &amp; "
+            android:textColor="@color/grey_joining"
+            android:textSize="10sp" />
+
+        <Button
+            android:minWidth="0dp"
+            android:textAllCaps="false"
+            android:id="@+id/privacy"
+            android:minHeight="0dp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="10dp"
+            android:background="@android:color/transparent"
+            android:text="Privacy Policy"
+            android:textColor="#289195"
+            android:textSize="10sp" />
+
+    </LinearLayout>
 
     <ProgressBar
-        android:elevation="10dp"
+        android:id="@+id/progress_sign_up"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/progress_sign_up"
         android:layout_centerInParent="true"
-        android:visibility="invisible"
-        />
+        android:elevation="10dp"
+        android:visibility="invisible" />
 
 </RelativeLayout>

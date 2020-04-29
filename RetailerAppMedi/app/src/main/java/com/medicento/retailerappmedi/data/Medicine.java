@@ -14,6 +14,8 @@ public class Medicine implements Serializable{
     private String scheme;
     private String discount, offer_qty;
 
+    public Medicine() {
+    }
 
     public String getmMedicentoName() {
         return mMedicentoName;

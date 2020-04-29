@@ -78,7 +78,7 @@
     <string name="sign_up"><u>SIGN UP</u></string>
     <string name="medicento_logo">Medicento Logo</string>
     <string name="pharmacy_login">Pharmacy Login</string>
-    <string name="registered_4_digit_pharmacode">Registered 4-digit PharmaCode :</string>
+    <string name="registered_4_digit_pharmacode">Registered 4-digit Pharma Code :</string>
     <string name="enter_pharma_code">Enter Pharma Code</string>
     <string name="forget_pharmacode">Forgot PharmaCode?</string>
     <string name="please_call_us_91_8548008190">Please Call Us : +91 - 8548008190</string>
@@ -105,4 +105,8 @@
     <string name="login_here">LOGIN HERE</string>
     <string name="oops_nno_internet">OOPS! No Internet</string>
     <string name="oops_seems_your_internet_connection_is_too_slow_please_wait_for_a_moment_and_retry_enjoying_your_favorite_app">Oops, seems your internet connection is too slow, Please wait for a moment and retry enjoying your favorite app.</string>
+    <string name="your_pharma_code_nxxxx">Your Pharma Code :\n<b>XXXX</b></string>
+    <string name="your_pharma_code">Your Pharma Code :\n<b>XXXX</b></string>
+    <string name="your_registered_mobile_no_nemail_id_xxxx">Your Registered Mobile No. /  Email ID : <b>XXXX</b></string>
+    <string name="cart_total_6_items_inr_2430">Cart Total (0 items) : <b>INR </b></string>
 </resources>

@@ -4,211 +4,274 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/colorBackground"
+    android:background="#f0f0f0"
     android:layout_height="match_parent"
     tools:context=".OrderConfirmed">
 
     <RelativeLayout
-        android:id="@+id/order_rl"
+        android:id="@+id/upper"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:background="@drawable/border_less_curve"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <ImageView
+            android:layout_marginLeft="10dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:id="@+id/more"
+            android:src="@drawable/ic_menu_black_24dp"
+            />
+
         <TextView
-            android:id="@+id/congo"
+            android:gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:text="Congratulations !!"
-            android:textColor="@color/colorAccent"
-            android:textSize="15dp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:padding="5dp"
+            android:textSize="15sp"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:text="Order Confirmed"
+            />
 
-        <TextView
-            android:id="@+id/congo1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/congo"
-            android:text="Your order has been placed with below details:"
-            android:textColor="#000"
-            android:textSize="15dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:gravity="center_horizontal"
-            android:textStyle="bold" />
+    </RelativeLayout>
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/card"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="10dp"
-            android:layout_below="@id/congo1"
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_above="@id/congo"
+        android:layout_marginBottom="20dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/box"
+        />
+
+    <TextView
+        android:layout_marginBottom="20dp"
+        android:id="@+id/congo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="Congratulations!"
+        android:layout_above="@id/congo1"
+        android:textColor="#555555"
+        android:textSize="24dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/congo1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/card"
+        android:text="Your order has been placed with below details:"
+        android:textColor="#555555"
+        android:textSize="15dp"
+        android:layout_margin="10dp"
+        android:textStyle="bold" />
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/card"
+        app:cardElevation="3dp"
+        android:elevation="0dp"
+        app:cardCornerRadius="10dp"
+        android:layout_above="@id/order_ll"
+        android:layout_width="match_parent"
+        android:layout_marginBottom="30dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_margin="10dp"
             android:layout_height="wrap_content">
 
             <LinearLayout
                 android:padding="10dp"
-                android:orientation="vertical"
+                android:weightSum="10"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <TextView
+                    android:id="@+id/pharmacy"
+                    android:textSize="14sp"
+                    android:layout_weight="4.6"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Selected Pharmacy :"
+                    android:textColor="#555555"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_weight="5.4"
+                    android:textSize="14sp"
+                    android:id="@+id/selected_pharmacy_tv"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/sea_blue"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:background="#f0f0f0"
+                android:padding="10dp"
+                android:weightSum="10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/order_id_label"
+                    android:textSize="14sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.6"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/selected_pharmacy_tv"
+                    android:text="Order Id :"
+                    android:textColor="#555555"
+                    android:textStyle="bold" />
+
+
+                <TextView
+                    android:id="@+id/order_id_tv"
+                    android:textSize="14sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="5.4"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/sea_blue"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:padding="10dp"
+                android:weightSum="10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/order_cost_label"
+                    android:textSize="14sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.6"
+                    android:layout_height="wrap_content"
+                    android:text="Total cost :"
+                    android:textColor="#555555"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/total_cost_tv"
+                    android:textSize="14sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="5.4"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/sea_blue"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:background="#f0f0f0"
+                android:padding="10dp"
+                android:weightSum="10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/delivery_date_label"
+                    android:textSize="14sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.6"
+                    android:layout_height="wrap_content"
+                    android:text="Expected Delivery : "
+                    android:textColor="#555555"
+                    android:textStyle="bold" />
+
                 <LinearLayout
-                    android:weightSum="10"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="5.4"
                     android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/pharmacy"
-                        android:textSize="14sp"
-                        android:layout_weight="4.6"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="Selected Pharmacy"
-                        android:textColor="@color/colorAccent"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_weight="5.4"
-                        android:textSize="14sp"
-                        android:id="@+id/selected_pharmacy_tv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/colorPrimaryDark"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="2dp"
-                    android:background="@android:color/darker_gray" />
-
-                <LinearLayout
-                    android:weightSum="10"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/order_id_label"
-                        android:textSize="14sp"
-                        android:layout_width="0dp"
-                        android:layout_weight="4.6"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/selected_pharmacy_tv"
-                        android:text="Order Id:"
-                        android:textColor="@color/colorAccent"
-                        android:textStyle="bold" />
-
-
-                    <TextView
-                        android:id="@+id/order_id_tv"
-                        android:textSize="14sp"
-                        android:layout_width="0dp"
-                        android:layout_weight="5.4"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/colorPrimaryDark"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="2dp"
-                    android:background="@android:color/darker_gray" />
-
-                <LinearLayout
-                    android:weightSum="10"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/order_cost_label"
-                        android:textSize="14sp"
-                        android:layout_width="0dp"
-                        android:layout_weight="4.6"
-                        android:layout_height="wrap_content"
-                        android:text="Total cost:"
-                        android:textColor="@color/colorAccent"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/total_cost_tv"
-                        android:textSize="14sp"
-                        android:layout_width="0dp"
-                        android:layout_weight="5.4"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/colorPrimaryDark"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="2dp"
-                    android:background="@android:color/darker_gray" />
-                <LinearLayout
-                    android:weightSum="10"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/delivery_date_label"
-                        android:textSize="14sp"
-                        android:layout_width="0dp"
-                        android:layout_weight="4.6"
-                        android:layout_height="wrap_content"
-                        android:text="Expected Delivery: "
-                        android:textColor="@color/colorAccent"
-                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/delivery_date_tv"
-                        android:layout_width="0dp"
-                        android:layout_weight="5.4"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/colorPrimaryDark"
+                        android:textColor="@color/sea_blue"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_marginLeft="5dp"
+                        android:id="@+id/delivery_slot_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#E6001B"
                         android:textStyle="bold" />
 
                 </LinearLayout>
 
             </LinearLayout>
 
-        </android.support.v7.widget.CardView>
+        </LinearLayout>
 
+    </android.support.v7.widget.CardView>
 
+    <LinearLayout
+        android:id="@+id/order_ll"
+        android:layout_above="@id/click_to_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
         <Button
+            android:textStyle="bold"
+            android:layout_above="@id/click_to_view"
+            android:drawableRight="@drawable/ic_library_add_white_24dp"
+            android:onClick="new_order"
+            android:layout_width="0dp"
+            android:textSize="15sp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="New Order"
+            android:textColor="#ffffff"
+            android:background="@drawable/border_distrbutor"
+            android:layout_margin="10dp"
+            android:padding="10dp"/>
+        <Button
+            android:textStyle="bold"
             android:id="@+id/share_order_btn"
-            android:layout_width="140dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="15sp"
             android:drawableRight="@drawable/ic_share_white_24dp"
             android:layout_height="wrap_content"
             android:text="Share Order"
             android:textColor="#ffffff"
-            android:background="@drawable/border_for_order"
-            android:layout_below="@id/card"
+            android:background="@drawable/border_green"
+            android:paddingRight="10dp"
             android:layout_alignParentRight="true"
-            android:layout_margin="10dp"
-            android:padding="4dp"/>
-        <Button
-            android:drawableRight="@drawable/ic_library_add_white_24dp"
-            android:onClick="new_order"
-            android:layout_width="140dp"
-            android:layout_height="wrap_content"
-            android:text="New Order"
-            android:textColor="#ffffff"
-            android:background="@drawable/border_for_order"
-            android:layout_below="@id/card"
-            android:layout_margin="10dp"
-            android:padding="10dp"/>
+            android:layout_margin="10dp"/>
+    </LinearLayout>
 
-    </RelativeLayout>
+    <TextView
+        android:layout_marginTop="30dp"
+        android:id="@+id/click_to_view"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_bottom_dark"
+        android:text="Click to view your order "
+        android:textColor="#555555"
+        android:padding="3dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:gravity="center_horizontal"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        />
 
     <RelativeLayout
+        android:visibility="gone"
         android:background="@color/white"
         android:id="@+id/bottom_sheet"
         android:layout_below="@id/order_rl"
@@ -239,5 +302,114 @@
             android:layout_below="@id/order_details_label" />
 
     </RelativeLayout>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/detail_card"
+        android:layout_margin="10dp"
+        android:elevation="20dp"
+        app:cardElevation="10dp"
+        app:cardCornerRadius="4dp"
+        android:layout_centerInParent="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:id="@+id/detail_ll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:text="Order Details"
+                    android:textColor="#555555"
+                    android:textSize="24dp"
+                    android:id="@+id/details_tv"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/close"
+                    android:layout_gravity="end"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/cross_grey"
+                    />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:elevation="20dp"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical"
+                android:layout_below="@id/detail_ll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:padding="5dp"
+                    android:background="@drawable/border_outline_gr"
+                    android:layout_weight="6"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:gravity="center_horizontal"
+                        android:textStyle="bold"
+                        android:textSize="9sp"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="S. No." />
+
+                    <TextView
+                        android:gravity="center_horizontal"
+                        android:textStyle="bold"
+                        android:textSize="9sp"
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="wrap_content"
+                        android:text="Name" />
+
+                    <TextView
+                        android:gravity="center_horizontal"
+                        android:textStyle="bold"
+                        android:textSize="9sp"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Quantity" />
+
+                    <TextView
+                        android:gravity="center_horizontal"
+                        android:textStyle="bold"
+                        android:textSize="9sp"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Price" />
+
+                </LinearLayout>
+
+                <android.support.v7.widget.RecyclerView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/item_rv"
+                    />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
 
 </RelativeLayout>

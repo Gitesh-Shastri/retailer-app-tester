@@ -24,6 +24,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
+import com.medicento.retailerappmedi.activity.MainActivity;
 import com.medicento.retailerappmedi.activity.ReturnActivity;
 import com.medicento.retailerappmedi.adapter.OrderBounceItemsAdapter;
 import com.medicento.retailerappmedi.adapter.SubOrderAdapter;
@@ -134,7 +135,7 @@ public class RecentOrderDetails extends AppCompatActivity {
         go_home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(RecentOrderDetails.this, PlaceOrderActivity.class);
+                Intent intent = new Intent(RecentOrderDetails.this, HomeActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
                         Intent.FLAG_ACTIVITY_CLEAR_TASK |
                         Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -160,7 +161,7 @@ public class RecentOrderDetails extends AppCompatActivity {
                     if(orderItems.size() == 0) {
                         Toast.makeText(RecentOrderDetails.this, "Please Select Some medicine", Toast.LENGTH_SHORT).show();
                     } else {
-                        Intent intent = new Intent(RecentOrderDetails.this, PlaceOrderActivity.class);
+                        Intent intent = new Intent(RecentOrderDetails.this, HomeActivity.class);
                         intent.putExtra("re_order_items", orderItems);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
                                 Intent.FLAG_ACTIVITY_CLEAR_TASK |
@@ -213,7 +214,7 @@ public class RecentOrderDetails extends AppCompatActivity {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/orders/get_order_details/",
+                "http://stage.medicento.com:8080/orders/get_order_details/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -445,7 +446,7 @@ public class RecentOrderDetails extends AppCompatActivity {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/api/app/record_activity/",
+                "http://stage.medicento.com:8080/api/app/record_activity/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

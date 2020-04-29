@@ -48,7 +48,11 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.gson.Gson;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
+import com.medicento.retailerappmedi.activity.ConfirmationAccountActivity;
+import com.medicento.retailerappmedi.activity.ForgetPasswordActivity;
+import com.medicento.retailerappmedi.activity.MainActivity;
 import com.medicento.retailerappmedi.activity.NoInternetActivity;
+import com.medicento.retailerappmedi.create_account.CreateAccountActivity;
 import com.medicento.retailerappmedi.data.SalesPerson;
 
 import org.json.JSONArray;
@@ -152,7 +156,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 break;
 
             case R.id.signUp:
-                startActivity(new Intent(SignUpActivity.this, Register.class));
+                startActivity(new Intent(SignUpActivity.this, CreateAccountActivity.class));
                 break;
 
             case R.id.forget:
@@ -179,131 +183,132 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     private void forgetCode() {
 
-        final Dialog dialog = new Dialog(SignUpActivity.this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.forget_pharma_code);
+//        final Dialog dialog = new Dialog(SignUpActivity.this);
+//        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        dialog.setContentView(R.layout.forget_pharma_code);
+//
+//        final EditText phone = dialog.findViewById(R.id.email);
+//
+//        Button submit = dialog.findViewById(R.id.submit);
+//
+//        Button back = dialog.findViewById(R.id.back);
+//        Button create = dialog.findViewById(R.id.create);
+//
+//        dialog.show();
+//
+//        back.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                dialog.dismiss();
+//            }
+//        });
+//
+//        create.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startActivity(new Intent(SignUpActivity.this, ConfirmationAccountActivity.class));
+//            }
+//        });
+//
+//
+//        submit.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                if(!amIConnect(SignUpActivity.this)) {
+//                    startActivity(new Intent(SignUpActivity.this, NoInternetActivity.class));
+//                }
+//                if (phone.getText().toString().isEmpty()) {
+//                    Toast.makeText(SignUpActivity.this, "Please Provide Email / Phone Number", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//
+//                RequestQueue requestQueue = Volley.newRequestQueue(SignUpActivity.this);
+//
+//                StringRequest stringRequest = new StringRequest(
+//                        Request.Method.POST,
+//                        "http://stage.medicento.com:8080/pharmacy/forget_email/",
+//                        new Response.Listener<String>() {
+//                            @Override
+//                            public void onResponse(String response) {
+//                                try {
+//                                    JSONObject jsonObject = new JSONObject(response);
+//
+//                                    String message = JsonUtils.getJsonValueFromKey(jsonObject, "message");
+//                                    if(message.equals("Pharmacy Found")) {
+//
+//                                        JSONObject pharmacy = jsonObject.getJSONObject("pharmacy");
+//
+//                                        String code_value = JsonUtils.getJsonValueFromKey(pharmacy, "pharma_code");
+//
+//                                        final Dialog dialog1 = new Dialog(SignUpActivity.this);
+//                                        dialog1.requestWindowFeature(Window.FEATURE_NO_TITLE);
+//                                        dialog1.setContentView(R.layout.congrats);
+//
+//                                        TextView email = dialog1.findViewById(R.id.phone);
+//                                        email.setText("  Your Registered Mobile Number / Email: " + phone.getText().toString());
+//
+//                                        TextView code = dialog1.findViewById(R.id.code);
+//                                        code.setText("Your PharmaCode: " + code_value);
+//
+//                                        Button back1 = dialog1.findViewById(R.id.back);
+//                                        back1.setOnClickListener(new View.OnClickListener() {
+//                                            @Override
+//                                            public void onClick(View v) {
+//                                                dialog1.dismiss();
+//                                            }
+//                                        });
+//
+//                                        dialog1.show();
+//                                    } else {
+//                                        Toast.makeText(SignUpActivity.this, "Sorry, you have entered a wrong Email Id/Mobile Number. Please try again.", Toast.LENGTH_SHORT).show();
+//                                    }
+//                                } catch (JSONException e) {
+//                                    e.printStackTrace();
+//                                    Toast.makeText(SignUpActivity.this, "Sorry, you have entered a wrong Email Id/Mobile Number. Please try again.", Toast.LENGTH_SHORT).show();
+//                                }
+//                            }
+//                        },
+//                        new Response.ErrorListener() {
+//                            @Override
+//                            public void onErrorResponse(VolleyError error) {
+//                                try {
+//                                    if (error == null || error.networkResponse == null) {
+//                                        Toast.makeText(SignUpActivity.this, "No Response From Server", Toast.LENGTH_SHORT).show();
+//                                        return;
+//                                    }
+//                                    String body;
+//                                    try {
+//                                        body = new String(error.networkResponse.data, "UTF-8");
+//                                        JSONObject jsonObject = new JSONObject(body);
+//                                        if(jsonObject.has("message")) {
+//                                            Toast.makeText(SignUpActivity.this, JsonUtils.getJsonValueFromKey(jsonObject, "message"), Toast.LENGTH_SHORT).show();
+//                                        }
+//                                    } catch (UnsupportedEncodingException e) {
+//                                        Toast.makeText(SignUpActivity.this, "No Response From Server", Toast.LENGTH_SHORT).show();
+//                                    }
+//                                } catch (Exception e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//                        }
+//                ) {
+//
+//                    @Override
+//                    protected Map<String, String> getParams() throws AuthFailureError {
+//                        Map<String, String> params = new HashMap<>();
+//                        params.put("email", phone.getText().toString());
+//                        return params;
+//                    }
+//
+//                };
+//
+//                requestQueue.add(stringRequest);
+//
+//            }
+//        });
 
-        final EditText phone = dialog.findViewById(R.id.email);
-
-        Button submit = dialog.findViewById(R.id.submit);
-
-        Button back = dialog.findViewById(R.id.back);
-        Button create = dialog.findViewById(R.id.create);
-
-        dialog.show();
-
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-
-        create.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SignUpActivity.this, Register.class));
-            }
-        });
-
-
-        submit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if(!amIConnect(SignUpActivity.this)) {
-                    startActivity(new Intent(SignUpActivity.this, NoInternetActivity.class));
-                }
-                if (phone.getText().toString().isEmpty()) {
-                    Toast.makeText(SignUpActivity.this, "Please Provide Email / Phone Number", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                RequestQueue requestQueue = Volley.newRequestQueue(SignUpActivity.this);
-
-                StringRequest stringRequest = new StringRequest(
-                        Request.Method.POST,
-                        "http://54.161.199.63:8080/pharmacy/forget_email/",
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(response);
-
-                                    String message = JsonUtils.getJsonValueFromKey(jsonObject, "message");
-                                    if(message.equals("Pharmacy Found")) {
-
-                                        JSONObject pharmacy = jsonObject.getJSONObject("pharmacy");
-
-                                        String code_value = JsonUtils.getJsonValueFromKey(pharmacy, "pharma_code");
-
-                                        final Dialog dialog1 = new Dialog(SignUpActivity.this);
-                                        dialog1.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                                        dialog1.setContentView(R.layout.congrats);
-
-                                        TextView email = dialog1.findViewById(R.id.phone);
-                                        email.setText("  Your Registered Mobile Number / Email: " + phone.getText().toString());
-
-                                        TextView code = dialog1.findViewById(R.id.code);
-                                        code.setText("Your PharmaCode: " + code_value);
-
-                                        Button back1 = dialog1.findViewById(R.id.back);
-                                        back1.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                dialog1.dismiss();
-                                            }
-                                        });
-
-                                        dialog1.show();
-                                    } else {
-                                        Toast.makeText(SignUpActivity.this, "Sorry, you have entered a wrong Email Id/Mobile Number. Please try again.", Toast.LENGTH_SHORT).show();
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                    Toast.makeText(SignUpActivity.this, "Sorry, you have entered a wrong Email Id/Mobile Number. Please try again.", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                try {
-                                    if (error == null || error.networkResponse == null) {
-                                        Toast.makeText(SignUpActivity.this, "No Response From Server", Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
-                                    String body;
-                                    try {
-                                        body = new String(error.networkResponse.data, "UTF-8");
-                                        JSONObject jsonObject = new JSONObject(body);
-                                        if(jsonObject.has("message")) {
-                                            Toast.makeText(SignUpActivity.this, JsonUtils.getJsonValueFromKey(jsonObject, "message"), Toast.LENGTH_SHORT).show();
-                                        }
-                                    } catch (UnsupportedEncodingException e) {
-                                        Toast.makeText(SignUpActivity.this, "No Response From Server", Toast.LENGTH_SHORT).show();
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                ) {
-
-                    @Override
-                    protected Map<String, String> getParams() throws AuthFailureError {
-                        Map<String, String> params = new HashMap<>();
-                        params.put("email", phone.getText().toString());
-                        return params;
-                    }
-
-                };
-
-                requestQueue.add(stringRequest);
-
-            }
-        });
-
+        startActivity(new Intent(SignUpActivity.this, ForgetPasswordActivity.class));
 
     }
 
@@ -343,7 +348,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/pharmacy/login/",
+                "http://stage.medicento.com:8080/pharmacy/login/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -388,7 +393,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                                 snackbar.dismiss();
                                 Snackbar.make(relativeLayout, "User Logged In", Snackbar.LENGTH_SHORT).show();
 
-                                Intent intent = new Intent(SignUpActivity.this, PlaceOrderActivity.class);
+                                Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
                                         Intent.FLAG_ACTIVITY_CLEAR_TASK |
                                         Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -474,7 +479,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST,
-                "http://54.161.199.63:8080/api/app/record_activity/",
+                "http://stage.medicento.com:8080/api/app/record_activity/",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

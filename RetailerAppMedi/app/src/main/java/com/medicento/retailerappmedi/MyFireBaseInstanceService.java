@@ -7,11 +7,13 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.medicento.retailerappmedi.activity.NotificationActivity;
 
 import java.util.Map;
 import java.util.Random;
@@ -43,7 +45,16 @@ public class MyFireBaseInstanceService extends FirebaseMessagingService {
         String title_upper = data.get("title_upper").toString();
 
         Intent intent;
-        intent = new Intent(getApplicationContext(), Notification.class);
+
+        if (data.containsKey("play_store")) {
+            intent = new Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=com.medicento.retailerappmedi"
+                    )
+            );
+        } else {
+            intent = new Intent(getApplicationContext(), NotificationActivity.class);
+        }
 
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
@@ -87,7 +98,7 @@ public class MyFireBaseInstanceService extends FirebaseMessagingService {
 
 
             assert notificationManager != null;
-            notificationManager.notify(1, notificationBuilder.build());
+            notificationManager.notify(new Random().nextInt(), notificationBuilder.build());
 
         } else {
 
@@ -107,7 +118,7 @@ public class MyFireBaseInstanceService extends FirebaseMessagingService {
                     .setContentIntent(pendingIntent);
 
             assert notificationManager != null;
-            notificationManager.notify(1, notificationBuilder.build());
+            notificationManager.notify(new Random().nextInt(), notificationBuilder.build());
         }
 
     }
@@ -155,3 +166,5 @@ public class MyFireBaseInstanceService extends FirebaseMessagingService {
         }
     }
 }
+
+// dev.send_message(data={'title_upper': 'Update Needed', 'title': 'Please Update your app for better user experience', 'play_store': 'true'})

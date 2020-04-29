@@ -20,6 +20,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.medicento.retailerappmedi.activity.MainActivity;
 import com.medicento.retailerappmedi.data.DistAdapter;
 import com.medicento.retailerappmedi.data.DistributorName;
 import com.medicento.retailerappmedi.data.Response;
@@ -207,7 +208,7 @@ public class SurveyMedi extends AppCompatActivity {
         new PlaceOrder().execute(json);
     }
     public void login(View view) {
-        Intent intent = new Intent(SurveyMedi.this, PlaceOrderActivity.class);
+        Intent intent = new Intent(SurveyMedi.this, HomeActivity.class);
         startActivity(intent);
     }
 

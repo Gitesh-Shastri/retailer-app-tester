@@ -71,7 +71,7 @@ public class RetailerWebLogOut extends AppCompatActivity {
 
         StringRequest stringRequest = new StringRequest(
                 Request.Method.GET,
-                "http://54.161.199.63:8080/pharmacy/get_code_details/?pharmacy_id=" + sp.getmAllocatedPharmaId(),
+                "http://stage.medicento.com:8080/pharmacy/get_code_details/?pharmacy_id=" + sp.getmAllocatedPharmaId(),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

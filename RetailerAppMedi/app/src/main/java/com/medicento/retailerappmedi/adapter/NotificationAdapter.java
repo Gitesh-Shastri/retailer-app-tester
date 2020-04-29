@@ -15,11 +15,12 @@ import android.widget.TextView;
 
 import com.medicento.retailerappmedi.R;
 import com.medicento.retailerappmedi.RecentOrderDetails;
+import com.medicento.retailerappmedi.activity.PaymentSummaryActivity;
 import com.medicento.retailerappmedi.data.Notification;
 
 import java.util.ArrayList;
 
-public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder>{
+public class    NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder>{
 
     private ArrayList<Notification> notifications;
     private Context context;
@@ -88,8 +89,13 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 @Override
                 public void onClick(View view) {
                     try {
-                        context.startActivity(new Intent(context, RecentOrderDetails.class)
-                                .putExtra("id", notifications.get(getAdapterPosition()).getOrder_id()));
+                        if (notifications.get(getAdapterPosition()).getTitle().contains("Payment")) {
+                            context.startActivity(new Intent(context, PaymentSummaryActivity.class)
+                                    .putExtra("notification", notifications.get(getAdapterPosition())));
+                        } else {
+                            context.startActivity(new Intent(context, RecentOrderDetails.class)
+                                    .putExtra("id", notifications.get(getAdapterPosition()).getOrder_id()));
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

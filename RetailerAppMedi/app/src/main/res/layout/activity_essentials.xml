@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f0f0f0"
+    tools:context=".EssentialsActivity">
+
+    <RelativeLayout
+        android:id="@+id/upper"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:background="@drawable/border_less_curve"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:id="@+id/back"
+            android:src="@drawable/ic_arrow_back_white_20dp"
+            />
+
+        <TextView
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/back"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:padding="5dp"
+            android:textSize="14sp"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:id="@+id/pharma_name"
+            />
+
+        <ImageView
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/cart_rl"
+            android:layout_marginRight="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/search"
+            />
+
+        <RelativeLayout
+            android:layout_centerVertical="true"
+            android:id="@+id/cart_rl"
+            android:layout_marginRight="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_marginTop="5dp"
+                android:id="@+id/cart"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/cart_nav"
+                />
+
+            <TextView
+                android:visibility="gone"
+                android:background="@drawable/circle_yellow"
+                android:layout_centerHorizontal="true"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:text="1"
+                android:id="@+id/number"
+                />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/essential_lb"
+        android:layout_below="@id/upper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="MEDICENTO ESSENTIAL"
+        android:textColor="#555555"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:padding="10dp"
+        />
+
+    <LinearLayout
+        android:id="@+id/linear"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_below="@id/essential_lb"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_marginBottom="5dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/pipe_kits"
+                    />
+
+                <TextView
+                    android:textSize="11sp"
+                    android:textColor="#555555"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="PPE Kits"
+                    android:gravity="center_horizontal"
+                    />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_marginBottom="5dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/sanitizer_icom"
+                    />
+
+                <TextView
+                    android:textSize="11sp"
+                    android:textColor="#555555"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Hand Sanitizer"
+                    android:gravity="center_horizontal"
+                    />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_marginBottom="5dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/family_care"
+                    />
+
+                <TextView
+                    android:textSize="11sp"
+                    android:textColor="#555555"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Family Care"
+                    android:gravity="center_horizontal"
+                    />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_marginBottom="5dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/mask_icon"
+                    />
+
+                <TextView
+                    android:textSize="11sp"
+                    android:textColor="#555555"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Masks"
+                    android:gravity="center_horizontal"
+                    />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_below="@+id/linear"
+        android:layout_above="@id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/essential_rv"
+        />
+
+    <LinearLayout
+        android:id="@+id/bottom_nav"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:id="@+id/go_to_cart_rl"
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_toLeftOf="@id/go_to_cart"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="TOTAL PRICE :"
+                    android:textColor="#555555"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    />
+
+                <LinearLayout
+                    android:paddingBottom="5dp"
+                    android:background="@drawable/border_bottom_dark"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/price"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="₹ 135"
+                        android:textColor="#555555"
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        />
+
+                    <TextView
+                        android:id="@+id/count"
+                        android:padding="5dp"
+                        android:background="#FFEB3B"
+                        android:layout_marginLeft="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#E6001B"
+                        android:textStyle="bold"
+                        android:textSize="13sp"
+                        />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_keyboard_arrow_down_black_24dp"
+                        />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <Button
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:id="@+id/go_to_cart"
+                android:layout_alignParentRight="true"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:padding="5dp"
+                android:background="@drawable/border_green"
+                android:text="Go To Cart"
+                />
+
+        </RelativeLayout>
+
+        <include layout="@layout/bottom_nav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+</RelativeLayout>

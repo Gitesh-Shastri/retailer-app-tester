@@ -156,7 +156,7 @@ public class RetailerWeb extends AppCompatActivity implements ZXingScannerView.R
                             RequestQueue requestQueue = Volley.newRequestQueue(RetailerWeb.this);
                             StringRequest stringRequest = new StringRequest(
                                     Request.Method.GET,
-                                    "http://54.161.199.63:8080/pharmacy/update_pharmacy/?code=" + textResult.getText() + "&pharmacy_id=" + sp.getmAllocatedPharmaId(),
+                                    "http://stage.medicento.com:8080/pharmacy/update_pharmacy/?code=" + textResult.getText() + "&pharmacy_id=" + sp.getmAllocatedPharmaId(),
                                     new Response.Listener<String>() {
                                         @Override
                                         public void onResponse(String response) {
@@ -203,7 +203,7 @@ public class RetailerWeb extends AppCompatActivity implements ZXingScannerView.R
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.GET,
-                "http://54.161.199.63:8080/pharmacy/update_pharmacy/?code=" + text_result.getText() + "&pharmacy_id=" + sp.getmAllocatedPharmaId(),
+                "http://stage.medicento.com:8080/pharmacy/update_pharmacy/?code=" + text_result.getText() + "&pharmacy_id=" + sp.getmAllocatedPharmaId(),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -228,7 +228,7 @@ public class RetailerWeb extends AppCompatActivity implements ZXingScannerView.R
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.GET,
-                "http://54.161.199.63:8080/pharmacy/update_pharmacy/?code=" + text_result.getText() + "&pharmacy_id=" + sp.getmAllocatedPharmaId(),
+                "http://stage.medicento.com:8080/pharmacy/update_pharmacy/?code=" + text_result.getText() + "&pharmacy_id=" + sp.getmAllocatedPharmaId(),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
