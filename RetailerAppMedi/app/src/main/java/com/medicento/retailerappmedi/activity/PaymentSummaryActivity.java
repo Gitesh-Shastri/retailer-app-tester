@@ -1,13 +1,12 @@
 package com.medicento.retailerappmedi.activity;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -31,8 +30,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import io.paperdb.Paper;
 
@@ -104,7 +101,7 @@ public class PaymentSummaryActivity extends AppCompatActivity {
                             JSONArray payment_summary = jsonObject.getJSONArray("data");
                             JSONArray invoices = jsonObject.getJSONArray("invoices");
                             due_date.setText(jsonObject.getString("next_payment_due").substring(0, 9));
-                            min_amount_balance.setText(jsonObject.getInt("min_amount_due")+"");
+                            min_amount_balance.setText("Rs. " + jsonObject.getInt("min_amount_due")+"");
                             discount = jsonObject.getInt("discount");
 
                             paymentAdapter.setDiscount(discount);

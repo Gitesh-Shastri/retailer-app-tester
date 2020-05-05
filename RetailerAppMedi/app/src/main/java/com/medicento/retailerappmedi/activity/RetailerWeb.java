@@ -9,12 +9,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
@@ -34,7 +33,6 @@ import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.gson.Gson;
 import com.google.zxing.Result;
-import com.medicento.retailerappmedi.PlaceOrderActivity;
 import com.medicento.retailerappmedi.R;
 import com.medicento.retailerappmedi.data.SalesPerson;
 
@@ -100,7 +98,7 @@ public class RetailerWeb extends AppCompatActivity implements ZXingScannerView.R
 
                 int camera = ContextCompat.checkSelfPermission(RetailerWeb.this, Manifest.permission.CAMERA);
                 if(camera != PackageManager.PERMISSION_GRANTED) {
-                    new AlertDialog.Builder(RetailerWeb.this).setMessage("You need to enable permissions to use this feature. \nGo To Permissions > Enable All Permissions").setPositiveButton("Enable Permissions", new DialogInterface.OnClickListener() {
+                    new AlertDialog.Builder(RetailerWeb.this).setMessage("You need to enable permissions to use this feature. \nGo To Permissions > Enable All Permissions").setPositiveButton("Enable", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Intent intent = new Intent();
@@ -109,7 +107,7 @@ public class RetailerWeb extends AppCompatActivity implements ZXingScannerView.R
                             intent.setData(uri);
                             startActivity(intent);
                         }
-                    }).setNegativeButton("Go back", new DialogInterface.OnClickListener() {
+                    }).setNegativeButton("back", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             onBackPressed();

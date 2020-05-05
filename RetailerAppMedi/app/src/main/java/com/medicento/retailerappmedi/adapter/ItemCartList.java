@@ -1,8 +1,8 @@
 package com.medicento.retailerappmedi.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -12,10 +12,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.medicento.retailerappmedi.R;
 import com.medicento.retailerappmedi.data.EssentialList;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -64,7 +63,7 @@ public class ItemCartList extends RecyclerView.Adapter<BaseViewHolder> {
 
         EditText qty;
         TextView cost, name;
-        ImageView edit, delete;
+        ImageView edit, delete, image;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -74,6 +73,7 @@ public class ItemCartList extends RecyclerView.Adapter<BaseViewHolder> {
             name = itemView.findViewById(R.id.name);
             cost = itemView.findViewById(R.id.cost);
             delete = itemView.findViewById(R.id.delete);
+            image = itemView.findViewById(R.id.image);
         }
 
         @Override
@@ -90,9 +90,11 @@ public class ItemCartList extends RecyclerView.Adapter<BaseViewHolder> {
             EssentialList essentialList = essentialLists.get(position);
 
             qty.setText(essentialList.getQty()+"");
-            cost.setText((essentialList.getCost()*essentialList.getQty())+"");
+            cost.setText("₹ " + (essentialList.getCost()*essentialList.getQty()));
 
             name.setText(essentialList.getName());
+
+            Glide.with(context).load(essentialLists.get(position).getImage_url()).into(image);
 
             edit.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -104,7 +106,7 @@ public class ItemCartList extends RecyclerView.Adapter<BaseViewHolder> {
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    essentialLists.get(getCurrentPosition()).setQty(0);
+                    essentialLists.remove(getCurrentPosition());
                     if (mOverallCostChangeListener != null) {
                         mOverallCostChangeListener.onCostChanged();
                     }
@@ -125,14 +127,16 @@ public class ItemCartList extends RecyclerView.Adapter<BaseViewHolder> {
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    try {
-                        essentialLists.get(getCurrentPosition()).setQty(Integer.parseInt(qty.getText().toString()));
-                        if (mOverallCostChangeListener != null) {
-                            mOverallCostChangeListener.onCostChanged();
+                    if (!qty.getText().toString().trim().equals("0")) {
+                        try {
+                            essentialLists.get(getCurrentPosition()).setQty(Integer.parseInt(qty.getText().toString()));
+                            if (mOverallCostChangeListener != null) {
+                                mOverallCostChangeListener.onCostChanged();
+                            }
+                            notifyItemChanged(getCurrentPosition());
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                        notifyItemChanged(getCurrentPosition());
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
                     qty.setSelection(qty.getText().toString().length());
                 }

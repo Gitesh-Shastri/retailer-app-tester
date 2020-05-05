@@ -6,8 +6,9 @@
     android:layout_height="wrap_content">
 
     <ImageView
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:id="@+id/image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:src="@drawable/mask_image"
         />
 
@@ -22,7 +23,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"
             android:text="Mask"
-            android:textSize="16sp"
+            android:textSize="13sp"
             android:textStyle="bold" />
 
         <TextView
@@ -33,7 +34,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"
             android:text="Qty: 100"
-            android:textSize="16sp" />
+            android:textSize="12sp" />
 
         <TextView
             android:layout_centerVertical="true"
@@ -44,7 +45,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"
             android:text="₹ 1500"
-            android:textSize="16sp"
+            android:textSize="12sp"
             android:textStyle="bold" />
 
     </RelativeLayout>

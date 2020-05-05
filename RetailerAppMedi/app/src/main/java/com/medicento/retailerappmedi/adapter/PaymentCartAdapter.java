@@ -1,13 +1,15 @@
 package com.medicento.retailerappmedi.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.medicento.retailerappmedi.R;
 import com.medicento.retailerappmedi.data.EssentialList;
 
@@ -44,6 +46,7 @@ public class PaymentCartAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     public class ViewHolder extends BaseViewHolder {
 
         TextView name, qty, price;
+        ImageView image;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -51,6 +54,8 @@ public class PaymentCartAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             name = itemView.findViewById(R.id.name);
             qty = itemView.findViewById(R.id.qty);
             price = itemView.findViewById(R.id.price);
+
+            image = itemView.findViewById(R.id.image);
         }
 
         @Override
@@ -69,6 +74,8 @@ public class PaymentCartAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             name.setText(essentialList.getName());
             qty.setText(essentialList.getQty()+"");
             price.setText("₹ " +(essentialList.getQty()*essentialList.getCost()));
+
+            Glide.with(context).load(essentialList.getImage_url()).into(image);
         }
     }
 }

@@ -36,7 +36,7 @@
     </RelativeLayout>
 
 
-    <android.support.design.card.MaterialCardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="200dp"
         android:layout_marginTop="120dp"
         android:id="@+id/card"
@@ -113,9 +113,9 @@
         </LinearLayout>
 
 
-    </android.support.design.card.MaterialCardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <android.support.design.card.MaterialCardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/card"
@@ -185,7 +185,7 @@
 
         </LinearLayout>
 
-    </android.support.design.card.MaterialCardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <Button
         android:id="@+id/edit_profile"

@@ -1,15 +1,21 @@
 package com.medicento.retailerappmedi.activity;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -17,45 +23,64 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.vision.text.Line;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.medicento.retailerappmedi.CartPageActivity;
-import com.medicento.retailerappmedi.PlaceOrderActivity;
 import com.medicento.retailerappmedi.R;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
 import com.medicento.retailerappmedi.adapter.GroupAdapter;
 import com.medicento.retailerappmedi.adapter.ImageAdapter;
-import com.medicento.retailerappmedi.adapter.ImagesAdapter;
 import com.medicento.retailerappmedi.data.Category;
+import com.medicento.retailerappmedi.data.Essential;
 import com.medicento.retailerappmedi.data.EssentialList;
-import com.medicento.retailerappmedi.data.Group;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class ParticularOrderActivity extends AppCompatActivity implements View.OnClickListener{
+import io.paperdb.Paper;
+
+public class ParticularOrderActivity extends AppCompatActivity implements View.OnClickListener {
 
     ArrayList<String> images;
+    ArrayList<EssentialList> essentialLists;
     ArrayList<Category> groups;
     ImageAdapter imageAdapter;
     RecyclerView image_rv, group_rv;
     GroupAdapter groupAdapter;
     Button add_to_cart;
-    ImageView back, cart;
+    ImageView back, cart, add, sub;
+    EssentialList essentialList;
+    TextView name, ptr;
+    EditText qty;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_particular_order);
+        Paper.init(this);
+
+        String essential_saved = Paper.book().read("essential_saved");
+        if (essential_saved != null && !essential_saved.isEmpty()) {
+            Type type = new TypeToken<ArrayList<EssentialList>>() {
+            }.getType();
+            essentialLists = new Gson().fromJson(essential_saved, type);
+        }
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
 
+        qty = findViewById(R.id.qty);
+        ptr = findViewById(R.id.ptr);
+        add = findViewById(R.id.add);
+        sub = findViewById(R.id.sub);
         back = findViewById(R.id.back);
         cart = findViewById(R.id.cart);
+        name = findViewById(R.id.name);
         image_rv = findViewById(R.id.image_rv);
         group_rv = findViewById(R.id.group_rv);
         add_to_cart = findViewById(R.id.add_to_cart);
@@ -71,6 +96,10 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
         images.add("");
         images.add("");
         images.add("");
+
+        if (getIntent() != null && getIntent().hasExtra("item")) {
+            essentialList = (EssentialList) getIntent().getSerializableExtra("item");
+        }
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -96,6 +125,28 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
             }
         });
 
+        name.setText(essentialList.getName());
+        qty.setText(essentialList.getQty() + "");
+        ptr.setText("₹ " + essentialList.getCost());
+
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                essentialList.setQty(essentialList.getQty() + 1);
+                qty.setText(essentialList.getQty() + "");
+            }
+        });
+
+        sub.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (essentialList.getQty() >= 1) {
+                    essentialList.setQty(essentialList.getQty() - 1);
+                    qty.setText(essentialList.getQty() + "");
+                }
+            }
+        });
+
         getCategory();
     }
 
@@ -115,6 +166,21 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (essentialLists != null && essentialLists.size() > 0) {
+            for (int i=0;i<essentialLists.size();i++) {
+                if (essentialLists.get(i).getId().equals(essentialList.getId())) {
+                    essentialLists.get(i).setQty(essentialList.getQty());
+                    break;
+                }
+            }
+        }
+        String json = new Gson().toJson(essentialLists);
+        Paper.book().write("essential_saved", json);
+        super.onBackPressed();
+    }
+
     private void getCategory() {
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -129,9 +195,12 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
                             JSONObject jsonObject = new JSONObject(response);
                             JSONArray data = jsonObject.getJSONArray("data");
 
-                            for (int i=0;i<data.length();i++) {
+                            for (int i = 0; i < data.length(); i++) {
                                 JSONObject each = data.getJSONObject(i);
-                                groups.add(new Category(JsonUtils.getJsonValueFromKey(each, "name")));
+                                if (essentialList.getCategory() != JsonUtils.getIntegerValueFromJsonKey(each, "id")) {
+                                    groups.add(new Category(JsonUtils.getJsonValueFromKey(each, "name"))
+                                            .setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url")));
+                                }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();

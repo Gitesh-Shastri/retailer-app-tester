@@ -2,7 +2,7 @@ package com.medicento.retailerappmedi.activity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -19,8 +19,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.medicento.retailerappmedi.OrderConfirmed;
-import com.medicento.retailerappmedi.PlaceOrderActivity;
 import com.medicento.retailerappmedi.R;
 import com.medicento.retailerappmedi.RecentOrderActivity;
 import com.medicento.retailerappmedi.Utils.JsonUtils;

@@ -3,8 +3,8 @@ package com.medicento.retailerappmedi.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,38 +13,24 @@ import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.TextView;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.medicento.retailerappmedi.R;
-import com.medicento.retailerappmedi.Utils.JsonUtils;
 import com.medicento.retailerappmedi.interfaces.Api;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.CallAdapter;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import static com.medicento.retailerappmedi.Utils.JsonUtils.getDoubleValue;
-import static com.medicento.retailerappmedi.Utils.JsonUtils.getIntegerValueFromJsonKey;
-import static retrofit2.CallAdapter.*;
 
 public class AutoCompleteAdapter extends ArrayAdapter<Medicine> {
 

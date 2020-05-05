@@ -65,7 +65,7 @@
         android:layout_marginBottom="10dp"
         android:layout_marginRight="20dp"
         android:id="@+id/order_list_scroll" >
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/ordered_medicines_list2"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

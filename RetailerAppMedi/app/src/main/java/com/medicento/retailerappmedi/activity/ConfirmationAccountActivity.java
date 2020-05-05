@@ -1,7 +1,7 @@
 package com.medicento.retailerappmedi.activity;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
@@ -11,7 +11,6 @@ import android.widget.TextView;
 import com.medicento.retailerappmedi.EssentialsActivity;
 import com.medicento.retailerappmedi.HomeActivity;
 import com.medicento.retailerappmedi.R;
-import com.medicento.retailerappmedi.create_account.CreateAccountActivity;
 
 public class ConfirmationAccountActivity extends AppCompatActivity {
 

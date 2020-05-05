@@ -9,16 +9,21 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.design.widget.NavigationView;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
+
+import com.google.android.material.navigation.NavigationView;
+
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
+
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
@@ -34,6 +39,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,7 +56,6 @@ import com.google.gson.reflect.TypeToken;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
 import com.medicento.retailerappmedi.Utils.MedicentoUtils;
 import com.medicento.retailerappmedi.activity.DidntFindMedicineActivity;
-import com.medicento.retailerappmedi.activity.MainActivity;
 import com.medicento.retailerappmedi.activity.NotificationActivity;
 import com.medicento.retailerappmedi.activity.PaymentSummaryActivity;
 import com.medicento.retailerappmedi.activity.RetailerWebLogOut;
@@ -58,10 +63,8 @@ import com.medicento.retailerappmedi.adapter.EssentialAdapter;
 import com.medicento.retailerappmedi.adapter.MedicineAdapter;
 import com.medicento.retailerappmedi.adapter.SearchMedicineAdapter;
 import com.medicento.retailerappmedi.data.Category;
-import com.medicento.retailerappmedi.data.Essential;
 import com.medicento.retailerappmedi.data.ListViewAdapter;
 import com.medicento.retailerappmedi.data.Medicine;
-import com.medicento.retailerappmedi.data.MedicineOrdered;
 import com.medicento.retailerappmedi.data.MenuItems;
 import com.medicento.retailerappmedi.data.MenuItemsBuilder;
 import com.medicento.retailerappmedi.data.OrderedMedicine;
@@ -113,12 +116,15 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     private EssentialAdapter essentialAdapter;
     Toolbar mToolbar;
     DrawerLayout drawer;
-    String usercode  = "";
+    String usercode = "";
     AlertDialog alert;
     ListView listView;
     ArrayList<MenuItems> menuItems;
     NavigationView mNavigationView;
-    ImageView more;
+    ImageView more, left, right;
+    Handler handler;
+    Runnable runnable;
+    ProgressBar progress_bar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,9 +163,23 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         }.getType();
         tempMedicines = new Gson().fromJson(json, type);
 
+        String order_json = mSharedPreferences.getString("saved_medicine_pharma", null);
+        try {
+            JSONObject jsonObject = new JSONObject(order_json);
+            String data = jsonObject.getString(sp.getmAllocatedPharmaId());
+            Type type1 = new TypeToken<ArrayList<OrderedMedicine>>() {
+            }.getType();
+            medicineOrdereds = new Gson().fromJson(data, type1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         mToolbar = findViewById(R.id.toolbar);
         message_us = findViewById(R.id.message_us);
         more = findViewById(R.id.more);
+        left = findViewById(R.id.left);
+        progress_bar = findViewById(R.id.progress_bar);
+        right = findViewById(R.id.right);
         setSupportActionBar(mToolbar);
 
         drawer = findViewById(R.id.drawer_layout);
@@ -309,6 +329,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (charSequence.toString().length() > 0) {
                     populateMedicine();
+                } else {
+                    ordered_medicines_list_rv.setVisibility(View.GONE);
                 }
             }
 
@@ -321,7 +343,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         pharma_name.setText(sp.getName().toUpperCase());
 
         medicines = new ArrayList<>();
-        medicineOrdereds = new ArrayList<>();
+        if (medicineOrdereds == null) {
+            medicineOrdereds = new ArrayList<>();
+        }
         essentials = new ArrayList<>();
 
         DisplayMetrics metrics = new DisplayMetrics();
@@ -336,7 +360,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         medicine_rv.setAdapter(medicineAdapter);
         medicineAdapter.setmOverallCostChangeListener(this);
 
-        searchMedicineAdapter = new SearchMedicineAdapter( this, medicines);
+        searchMedicineAdapter = new SearchMedicineAdapter(this, medicines);
         ordered_medicines_list_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         ordered_medicines_list_rv.setAdapter(searchMedicineAdapter);
         searchMedicineAdapter.setOnItemClickListener(this);
@@ -348,6 +372,30 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         home_image.setColorFilter(Color.parseColor("#18989e"));
 
         addSalesPersonDetailsToNavDrawer();
+
+        left.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    LinearLayoutManager linearLayoutManager = (LinearLayoutManager) essential_rv.getLayoutManager();
+                    essential_rv.scrollToPosition(linearLayoutManager.findFirstVisibleItemPosition()-1);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        right.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    LinearLayoutManager linearLayoutManager = (LinearLayoutManager) essential_rv.getLayoutManager();
+                    essential_rv.scrollToPosition(linearLayoutManager.findFirstVisibleItemPosition()+3);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         getCategory();
     }
@@ -366,26 +414,71 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                             JSONObject jsonObject = new JSONObject(response);
                             JSONArray data = jsonObject.getJSONArray("data");
 
-                            for (int i=0;i<data.length();i++) {
+                            for (int i = 0; i < data.length(); i++) {
                                 JSONObject each = data.getJSONObject(i);
-                                essentials.add(new Category(JsonUtils.getJsonValueFromKey(each, "name")));
+                                essentials.add(new Category(JsonUtils.getJsonValueFromKey(each, "name"))
+                                        .setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url")));
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
+                        if (handler == null) {
+                            handler = new Handler();
+                            if (runnable == null) {
+                                runnable = new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        slideImages();
+                                    }
+                                };
+                            }
+                        }
+                        progress_bar.setVisibility(View.GONE);
+                        handler.postDelayed(runnable, 5000);
                         essentialAdapter.notifyDataSetChanged();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        progress_bar.setVisibility(View.GONE);
                     }
                 }
         );
 
+        progress_bar.setVisibility(View.VISIBLE);
         requestQueue.add(stringRequest);
+    }
+
+    private void slideImages() {
+
+        if (handler == null) {
+            handler = new Handler();
+        }
+        if (runnable == null) {
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    slideImages();
+                }
+            };
+        }
+        try {
+            try {
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) essential_rv.getLayoutManager();
+                if (linearLayoutManager.findFirstVisibleItemPosition()+4 >= essentials.size()) {
+                    essential_rv.scrollToPosition(0);
+                } else {
+                    essential_rv.scrollToPosition(linearLayoutManager.findFirstVisibleItemPosition()+5);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        handler.postDelayed(runnable, 5000);
     }
 
     private void addSalesPersonDetailsToNavDrawer() {
@@ -405,7 +498,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             TextView navHeaderSalesmanEmail = linearLayout.findViewById(R.id.user_email_header);
             TextView navp = linearLayout.findViewById(R.id.user_pharmaid);
             navHeaderSalesmanName.setText(sp.getName());
-            navHeaderSalesmanEmail.setText(getString(R.string.pharmacode) + sp.getUsercode());
+            navHeaderSalesmanEmail.setText("PharmaCode: " + sp.getUsercode());
             navp.setText(sp.getName());
         }
     }
@@ -471,7 +564,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         if (tempMedicines != null) {
             medicines.clear();
             String name = search_medicine.getText().toString();
-            for (Medicine medicine: tempMedicines) {
+            for (Medicine medicine : tempMedicines) {
                 if (medicine.getMedicentoName().toLowerCase().startsWith(name.toLowerCase())) {
                     medicines.add(medicine);
                 }
@@ -558,6 +651,19 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             price += medicine.getRate() * medicine.getQty();
         }
         cart.setText(Html.fromHtml("Cart Sub Total (" + medicineAdapter.getItemCount() + " Items ) : <b>" + String.format("INR %.2f</b>", price)));
+        Gson gson = new Gson();
+        String json = gson.toJson(medicineAdapter.getMedicines());
+        if (jsonObject == null) {
+            jsonObject = new JSONObject();
+        }
+        try {
+            jsonObject.put(sp.getmAllocatedPharmaId(), json);
+            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            editor.putString("saved_medicine_pharma", jsonObject.toString());
+            editor.apply();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void placeOrder() {
@@ -703,6 +809,22 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                     0,
                     2));
             requestQueue.add(stringRequest);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (handler != null && runnable != null) {
+            handler.removeCallbacks(runnable);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (handler != null && runnable != null) {
+            handler.postDelayed(runnable, 5000);
         }
     }
 }

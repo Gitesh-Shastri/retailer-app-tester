@@ -306,14 +306,14 @@
                         android:text="Distributors"
                         />
             </LinearLayout>
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/list_order"
                 android:layout_marginTop="20dp"
                 android:layout_below="@+id/rating_order"
                 >
-            </android.support.v7.widget.RecyclerView>
+            </androidx.recyclerview.widget.RecyclerView>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -368,14 +368,14 @@
                     android:text="Distributors"
                     />
             </LinearLayout>
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/list_delivery"
                 android:layout_marginTop="20dp"
                 android:layout_below="@+id/rating_delivery"
                 >
-            </android.support.v7.widget.RecyclerView>
+            </androidx.recyclerview.widget.RecyclerView>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -430,14 +430,14 @@
                     android:text="Distributors"
                     />
             </LinearLayout>
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/list_bounce"
                 android:layout_marginTop="20dp"
                 android:layout_below="@+id/rating_bounce"
                 >
-            </android.support.v7.widget.RecyclerView>
+            </androidx.recyclerview.widget.RecyclerView>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -492,14 +492,14 @@
                     android:text="Distributors"
                     />
             </LinearLayout>
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/list_payment"
                 android:layout_marginTop="20dp"
                 android:layout_below="@+id/rating_payment"
                 >
-            </android.support.v7.widget.RecyclerView>
+            </androidx.recyclerview.widget.RecyclerView>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -554,14 +554,14 @@
                     android:text="Distributors"
                     />
             </LinearLayout>
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/list_return"
                 android:layout_marginTop="20dp"
                 android:layout_below="@+id/rating_return"
                 >
-            </android.support.v7.widget.RecyclerView>
+            </androidx.recyclerview.widget.RecyclerView>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -616,14 +616,14 @@
                     android:text="Distributors"
                     />
             </LinearLayout>
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/list_behaviour"
                 android:layout_marginTop="20dp"
                 android:layout_below="@+id/rating_behaviour"
                 >
-            </android.support.v7.widget.RecyclerView>
+            </androidx.recyclerview.widget.RecyclerView>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -693,11 +693,11 @@
                 android:layout_below="@+id/message1"
                 android:padding="10dp"
                 android:id="@+id/response_tab" >
-                <android.support.v7.widget.RecyclerView
+                <androidx.recyclerview.widget.RecyclerView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:id="@+id/response" >
-                </android.support.v7.widget.RecyclerView>
+                </androidx.recyclerview.widget.RecyclerView>
             </ScrollView>
             </RelativeLayout>
         </RelativeLayout>

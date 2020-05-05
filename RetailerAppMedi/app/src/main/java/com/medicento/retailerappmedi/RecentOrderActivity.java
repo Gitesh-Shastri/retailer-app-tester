@@ -1,21 +1,14 @@
 package com.medicento.retailerappmedi;
 
 import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -25,11 +18,9 @@ import android.view.Window;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -44,9 +35,7 @@ import com.medicento.retailerappmedi.Utils.JsonUtils;
 import com.medicento.retailerappmedi.Utils.MedicentoUtils;
 import com.medicento.retailerappmedi.activity.ReturnActivity;
 import com.medicento.retailerappmedi.data.OrderAdapterDelivered;
-import com.medicento.retailerappmedi.data.RecentOrder;
 import com.medicento.retailerappmedi.data.RecentOrderDelivered;
-import com.medicento.retailerappmedi.data.RecentOrderMedicine;
 import com.medicento.retailerappmedi.data.SalesPerson;
 
 import org.json.JSONArray;

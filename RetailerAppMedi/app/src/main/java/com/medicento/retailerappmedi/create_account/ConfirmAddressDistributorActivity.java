@@ -5,7 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -291,6 +291,8 @@ public class ConfirmAddressDistributorActivity extends AppCompatActivity {
 
                                 sp.setPhone(number);
                                 sp.setUsercode(code);
+
+                                sp.setType("Distributor");
 
                                 Paper.book().write("user", new Gson().toJson(sp));
                                 Paper.book().write("distributor", "yes");

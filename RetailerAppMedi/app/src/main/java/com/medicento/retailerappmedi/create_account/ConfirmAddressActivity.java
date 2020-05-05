@@ -1,17 +1,15 @@
 package com.medicento.retailerappmedi.create_account;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -28,10 +26,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.medicento.retailerappmedi.AccountCredentialdsActivity;
 import com.medicento.retailerappmedi.R;
-import com.medicento.retailerappmedi.Register;
-import com.medicento.retailerappmedi.SignUpActivity;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
 import com.medicento.retailerappmedi.activity.ConfirmationAccountActivity;
 import com.medicento.retailerappmedi.data.SalesPerson;
@@ -124,6 +119,7 @@ public class ConfirmAddressActivity extends AppCompatActivity {
                                     address.setText(obj.getAddressLine(0));
                                     pincode.setText(obj.getPostalCode());
 
+                                    getAreaName();
                                     Log.v("IGA", "Address" + add);
                                     Toast.makeText(ConfirmAddressActivity.this, "Address Found", Toast.LENGTH_SHORT).show();
                                 } catch (IOException e) {
@@ -251,8 +247,6 @@ public class ConfirmAddressActivity extends AppCompatActivity {
     }
 
     private void sendDetailsToServer() {
-
-
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST,

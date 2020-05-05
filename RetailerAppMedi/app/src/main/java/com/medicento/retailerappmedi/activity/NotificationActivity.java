@@ -1,14 +1,13 @@
 package com.medicento.retailerappmedi.activity;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.provider.Settings;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -26,11 +25,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.medicento.retailerappmedi.PlaceOrderActivity;
 import com.medicento.retailerappmedi.R;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
 import com.medicento.retailerappmedi.adapter.NotificationAdapter;
-import com.medicento.retailerappmedi.data.DidntFind;
 import com.medicento.retailerappmedi.data.Notification;
 import com.medicento.retailerappmedi.data.SalesPerson;
 
@@ -68,7 +65,6 @@ public class NotificationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notification);
-
 
         Paper.init(this);
         Gson gson = new Gson();
@@ -301,5 +297,15 @@ public class NotificationActivity extends AppCompatActivity {
             }
         };
         requestQueue.add(stringRequest);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
+        return true;
     }
 }

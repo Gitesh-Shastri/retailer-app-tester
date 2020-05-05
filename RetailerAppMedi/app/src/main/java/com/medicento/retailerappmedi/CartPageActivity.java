@@ -1,15 +1,29 @@
 package com.medicento.retailerappmedi;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -23,10 +37,9 @@ import com.google.gson.Gson;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
 import com.medicento.retailerappmedi.activity.ChangeAddressActivity;
 import com.medicento.retailerappmedi.activity.PaymentGateWayActivity;
-import com.medicento.retailerappmedi.activity.PaymentMethodActivity;
 import com.medicento.retailerappmedi.activity.UploadPurchaseActivity;
 import com.medicento.retailerappmedi.adapter.ItemCartList;
-import com.medicento.retailerappmedi.data.Essential;
+import com.medicento.retailerappmedi.create_account.RegisterMedicentoActivity;
 import com.medicento.retailerappmedi.data.EssentialList;
 import com.medicento.retailerappmedi.data.SalesPerson;
 import com.razorpay.Checkout;
@@ -48,10 +61,16 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
     private ItemCartList itemCartList;
     private ArrayList<EssentialList> essentialLists;
     ImageView back;
-    Button pay_rs, confirm, change;
+    Button pay_rs, confirm, change, apply;
     SalesPerson sp;
     float price = 0;
-    TextView tv_price, address;
+    float gst = 0;
+    TextView tv_price, address, voucher_discount, total_amount_tv, price_details, gst_tv;
+    RelativeLayout voucher_rl;
+    EditText voucher_code;
+    boolean isApplied;
+    float discount_amount = 0;
+    int count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,14 +93,24 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
         essentialLists = new ArrayList<>();
         for (EssentialList essentialList : (ArrayList<EssentialList>) getIntent().getSerializableExtra("list")) {
             if (essentialList.getQty() > 0) {
+                count += 1;
                 essentialLists.add(essentialList);
             }
         }
 
         for (EssentialList essentialList : essentialLists) {
             price += essentialList.getCost() * essentialList.getQty();
+            gst += (essentialList.getCost() * essentialList.getQty()*essentialList.getDiscount()*0.01);
         }
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat
+                    .requestPermissions(
+                            CartPageActivity.this,
+                            new String[]{Manifest.permission.CALL_PHONE},
+                            1001);
+        }
 
         back = findViewById(R.id.back);
         pay_rs = findViewById(R.id.pay_rs);
@@ -89,10 +118,21 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
         item_rv = findViewById(R.id.item_rv);
         tv_price = findViewById(R.id.price);
         address = findViewById(R.id.address);
+        gst_tv = findViewById(R.id.gst);
         change = findViewById(R.id.change);
+        apply = findViewById(R.id.apply);
+        price_details = findViewById(R.id.price_details);
+        voucher_rl = findViewById(R.id.voucher_rl);
+        voucher_code = findViewById(R.id.voucher_code);
+        total_amount_tv = findViewById(R.id.total_amount_tv);
+        voucher_discount = findViewById(R.id.voucher_discount);
 
+        total_amount_tv.setText(String.format("₹ %.2f", (price + gst)));
         tv_price.setText("₹ " + price);
-        pay_rs.setText("₹ " + price);
+        gst_tv.setText(String.format("₹ %.2f", gst));
+        pay_rs.setText(String.format("Pay ₹ %.2f", (price + gst)));
+
+        price_details.setText("Price Details: ("+ count+" Items)");
 
         address.setText(sp.getAddress());
 
@@ -111,15 +151,20 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
         pay_rs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveData("");
-//                startPayment();
+                if (sp.getType().equals("Pharmacy")) {
+                    startPayment();
+                } else {
+                    startActivity(new Intent(CartPageActivity.this, UploadPurchaseActivity.class));
+                }
             }
         });
 
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(CartPageActivity.this, UploadPurchaseActivity.class));
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:+919731785240"));
+                startActivity(callIntent);
             }
         });
 
@@ -129,6 +174,60 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
                 startActivity(new Intent(CartPageActivity.this, ChangeAddressActivity.class));
             }
         });
+
+        voucher_code.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (voucher_code.getText().toString().trim().length() == 0) {
+                    apply.setEnabled(false);
+                    apply.setAlpha(0.5f);
+                } else {
+                    apply.setEnabled(true);
+                    apply.setAlpha(1f);
+                }
+            }
+        });
+
+        apply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String code = voucher_code.getText().toString().trim().toLowerCase();
+                if (code.equals("xyz") && !isApplied) {
+                    isApplied = true;
+                    voucher_rl.setVisibility(View.VISIBLE);
+                    apply.setText("APPLIED");
+                    apply.setAlpha(1f);
+                    price -= 10;
+                    if (price < 0) {
+                        price = 0;
+                    }
+                    discount_amount = -10;
+                    pay_rs.setText(String.format("Pay ₹ %.2f", (price + gst)));
+                    total_amount_tv.setText(String.format("₹ %.2f",  + (price + gst)));
+                    voucher_discount.setText("-₹ 10");
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1001) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            }
+        }
     }
 
     public void startPayment() {
@@ -172,7 +271,7 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
              * Amount is always passed in currency subunits
              * Eg: "500" = INR 5.00
              */
-            options.put("amount", (price * 100) + "");
+            options.put("amount", ((price + gst) * 100) + "");
 
             checkout.open(activity, options);
         } catch (Exception e) {
@@ -213,6 +312,7 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
                     @Override
                     public void onResponse(String response) {
                         Log.d("data", "onResponse: " + response);
+                        Paper.book().write("essential_saved", "");
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             if (jsonObject.getString("message").equalsIgnoreCase("Order Saved")) {
@@ -246,14 +346,24 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
 
     @Override
     public void onCostChanged() {
+        price = 0;
+        count = 0;
+        gst = 0;
         for (EssentialList essentialList : itemCartList.getEssentialLists()) {
-            price += essentialList.getCost() * essentialList.getQty();
+            if (essentialList.getQty() > 0) {
+                count += 1;
+                price += essentialList.getCost() * essentialList.getQty();
+                gst += (essentialList.getCost() * essentialList.getQty()*essentialList.getDiscount()*0.01);
+            }
         }
 
-        tv_price.setText("₹ " + price);
-        pay_rs.setText("₹ " + price);
+        price -= discount_amount;
+        tv_price.setText(String.format("₹ %.2f",  (price + gst)));
+        pay_rs.setText(String.format("Pay ₹ %.2f",  (price + gst)));
+        total_amount_tv.setText(String.format("₹ %.2f", (price + gst)));
+        price_details.setText("Price Details: ("+ count+" Items)");
 
-        String json = new Gson().toJson(essentialLists);
+        String json = new Gson().toJson(itemCartList.getEssentialLists());
         Paper.book().write("essential_saved", json);
     }
 
@@ -261,6 +371,13 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
     public void onPaymentSuccess(String s) {
         saveData(s);
         Log.d("data", "onPaymentSuccess: " + s);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        String json = new Gson().toJson(itemCartList.getEssentialLists());
+        Paper.book().write("essential_saved", json);
     }
 
     @Override

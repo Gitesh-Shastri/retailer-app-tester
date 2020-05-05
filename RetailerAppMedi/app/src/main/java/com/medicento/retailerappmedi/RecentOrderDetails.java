@@ -2,12 +2,12 @@ package com.medicento.retailerappmedi;
 
 import android.content.Intent;
 import android.provider.Settings;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.telephony.SubscriptionInfo;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,7 +24,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
-import com.medicento.retailerappmedi.activity.MainActivity;
 import com.medicento.retailerappmedi.activity.ReturnActivity;
 import com.medicento.retailerappmedi.adapter.OrderBounceItemsAdapter;
 import com.medicento.retailerappmedi.adapter.SubOrderAdapter;
@@ -46,7 +45,6 @@ import io.paperdb.Paper;
 
 import static com.medicento.retailerappmedi.Utils.JsonUtils.getIntegerValueFromJsonKey;
 import static com.medicento.retailerappmedi.Utils.JsonUtils.getJsonValueFromKey;
-import static com.medicento.retailerappmedi.Utils.MedicentoUtils.showVolleyError;
 
 public class RecentOrderDetails extends AppCompatActivity {
 

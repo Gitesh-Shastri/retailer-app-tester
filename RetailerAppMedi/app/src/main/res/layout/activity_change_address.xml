@@ -70,66 +70,13 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
-        android:padding="10dp"
-        android:layout_marginTop="20dp"
-        android:layout_below="@+id/add_new_rl"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/border_curved_grey_outline"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/address_rv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/title_pharmacy"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Vamsi Medical"
-            android:textColor="#555555"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/address"
-            android:layout_below="@+id/title_pharmacy"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginBottom="10dp"
-            android:text="3/4 Road, Kormangla, Banglore, 41032"
-            android:textColor="#555555"
-            android:textSize="13sp"/>
-
-        <Button
-            android:id="@+id/edit"
-            android:layout_below="@id/address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:minHeight="0dp"
-            android:padding="5dp"
-            android:background="@drawable/border_curved_dark_grey"
-            android:text="Edit"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/remove"
-            android:layout_below="@id/address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:minHeight="0dp"
-            android:padding="5dp"
-            android:background="@drawable/border_green"
-            android:text="Remove"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-    </RelativeLayout>
+        android:layout_height="wrap_content"
+        android:layout_above="@id/confirm"
+        android:layout_below="@id/add_new_rl"
+        />
 
     <Button
         android:id="@+id/confirm"

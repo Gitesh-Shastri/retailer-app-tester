@@ -5,14 +5,17 @@ import java.io.Serializable;
 public class EssentialList implements Serializable {
 
     private String name, id, image_url;
-    private int qty;
+    private int qty, category, discount;
     private float cost;
+    private boolean isAdd;
 
     public EssentialList() {
         this.name = "";
         this.qty = 0;
         this.cost = 135;
         this.image_url = "";
+        this.isAdd = false;
+        this.discount = 0;
     }
 
     public EssentialList(String name) {
@@ -20,6 +23,34 @@ public class EssentialList implements Serializable {
         this.qty = 0;
         this.cost = 135;
         this.image_url = "";
+        this.isAdd = false;
+        this.discount = 0;
+    }
+
+    public int getDiscount() {
+        return discount;
+    }
+
+    public EssentialList setDiscount(int discount) {
+        this.discount = discount;
+        return this;
+    }
+
+    public boolean isAdd() {
+        return isAdd;
+    }
+
+    public void setAdd(boolean add) {
+        isAdd = add;
+    }
+
+    public int getCategory() {
+        return category;
+    }
+
+    public EssentialList setCategory(int category) {
+        this.category = category;
+        return this;
     }
 
     public String getImage_url() {

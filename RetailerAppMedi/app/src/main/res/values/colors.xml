@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#0091ea</color>
-    <color name="colorPrimaryDark">#0064b7</color>
+    <color name="colorPrimary">#18989e</color>
+    <color name="colorPrimaryDark">#18989e</color>
     <color name="colorAccent">#003300</color>
     <color name="colorBackground">#f9f9f9</color>
     <color name="colorRedDark">#ba000d</color>
@@ -12,7 +12,7 @@
     <color name="white">#fff</color>
     <color name="transparent">#000</color>
 
-    <color name="red">#da3c21</color>
+    <color name="red">#E6001B</color>
     <color name="black">#000000</color>
     <color name="orange">#FFA500</color>
     <color name="blue">#1989cd</color>
@@ -25,3 +25,4 @@
     <color name="sea_blue">#18989e</color>
     <color name="dark_grey">#555555</color>
 </resources>
+

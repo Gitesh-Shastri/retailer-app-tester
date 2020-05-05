@@ -13,7 +13,16 @@ public class SalesPerson implements Serializable{
     private String usercode;
     private String phone;
     private String email, address;
+    private String type;
     private String area_name, city_name, state_name;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public String getState_name() {
         return state_name != null ? state_name : "";
@@ -80,6 +89,7 @@ public class SalesPerson implements Serializable{
     }
 
     public SalesPerson() {
+        this.type = "Pharmacy";
     }
 
     public SalesPerson(String name, Long totalSales, int noOfOrder, int returns, float earnings, String id, String allocatedAreaId, String pId) {
@@ -91,6 +101,7 @@ public class SalesPerson implements Serializable{
         mId = id;
         mAllocatedAreaId = allocatedAreaId;
         mAllocatedPharmaId = pId;
+        this.type = "Pharmacy";
     }
 
     public String getUsercode() {

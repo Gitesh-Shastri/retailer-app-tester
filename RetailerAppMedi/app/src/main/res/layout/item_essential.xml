@@ -5,9 +5,10 @@
     android:orientation="vertical">
 
     <ImageView
+        android:id="@+id/image"
         android:padding="5dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="80dp"
         android:adjustViewBounds="true"
         android:src="@drawable/sanitizer" />
 

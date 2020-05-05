@@ -12,6 +12,9 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
         android:allowBackup="true"
@@ -23,19 +26,25 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activity.ChangeAddressActivity"></activity>
-        <activity android:name=".activity.UploadPurchaseActivity" />
+        <activity android:name=".activity.CreateNewAddressActivity"></activity>
+        <activity android:name=".activity.ChangeAddressActivity" />
+        <activity android:name=".activity.UploadPurchaseActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
         <activity android:name=".activity.PaymentGateWayActivity" />
         <activity android:name=".activity.PaymentMethodActivity" />
         <activity android:name=".activity.ParticularOrderActivity" />
         <activity android:name=".create_account.ConfirmAddressDistributorActivity" />
-        <activity android:name=".CartPageActivity" />
-        <activity android:name=".EssentialsActivity" />
+        <activity android:name=".CartPageActivity"
+            android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:name=".EssentialsActivity"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" />
         <activity android:name=".AccountCredentialdsActivity" />
         <activity android:name=".activity.ForgetPasswordActivity" />
         <activity
             android:name=".HomeActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
+            />
         <activity android:name=".create_account.ConfirmAddressActivity" />
         <activity android:name=".activity.ConfirmationAccountActivity" />
         <activity android:name=".create_account.RegisterDistributorActivity" />

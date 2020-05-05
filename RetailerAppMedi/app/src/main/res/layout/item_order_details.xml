@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/expensePane"
@@ -26,26 +26,26 @@
             />
 
         <TextView
-            android:textSize="10sp"
             android:layout_toRightOf="@id/selected_medicine"
-            android:id="@+id/medicine_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:layout_toLeftOf="@id/medicine_quantity"
-            android:textColor="@color/colorPrimaryDark"
-            android:textStyle="bold" />
+            android:textColor="@color/sea_blue"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:id="@+id/medicine_name"
+            />
 
         <TextView
-            android:textSize="10sp"
             android:layout_toRightOf="@id/selected_medicine"
+            android:textSize="10sp"
+            android:layout_below="@id/medicine_name"
             android:id="@+id/medicine_company"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/medicine_name"
-            android:layout_marginTop="5dp"
-            android:layout_toLeftOf="@id/medicine_cost"
             android:textColor="@color/colorPrimary" />
+
 
         <TextView
             android:textSize="10sp"
@@ -99,4 +99,4 @@
 
     </LinearLayout>
 
-</android.support.v7.widget.CardView>
+</androidx.cardview.widget.CardView>

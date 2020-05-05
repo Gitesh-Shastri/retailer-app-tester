@@ -235,7 +235,7 @@
 
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_below="@+id/linear"
         android:layout_above="@id/bottom_nav"
         android:layout_width="match_parent"
@@ -257,7 +257,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card"
+                android:layout_margin="5dp"
+                app:cardCornerRadius="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:padding="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="#555555"
+                    android:textStyle="bold"
+                    android:drawablePadding="5dp"
+                    android:drawableLeft="@drawable/ic_persons"
+                    android:gravity="center_vertical"
+                    android:text="Prices are negotiable basis the quantity.Please click on Call to Order for clarification."
+                    android:background="@drawable/border_curved_green_outline_filled"
+                    />
+
+            </androidx.cardview.widget.CardView>
+
             <LinearLayout
+                android:layout_below="@id/card"
                 android:layout_toLeftOf="@id/go_to_cart"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
@@ -312,6 +336,7 @@
             </LinearLayout>
 
             <Button
+                android:layout_below="@id/card"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:id="@+id/go_to_cart"
@@ -333,5 +358,13 @@
             android:layout_height="wrap_content" />
 
     </LinearLayout>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progress_bar"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        />
 
 </RelativeLayout>

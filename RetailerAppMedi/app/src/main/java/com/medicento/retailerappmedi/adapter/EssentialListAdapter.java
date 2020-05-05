@@ -2,12 +2,12 @@ package com.medicento.retailerappmedi.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +20,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.medicento.retailerappmedi.R;
 import com.medicento.retailerappmedi.activity.ParticularOrderActivity;
-import com.medicento.retailerappmedi.data.Essential;
 import com.medicento.retailerappmedi.data.EssentialList;
 
 import java.util.ArrayList;
@@ -73,7 +72,7 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         TextView old_price, name, new_price;
         ImageView delete, edit, image;
         Button cart;
-        LinearLayout add_cart;
+        LinearLayout add_cart, details;
         EditText qty;
 
         public ViewHolder(View itemView) {
@@ -86,6 +85,7 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             edit = itemView.findViewById(R.id.edit);
             cart = itemView.findViewById(R.id.cart);
             name = itemView.findViewById(R.id.name);
+            details = itemView.findViewById(R.id.details);
             image = itemView.findViewById(R.id.image);
             qty = itemView.findViewById(R.id.qty);
         }
@@ -111,9 +111,10 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             cart.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    essentialLists.get(getCurrentPosition()).setQty(1);
                     cart.setVisibility(View.GONE);
                     add_cart.setVisibility(View.VISIBLE);
-                    essentialLists.get(getCurrentPosition()).setQty(1);
+                    qty.requestFocus();
                     if (mOverallCostChangeListener != null) {
                         mOverallCostChangeListener.onCostChanged();
                     }
@@ -162,14 +163,28 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
                     if (mOverallCostChangeListener != null) {
                         mOverallCostChangeListener.onCostChanged();
                     }
-                    notifyItemRemoved(getCurrentPosition());
+                    notifyItemChanged(getCurrentPosition());
                 }
             });
 
-            itemView.setOnClickListener(new View.OnClickListener() {
+            details.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    context.startActivity(new Intent(context, ParticularOrderActivity.class));
+                    context.startActivity(new Intent(context, ParticularOrderActivity.class).putExtra("item", essentialLists.get(getCurrentPosition())));
+                }
+            });
+
+            image.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    context.startActivity(new Intent(context, ParticularOrderActivity.class).putExtra("item", essentialLists.get(getCurrentPosition())));
+                }
+            });
+
+            edit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    qty.requestFocus();
                 }
             });
         }

@@ -28,6 +28,7 @@
         android:layout_height="wrap_content">
 
         <Button
+            android:layout_alignParentRight="true"
             android:id="@+id/yes"
             android:textColor="@color/white"
             android:minHeight="0dp"
@@ -41,7 +42,6 @@
             />
 
         <Button
-            android:layout_alignParentRight="true"
             android:id="@+id/no"
             android:textColor="@color/white"
             android:minHeight="0dp"

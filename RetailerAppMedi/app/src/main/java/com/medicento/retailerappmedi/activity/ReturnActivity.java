@@ -1,10 +1,10 @@
 package com.medicento.retailerappmedi.activity;
 
 import android.app.Dialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,12 +21,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.medicento.retailerappmedi.R;
-import com.medicento.retailerappmedi.RecentOrderActivity;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
 import com.medicento.retailerappmedi.adapter.MedicinesOrderedReturnAdapter;
 import com.medicento.retailerappmedi.adapter.SubOrderAdapter;
 import com.medicento.retailerappmedi.data.MedicineOrdered;
-import com.medicento.retailerappmedi.data.OrderedMedicine;
 import com.medicento.retailerappmedi.data.RecentOrderDelivered;
 import com.medicento.retailerappmedi.data.order_related.OrderItem;
 import com.medicento.retailerappmedi.data.order_related.SubOrder;

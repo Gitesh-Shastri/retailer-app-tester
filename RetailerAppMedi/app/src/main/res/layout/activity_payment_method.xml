@@ -55,7 +55,7 @@
             android:textSize="17sp"
             />
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:elevation="0dp"
             app:cardElevation="0dp"
             app:cardCornerRadius="5dp"
@@ -87,9 +87,9 @@
 
             </LinearLayout>
 
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:elevation="0dp"
             app:cardElevation="0dp"
             app:cardCornerRadius="5dp"
@@ -121,9 +121,9 @@
 
             </LinearLayout>
 
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:elevation="0dp"
             app:cardElevation="0dp"
             app:cardCornerRadius="5dp"
@@ -155,9 +155,9 @@
 
             </LinearLayout>
 
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:elevation="0dp"
             app:cardElevation="0dp"
             app:cardCornerRadius="5dp"
@@ -189,9 +189,9 @@
 
             </LinearLayout>
 
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:elevation="0dp"
             app:cardElevation="0dp"
             app:cardCornerRadius="5dp"
@@ -223,7 +223,7 @@
 
             </LinearLayout>
 
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
         <RelativeLayout
             android:layout_marginTop="20dp"

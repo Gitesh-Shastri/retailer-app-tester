@@ -2,20 +2,21 @@ package com.medicento.retailerappmedi.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.medicento.retailerappmedi.EssentialsActivity;
 import com.medicento.retailerappmedi.R;
-import com.medicento.retailerappmedi.activity.ParticularOrderActivity;
 import com.medicento.retailerappmedi.data.Category;
-import com.medicento.retailerappmedi.data.Essential;
 
 import java.util.ArrayList;
 
@@ -57,12 +58,14 @@ public class EssentialAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
         Button buy;
         TextView name;
+        ImageView image;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
             buy = itemView.findViewById(R.id.buy);
             name = itemView.findViewById(R.id.name);
+            image = itemView.findViewById(R.id.image);
         }
 
         @Override
@@ -76,13 +79,15 @@ public class EssentialAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
             name.setText(categories.get(position).getName());
 
-            buy.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     context.startActivity(new Intent(context, EssentialsActivity.class)
                     .putExtra("category", name.getText().toString()));
                 }
             });
+
+            Glide.with(context).load(categories.get(position).getImage_url()).into(image);
         }
     }
 }

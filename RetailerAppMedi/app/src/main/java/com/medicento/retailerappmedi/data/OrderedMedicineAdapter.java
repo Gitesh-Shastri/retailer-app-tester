@@ -2,25 +2,19 @@ package com.medicento.retailerappmedi.data;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.medicento.retailerappmedi.PlaceOrderActivity;
 import com.medicento.retailerappmedi.R;
-import com.medicento.retailerappmedi.Register;
-import com.medicento.retailerappmedi.SignUpActivity;
 
 import java.io.Serializable;
 import java.util.ArrayList;

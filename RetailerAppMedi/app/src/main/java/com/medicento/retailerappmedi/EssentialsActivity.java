@@ -3,15 +3,16 @@ package com.medicento.retailerappmedi;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -26,12 +27,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
 import com.medicento.retailerappmedi.activity.NotificationActivity;
-import com.medicento.retailerappmedi.activity.PaymentGateWayActivity;
 import com.medicento.retailerappmedi.activity.PaymentSummaryActivity;
 import com.medicento.retailerappmedi.adapter.EssentialListAdapter;
-import com.medicento.retailerappmedi.data.Category;
 import com.medicento.retailerappmedi.data.EssentialList;
-import com.medicento.retailerappmedi.data.Medicine;
 import com.medicento.retailerappmedi.data.SalesPerson;
 
 import org.json.JSONArray;
@@ -53,10 +51,11 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
     private EssentialListAdapter essentialListAdapter;
     private ArrayList<EssentialList> essentialLists;
     private RecyclerView essential_rv;
+    ProgressBar progress_bar;
     RelativeLayout go_to_cart_rl, cart_rl;
-    TextView  essentials_text;
-    ImageView essentials_image, back;
-    LinearLayout home_ll, notification, payment, recentorder;
+    TextView  essentials_text, home_text;
+    ImageView essentials_image, back, home_image;
+    LinearLayout home_ll, notification, payment, recentorder, essential;
     String category = "Mask";
 
     @Override
@@ -68,8 +67,12 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
         count = findViewById(R.id.count);
         price = findViewById(R.id.price);
         number = findViewById(R.id.number);
+        home_text = findViewById(R.id.home_text);
+        home_image = findViewById(R.id.home_image);
+        progress_bar =findViewById(R.id.progress_bar);
         back = findViewById(R.id.back);
         pharma_name = findViewById(R.id.pharma_name);
+        essential = findViewById(R.id.essential);
         essentials_text = findViewById(R.id.essentials_text);
         essentials_image = findViewById(R.id.essentials_image);
         go_to_cart = findViewById(R.id.go_to_cart);
@@ -88,22 +91,32 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
         home_ll.setOnClickListener(this);
         back.setOnClickListener(this);
         cart_rl.setOnClickListener(this);
+        essential.setOnClickListener(this);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
-
-        essentials_text.setTextColor(Color.parseColor("#18989e"));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            essentials_image.setElevation(5f);
-        }
-        essentials_image.setColorFilter(Color.parseColor("#18989e"));
 
         Gson gson = new Gson();
         String cache = Paper.book().read("user");
         if (cache != null && !cache.isEmpty()) {
             sp = gson.fromJson(cache, SalesPerson.class);
             pharma_name.setText(sp.getName());
+        }
+
+        if (sp.getType().equals("Pharmacy")) {
+            essentials_text.setTextColor(Color.parseColor("#18989e"));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                essentials_image.setElevation(5f);
+            }
+            essentials_image.setColorFilter(Color.parseColor("#18989e"));
+        } else {
+            essentials_text.setText("Log Out");
+            home_text.setTextColor(Color.parseColor("#18989e"));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                home_image.setElevation(5f);
+            }
+            home_image.setColorFilter(Color.parseColor("#18989e"));
         }
 
         essentialLists = new ArrayList<>();
@@ -113,6 +126,25 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
             Type type = new TypeToken<ArrayList<EssentialList>>() {
             }.getType();
             essentialLists = new Gson().fromJson(essential_saved, type);
+        }
+
+        int count_num = 0;
+        float cost = 0;
+        for (EssentialList essentialList: essentialLists) {
+            if (essentialList.getQty() > 0) {
+                count_num += 1;
+                cost += essentialList.getQty()*essentialList.getCost();
+            }
+        }
+        count.setText("( " + count_num +" Items )");
+        number.setText(""+count_num);
+        price.setText("₹ "+cost);
+        if (count_num > 0) {
+            number.setVisibility(View.VISIBLE);
+            go_to_cart_rl.setVisibility(View.VISIBLE);
+        } else {
+            number.setVisibility(View.GONE);
+            go_to_cart_rl.setVisibility(View.GONE);
         }
 
         essentialListAdapter= new EssentialListAdapter(essentialLists, this);
@@ -129,8 +161,8 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
         
         if (getIntent() != null && getIntent().hasExtra("category")) {
             category = getIntent().getStringExtra("category");
-            fetchProduct();
         }
+        fetchProduct();
     }
 
     private void fetchProduct() {
@@ -142,6 +174,7 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        int j=0;
                         Log.d("data", "onResponse: " + response);
                         try {
                             JSONObject jsonObject = new JSONObject(response);
@@ -151,8 +184,12 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
                             for (int i=0;i<data.length();i++) {
                                 JSONObject each = data.getJSONObject(i);
                                 found = false;
-                                for (EssentialList essentialList: essentialLists) {
-                                    if (essentialList.getName().equalsIgnoreCase(JsonUtils.getJsonValueFromKey(each, "name"))) {
+                                for (j=0;j<essentialLists.size();j++) {
+                                    if (essentialLists.get(j).getName().equalsIgnoreCase(JsonUtils.getJsonValueFromKey(each, "name"))) {
+                                        essentialLists.get(j).setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url"));
+                                        essentialLists.get(j).setCost(JsonUtils.getDoubleValue(each, "ptr"));
+                                        essentialLists.get(j).setCategory(JsonUtils.getIntegerValueFromJsonKey(each, "category"));
+                                        essentialLists.get(i).setDiscount(JsonUtils.getIntegerValueFromJsonKey(each, "discount"));
                                         found = true;
                                     }
                                 }
@@ -160,20 +197,23 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
                                     essentialLists.add(new EssentialList(JsonUtils.getJsonValueFromKey(each, "name"))
                                             .setId(JsonUtils.getJsonValueFromKey(each, "id"))
                                             .setCost(JsonUtils.getDoubleValue(each, "ptr"))
-                                            .setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url")));
+                                            .setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url"))
+                                            .setDiscount(JsonUtils.getIntegerValueFromJsonKey(each, "discount"))
+                                            .setCategory(JsonUtils.getIntegerValueFromJsonKey(each, "category")));
                                 }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
+                        progress_bar.setVisibility(View.GONE);
                         essentialListAdapter.notifyDataSetChanged();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        progress_bar.setVisibility(View.GONE);
                     }
                 }
         ) {
@@ -184,7 +224,7 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
                 return params;
             }
         };
-
+        progress_bar.setVisibility(View.VISIBLE);
         requestQueue.add(stringRequest);
     }
 
@@ -213,6 +253,31 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
         Paper.book().write("essential_saved", json);
     }
 
+    private boolean isPause = false;
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        String json = new Gson().toJson(essentialListAdapter.getEssentialLists());
+        Paper.book().write("essential_saved", json);
+        isPause = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isPause) {
+            Paper.init(this);
+            String essential_saved = Paper.book().read("essential_saved");
+            if (essential_saved != null && !essential_saved.isEmpty()) {
+                Type type = new TypeToken<ArrayList<EssentialList>>() {
+                }.getType();
+                essentialLists = new Gson().fromJson(essential_saved, type);
+            }
+            fetchProduct();
+        }
+    }
+
     @Override
     public void onClick(View view) {
         int id = view.getId();
@@ -227,10 +292,23 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
                 startActivity(new Intent(EssentialsActivity.this, RecentOrderActivity.class));
                 break;
             case R.id.home_ll:
-                startActivity(new Intent(EssentialsActivity.this, HomeActivity.class));
+                if (sp.getType().equals("Pharmacy")) {
+                    startActivity(new Intent(EssentialsActivity.this, HomeActivity.class));
+                }
                 break;
             case R.id.back:
                 onBackPressed();
+                break;
+            case  R.id.essential:
+                if (!sp.getType().equals("Pharmacy")) {
+                    Paper.book().delete("user");
+                    Intent intent = new Intent(EssentialsActivity.this, SignUpActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK |
+                            Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
+                }
                 break;
             case R.id.cart_rl:
                 startActivity(new Intent(EssentialsActivity.this, CartPageActivity.class).putExtra("list", essentialListAdapter.getEssentialLists()));

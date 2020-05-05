@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".RecentOrderDetails">
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/order_ll"
@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp">
@@ -175,9 +175,9 @@
 
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/no_items_card"
                 android:visibility="gone"
                 android:layout_margin="10dp"
@@ -210,15 +210,15 @@
 
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/sub_order_rv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="10dp" />
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/return_items_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -238,7 +238,7 @@
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
-                    <android.support.v7.widget.RecyclerView
+                    <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/return_order_rv"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -246,9 +246,9 @@
 
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/bounced_items_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -270,7 +270,7 @@
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
-                    <android.support.v7.widget.RecyclerView
+                    <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/bounce_order_rv"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -279,11 +279,11 @@
 
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
 
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
         android:id="@+id/order_ll"

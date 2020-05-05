@@ -63,7 +63,7 @@
 
         </RelativeLayout>
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:layout_marginTop="10dp"
             android:id="@+id/didnt_find_rv"
             android:layout_width="match_parent"
@@ -76,7 +76,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#b22828"
+        android:background="@color/red"
         android:text="Place Order"
         android:textAllCaps="false"
         android:textColor="@color/white" />

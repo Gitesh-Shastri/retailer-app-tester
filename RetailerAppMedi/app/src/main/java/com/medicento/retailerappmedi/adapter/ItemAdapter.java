@@ -1,8 +1,8 @@
 package com.medicento.retailerappmedi.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,8 +69,8 @@ public class ItemAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             OrderedMedicine orderedMedicine = orderedMedicines.get(position);
 
             name.setText(orderedMedicine.getMedicineName()+"\n"+orderedMedicine.getMedicineCompany());
-            s_no.setText(position+"");
-            price.setText("₹ "+orderedMedicine.getmCost());
+            s_no.setText((position+1)+"");
+            price.setText("₹ "+String.format("%.2f",orderedMedicine.getmCost()));
             qty.setText(orderedMedicine.getQty()+"");
         }
     }

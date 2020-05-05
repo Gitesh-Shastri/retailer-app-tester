@@ -1,9 +1,9 @@
 package com.medicento.retailerappmedi.activity;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
 import android.widget.TextView;
 
@@ -55,14 +55,16 @@ public class PaymentGateWayActivity extends AppCompatActivity {
 
         int count_num = 0;
         float price = 0;
+        float gst = 0;
         for (EssentialList essentialList: essentialLists) {
             if (essentialList.getQty() > 0) {
                 count_num += 1;
                 price += essentialList.getQty()*essentialList.getCost();
+                gst += (essentialList.getCost() * essentialList.getQty()*essentialList.getDiscount()*0.01);
             }
         }
 
-        cart.setText(Html.fromHtml("Cart Sub Total (" + count_num + " Items ) : <b>" + String.format("INR %.2f</b>", price)));
+        cart.setText(Html.fromHtml("Cart Sub Total (" + count_num + " Items ) : <b>" + String.format("INR %.2f</b>", (price+gst))));
         cost.setText("₹ "+price);
 
         paymentCartAdapter = new PaymentCartAdapter(essentialLists, this);

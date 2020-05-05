@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp">
@@ -15,11 +15,13 @@
             android:padding="5dp">
 
             <CheckBox
-                android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/colorPrimary"
-                android:textStyle="bold" />
+                android:textColor="@color/sea_blue"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:id="@+id/name"
+                />
 
             <TextView
                 android:id="@+id/qty"
@@ -29,13 +31,14 @@
                 android:text="Qty: " />
 
             <TextView
+                android:textSize="10sp"
                 android:id="@+id/company"
+                android:text="Company: "
+                android:padding="5dp"
+                android:layout_below="@+id/name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/name"
-                android:padding="5dp"
-                android:text="Company: " />
-
+                android:textColor="@color/colorPrimary" />
 
             <TextView
                 android:id="@+id/price"
@@ -73,6 +76,6 @@
 
         </RelativeLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

@@ -3,19 +3,14 @@ package com.medicento.retailerappmedi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
+
+import com.google.android.material.snackbar.Snackbar;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -36,35 +31,18 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskExecutors;
-import com.google.firebase.FirebaseException;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.gson.Gson;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
-import com.medicento.retailerappmedi.activity.ConfirmationAccountActivity;
 import com.medicento.retailerappmedi.activity.ForgetPasswordActivity;
-import com.medicento.retailerappmedi.activity.MainActivity;
 import com.medicento.retailerappmedi.activity.NoInternetActivity;
 import com.medicento.retailerappmedi.create_account.CreateAccountActivity;
 import com.medicento.retailerappmedi.data.SalesPerson;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.medicento.retailerappmedi.data.Constants;
-
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import io.paperdb.Paper;
 
@@ -359,7 +337,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                             String message = JsonUtils.getJsonValueFromKey(jsonObject, "message");
                             JSONObject pharmacy = jsonObject.getJSONObject("pharmacy");
 
-                            if (message.equals("Pharmacy Found")) {
+                            if (message.contains("Found")) {
 
                                 JSONObject area = pharmacy.getJSONObject("area");
 
@@ -388,18 +366,35 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                                 sp.setPhone(phoneEditTv.getText().toString());
                                 sp.setUsercode(usercode);
 
-                                Paper.book().write("user", new Gson().toJson(sp));
+                                if (message.contains("Distributor Found")) {
+                                    sp.setType("Distributor");
+                                    Paper.book().write("user", new Gson().toJson(sp));
 
-                                snackbar.dismiss();
-                                Snackbar.make(relativeLayout, "User Logged In", Snackbar.LENGTH_SHORT).show();
+                                    snackbar.dismiss();
+                                    Snackbar.make(relativeLayout, "User Logged In", Snackbar.LENGTH_SHORT).show();
 
-                                Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                                        Intent.FLAG_ACTIVITY_CLEAR_TASK |
-                                        Intent.FLAG_ACTIVITY_NEW_TASK);
-                                intent.putExtra("user", sp);
-                                startActivity(intent);
-                                finish();
+                                    Intent intent = new Intent(SignUpActivity.this, EssentialsActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                                            Intent.FLAG_ACTIVITY_CLEAR_TASK |
+                                            Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    intent.putExtra("user", sp);
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    sp.setType("Pharmacy");
+                                    Paper.book().write("user", new Gson().toJson(sp));
+
+                                    snackbar.dismiss();
+                                    Snackbar.make(relativeLayout, "User Logged In", Snackbar.LENGTH_SHORT).show();
+
+                                    Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                                            Intent.FLAG_ACTIVITY_CLEAR_TASK |
+                                            Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    intent.putExtra("user", sp);
+                                    startActivity(intent);
+                                    finish();
+                                }
                             } else {
                                 snackbar.dismiss();
                                 Snackbar.make(relativeLayout, message, Snackbar.LENGTH_SHORT).show();

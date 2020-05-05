@@ -35,7 +35,7 @@
             android:gravity="center_horizontal"
             android:textStyle="bold" />
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:id="@+id/card"
             app:cardElevation="4dp"
             app:cardCornerRadius="10dp"
@@ -178,7 +178,7 @@
 
             </LinearLayout>
 
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
         <Button
             android:id="@+id/share_order_btn"
             android:layout_width="140dp"
@@ -239,7 +239,7 @@
                 android:text="Order Details"
                 android:textColor="@color/colorPrimaryDark" />
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/order_confirmed_rv"
                 android:layout_margin="10dp"
                 android:layout_width="match_parent"

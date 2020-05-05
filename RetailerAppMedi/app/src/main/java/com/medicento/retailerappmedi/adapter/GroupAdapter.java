@@ -1,15 +1,20 @@
 package com.medicento.retailerappmedi.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.medicento.retailerappmedi.EssentialsActivity;
 import com.medicento.retailerappmedi.R;
 import com.medicento.retailerappmedi.data.Category;
-import com.medicento.retailerappmedi.data.Group;
 
 import java.util.ArrayList;
 
@@ -43,8 +48,14 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     public class ViewHolder extends BaseViewHolder {
 
+        ImageView image;
+        TextView name;
+
         public ViewHolder(View itemView) {
             super(itemView);
+
+            image = itemView.findViewById(R.id.image);
+            name = itemView.findViewById(R.id.name);
         }
 
         @Override
@@ -55,6 +66,17 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         @Override
         public void onBind(int position) {
             super.onBind(position);
+
+            name.setText(groups.get(position).getName());
+            Glide.with(context).load(groups.get(position).getImage_url()).into(image);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    context.startActivity(new Intent(context, EssentialsActivity.class)
+                            .putExtra("category", name.getText().toString()));
+                }
+            });
         }
     }
 }

@@ -2,11 +2,12 @@ package com.medicento.retailerappmedi;
 
 import android.content.Intent;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
-import com.medicento.retailerappmedi.activity.MainActivity;
+import com.google.gson.Gson;
 import com.medicento.retailerappmedi.create_account.CreateAccountActivity;
+import com.medicento.retailerappmedi.data.SalesPerson;
 
 import io.paperdb.Paper;
 
@@ -24,8 +25,14 @@ public class PlaceOrderActivity extends AppCompatActivity {
             @Override
             public void run() {
                 String cache = Paper.book().read("user");
+                Gson gson = new Gson();
                 if (cache != null && !cache.isEmpty()) {
-                    startNewActivity(HomeActivity.class);
+                    SalesPerson sp = gson.fromJson(cache, SalesPerson.class);
+                    if (sp.getType().equals("Pharmacy")) {
+                        startNewActivity(HomeActivity.class);
+                    } else {
+                        startNewActivity(EssentialsActivity.class);
+                    }
                 } else {
                     startNewActivity(CreateAccountActivity.class);
                 }
