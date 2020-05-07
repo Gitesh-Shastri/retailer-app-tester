@@ -25,10 +25,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -126,6 +128,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     private ImageView fullscreenButton;
     boolean fullscreen;
     RadioGroup group;
+    RadioButton one, two, three, four, five, six;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +144,12 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         lr_remaining_amount = findViewById(R.id.lr_remaining_amount);
         videoView = findViewById(R.id.videoView);
         back = findViewById(R.id.back);
+        one = findViewById(R.id.one);
+        two = findViewById(R.id.two);
+        three = findViewById(R.id.three);
+        four = findViewById(R.id.four);
+        five = findViewById(R.id.five);
+        six = findViewById(R.id.six);
         group = findViewById(R.id.group);
         close = findViewById(R.id.close);
         title = findViewById(R.id.title);
@@ -232,6 +241,66 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 seek_bar.setProgress(i-1);
+            }
+        });
+
+        one.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    setAllNone();
+                    seek_bar.setProgress(0);
+                }
+            }
+        });
+
+        two.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    setAllNone();
+                    seek_bar.setProgress(1);
+                }
+            }
+        });
+
+        three.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    setAllNone();
+                    seek_bar.setProgress(2);
+                }
+            }
+        });
+
+        four.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    setAllNone();
+                    seek_bar.setProgress(3);
+                }
+            }
+        });
+
+        five.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    setAllNone();
+                    seek_bar.setProgress(4);
+                }
+            }
+        });
+
+        six.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    setAllNone();
+                    seek_bar.setProgress(5);
+                }
             }
         });
 
@@ -429,6 +498,15 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         });
 
         getImages();
+    }
+
+    private void setAllNone() {
+        one.setChecked(false);
+        two.setChecked(false);
+        three.setChecked(false);
+        four.setChecked(false);
+        five.setChecked(false);
+        six.setChecked(false);
     }
 
     private void getLrUrl() {
