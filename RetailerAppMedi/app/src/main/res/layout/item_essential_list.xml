@@ -135,4 +135,92 @@
 
     </LinearLayout>
 
+    <RelativeLayout
+        android:padding="5dp"
+        android:layout_below="@+id/cart_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textSize="9sp"
+            android:padding="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_outline_red"
+            android:textColor="#555555"
+            android:id="@+id/qty_per_100"
+            />
+
+        <LinearLayout
+            android:layout_toLeftOf="@id/qty_per_500"
+            android:layout_toRightOf="@id/qty_per_100"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center_horizontal"
+                android:textSize="9sp"
+                android:padding="2dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border_outline_red"
+                android:textColor="#555555"
+                android:id="@+id/qty_per_200"
+                />
+
+        </LinearLayout>
+
+        <TextView
+            android:textSize="9sp"
+            android:padding="2dp"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_outline_red"
+            android:textColor="#555555"
+            android:id="@+id/qty_per_500"
+            />
+
+
+        <TextView
+            android:layout_marginTop="5dp"
+            android:textSize="9sp"
+            android:padding="2dp"
+            android:layout_toLeftOf="@+id/view"
+            android:layout_below="@id/qty_per_100"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_outline_red"
+            android:textColor="#555555"
+            android:id="@+id/qty_per_1000"
+            />
+
+        <View
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_below="@id/qty_per_100"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/view"
+            android:layout_width="1dp"
+            android:layout_height="1dp"/>
+
+        <TextView
+            android:layout_marginTop="5dp"
+            android:textSize="9sp"
+            android:padding="2dp"
+            android:layout_toRightOf="@id/view"
+            android:layout_below="@id/qty_per_100"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_outline_red"
+            android:textColor="#555555"
+            android:id="@+id/qty_per_10000"
+            />
+
+
+    </RelativeLayout>
+
 </RelativeLayout>

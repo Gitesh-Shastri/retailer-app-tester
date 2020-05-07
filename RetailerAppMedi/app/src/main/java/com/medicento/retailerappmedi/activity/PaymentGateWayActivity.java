@@ -12,6 +12,10 @@ import com.google.gson.reflect.TypeToken;
 import com.medicento.retailerappmedi.R;
 import com.medicento.retailerappmedi.adapter.PaymentCartAdapter;
 import com.medicento.retailerappmedi.data.EssentialList;
+import com.medicento.retailerappmedi.data.SalesPerson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -24,6 +28,7 @@ public class PaymentGateWayActivity extends AppCompatActivity {
     ArrayList<EssentialList> essentialLists;
     RecyclerView cart_rv;
     PaymentCartAdapter paymentCartAdapter;
+    SalesPerson sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +38,14 @@ public class PaymentGateWayActivity extends AppCompatActivity {
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
+        }
+
+        Gson gson = new Gson();
+
+        String cache = Paper.book().read("user");
+
+        if (cache != null && !cache.isEmpty()) {
+            sp = gson.fromJson(cache, SalesPerson.class);
         }
 
         id = findViewById(R.id.id);
@@ -46,11 +59,17 @@ public class PaymentGateWayActivity extends AppCompatActivity {
 
         essentialLists = new ArrayList<>();
 
-        String essential_saved = Paper.book().read("essential_saved");
+        String essential_saved = Paper.book().read("essential_saved_json");
         if (essential_saved != null && !essential_saved.isEmpty()) {
-            Type type = new TypeToken<ArrayList<EssentialList>>() {
-            }.getType();
-            essentialLists = new Gson().fromJson(essential_saved, type);
+            try {
+                JSONObject jsonObject = new JSONObject(essential_saved);
+                String data = jsonObject.getString(sp.getUsercode());
+                Type type = new TypeToken<ArrayList<EssentialList>>() {
+                }.getType();
+                essentialLists = new Gson().fromJson(data, type);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         int count_num = 0;

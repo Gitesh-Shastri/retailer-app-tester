@@ -92,148 +92,57 @@
         android:padding="10dp"
         />
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
+        android:layout_margin="5dp"
+        android:layout_below="@+id/essential_lb"
         android:id="@+id/linear"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_below="@id/essential_lb"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <LinearLayout
+        <RelativeLayout
             android:padding="5dp"
-            android:layout_weight="1"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/progress_bar_essen"
+                android:layout_centerInParent="true"
+                />
+
+            <ImageView
+                android:id="@+id/left"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_alignParentLeft="true"
+                android:layout_marginTop="35dp"
+                android:src="@drawable/ic_arrow_back_black_24dp" />
+
             <LinearLayout
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/right"
+                android:layout_toRightOf="@id/left">
 
-                <ImageView
-                    android:layout_marginBottom="5dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:src="@drawable/pipe_kits"
-                    />
-
-                <TextView
-                    android:textSize="11sp"
-                    android:textColor="#555555"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/essential_cat_rv"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="PPE Kits"
-                    android:gravity="center_horizontal"
-                    />
+                    android:layout_height="wrap_content" />
 
             </LinearLayout>
 
-        </LinearLayout>
+            <ImageView
+                android:id="@+id/right"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="35dp"
+                android:src="@drawable/ic_arrow_forward_black_24dp" />
 
-        <LinearLayout
-            android:padding="5dp"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content">
+        </RelativeLayout>
 
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:layout_marginBottom="5dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:src="@drawable/sanitizer_icom"
-                    />
-
-                <TextView
-                    android:textSize="11sp"
-                    android:textColor="#555555"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Hand Sanitizer"
-                    android:gravity="center_horizontal"
-                    />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:padding="5dp"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:layout_marginBottom="5dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:src="@drawable/family_care"
-                    />
-
-                <TextView
-                    android:textSize="11sp"
-                    android:textColor="#555555"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Family Care"
-                    android:gravity="center_horizontal"
-                    />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:padding="5dp"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:layout_marginBottom="5dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:src="@drawable/mask_icon"
-                    />
-
-                <TextView
-                    android:textSize="11sp"
-                    android:textColor="#555555"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Masks"
-                    android:gravity="center_horizontal"
-                    />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_below="@+id/linear"

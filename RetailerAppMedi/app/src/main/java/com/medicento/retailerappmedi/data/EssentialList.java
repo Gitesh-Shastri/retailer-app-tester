@@ -6,7 +6,7 @@ public class EssentialList implements Serializable {
 
     private String name, id, image_url;
     private int qty, category, discount;
-    private float cost;
+    private float cost, cost_100, cost_200, cost_500, cost_1000, cost_10000;
     private boolean isAdd;
 
     public EssentialList() {
@@ -16,6 +16,11 @@ public class EssentialList implements Serializable {
         this.image_url = "";
         this.isAdd = false;
         this.discount = 0;
+        this.cost_100 = 0;
+        this.cost_200 = 0;
+        this.cost_500 = 0;
+        this.cost_1000 = 0;
+        this.cost_10000 = 0;
     }
 
     public EssentialList(String name) {
@@ -25,6 +30,56 @@ public class EssentialList implements Serializable {
         this.image_url = "";
         this.isAdd = false;
         this.discount = 0;
+        this.cost_100 = 0;
+        this.cost_200 = 0;
+        this.cost_500 = 0;
+        this.cost_1000 = 0;
+        this.cost_10000 = 0;
+    }
+
+    public float getCost_100() {
+        return cost_100;
+    }
+
+    public EssentialList setCost_100(float cost_100) {
+        this.cost_100 = cost_100;
+        return this;
+    }
+
+    public float getCost_200() {
+        return cost_200;
+    }
+
+    public EssentialList setCost_200(float cost_200) {
+        this.cost_200 = cost_200;
+        return this;
+    }
+
+    public float getCost_500() {
+        return cost_500;
+    }
+
+    public EssentialList setCost_500(float cost_500) {
+        this.cost_500 = cost_500;
+        return this;
+    }
+
+    public float getCost_1000() {
+        return cost_1000;
+    }
+
+    public EssentialList setCost_1000(float cost_1000) {
+        this.cost_1000 = cost_1000;
+        return this;
+    }
+
+    public float getCost_10000() {
+        return cost_10000;
+    }
+
+    public EssentialList setCost_10000(float cost_10000) {
+        this.cost_10000 = cost_10000;
+        return this;
     }
 
     public int getDiscount() {
@@ -95,5 +150,35 @@ public class EssentialList implements Serializable {
     public EssentialList setQty(int qty) {
         this.qty = qty;
         return this;
+    }
+
+    public float getTotalCost() {
+        if (this.qty >= 10000) {
+            return this.qty * this.cost_10000;
+        } else if (this.qty >= 1000) {
+            return this.qty * this.cost_1000;
+        } else if (this.qty >= 500){
+            return this.qty * this.cost_500;
+        } else if (this.qty >= 200){
+            return this.qty * this.cost_200;
+        } else if (this.qty >= 100){
+            return this.qty * this.cost_100;
+        }
+        return this.qty * this.cost;
+    }
+
+    public double getTotalCostWithDiscount() {
+        if (this.qty >= 10000) {
+            return this.qty * this.cost_10000 * this.discount * 0.01;
+        } else if (this.qty >= 1000) {
+            return this.qty * this.cost_1000 * this.discount * 0.01;
+        } else if (this.qty >= 500){
+            return this.qty * this.cost_500 * this.discount * 0.01;
+        } else if (this.qty >= 200){
+            return this.qty * this.cost_200 * this.discount * 0.01;
+        } else if (this.qty >= 100){
+            return this.qty * this.cost_100 * this.discount * 0.01;
+        }
+        return this.qty * this.cost * this.discount * 0.01;
     }
 }

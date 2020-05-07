@@ -24,6 +24,16 @@ public class FullStcokImageAdapter extends RecyclerView.Adapter<BaseViewHolder> 
         this.context = context;
     }
 
+    private setOnClickListener setOnClickListener;
+
+    public interface setOnClickListener {
+        public void onClick(String url);
+    }
+
+    public void setSetOnClickListener(FullStcokImageAdapter.setOnClickListener setOnClickListener) {
+        this.setOnClickListener = setOnClickListener;
+    }
+
     @NonNull
     @Override
     public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -62,6 +72,15 @@ public class FullStcokImageAdapter extends RecyclerView.Adapter<BaseViewHolder> 
             super.onBind(position);
 
             Glide.with(context).load(urls.get(position)).into(image);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (setOnClickListener != null) {
+                        setOnClickListener.onClick(urls.get(position));
+                    }
+                }
+            });
         }
     }
 }

@@ -69,7 +69,7 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     public class ViewHolder extends BaseViewHolder {
 
-        TextView old_price, name, new_price;
+        TextView old_price, name, new_price, qty_per_100, qty_per_200, qty_per_500, qty_per_1000, qty_per_10000;
         ImageView delete, edit, image;
         Button cart;
         LinearLayout add_cart, details;
@@ -88,11 +88,21 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             details = itemView.findViewById(R.id.details);
             image = itemView.findViewById(R.id.image);
             qty = itemView.findViewById(R.id.qty);
+            qty_per_100 = itemView.findViewById(R.id.qty_per_100);
+            qty_per_200 = itemView.findViewById(R.id.qty_per_200);
+            qty_per_500 = itemView.findViewById(R.id.qty_per_500);
+            qty_per_1000 = itemView.findViewById(R.id.qty_per_1000);
+            qty_per_10000= itemView.findViewById(R.id.qty_per_10000);
         }
 
         @Override
         protected void clear() {
             name.setText("");
+            qty_per_100.setText("");
+            qty_per_200.setText("");
+            qty_per_500.setText("");
+            qty_per_1000.setText("");
+            qty_per_10000.setText("");
             add_cart.setVisibility(View.GONE);
         }
 
@@ -105,6 +115,13 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             qty.setText(essentialLists.get(position).getQty()+"");
             old_price.setText(essentialLists.get(position).getCost()+"");
             new_price.setText(essentialLists.get(position).getCost()+"");
+
+
+            qty_per_100.setText("100 Qty - " + essentialLists.get(position).getCost_100() + " /PC");
+            qty_per_500.setText("200 Qty - " + essentialLists.get(position).getCost_200() + " /PC");
+            qty_per_200.setText("500 Qty - " + essentialLists.get(position).getCost_500() + " /PC");
+            qty_per_1000.setText("1000 Qty - " + essentialLists.get(position).getCost_1000() + " /PC");
+            qty_per_10000.setText("10000 Qty - " + essentialLists.get(position).getCost_10000() + " /PC");
 
             Glide.with(context).load(essentialLists.get(position).getImage_url()).into(image);
 

@@ -2,6 +2,7 @@ package com.medicento.retailerappmedi;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,9 +22,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -49,6 +54,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,16 +67,18 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
     private ItemCartList itemCartList;
     private ArrayList<EssentialList> essentialLists;
     ImageView back;
-    Button pay_rs, confirm, change, apply;
+    Button pay_rs, confirm, change, apply, remove_voucher;
     SalesPerson sp;
     float price = 0;
     float gst = 0;
     TextView tv_price, address, voucher_discount, total_amount_tv, price_details, gst_tv;
-    RelativeLayout voucher_rl;
+    RelativeLayout voucher_rl, confirm_ll, rootView;
+    LinearLayout address_ll;
     EditText voucher_code;
     boolean isApplied;
     float discount_amount = 0;
     int count = 0;
+    CardView card;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,8 +107,8 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
         }
 
         for (EssentialList essentialList : essentialLists) {
-            price += essentialList.getCost() * essentialList.getQty();
-            gst += (essentialList.getCost() * essentialList.getQty()*essentialList.getDiscount()*0.01);
+            price += essentialList.getTotalCost();
+            gst += essentialList.getTotalCostWithDiscount();
         }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED &&
@@ -112,6 +120,7 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
                             1001);
         }
 
+        card = findViewById(R.id.card);
         back = findViewById(R.id.back);
         pay_rs = findViewById(R.id.pay_rs);
         confirm = findViewById(R.id.confirm);
@@ -120,7 +129,11 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
         address = findViewById(R.id.address);
         gst_tv = findViewById(R.id.gst);
         change = findViewById(R.id.change);
+        confirm_ll = findViewById(R.id.confirm_ll);
+        address_ll = findViewById(R.id.address_ll);
+        rootView = findViewById(R.id.root_view);
         apply = findViewById(R.id.apply);
+        remove_voucher = findViewById(R.id.remove_voucher);
         price_details = findViewById(R.id.price_details);
         voucher_rl = findViewById(R.id.voucher_rl);
         voucher_code = findViewById(R.id.voucher_code);
@@ -128,7 +141,7 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
         voucher_discount = findViewById(R.id.voucher_discount);
 
         total_amount_tv.setText(String.format("₹ %.2f", (price + gst)));
-        tv_price.setText("₹ " + price);
+        tv_price.setText(String.format("₹ %.2f", price));
         gst_tv.setText(String.format("₹ %.2f", gst));
         pay_rs.setText(String.format("Pay ₹ %.2f", (price + gst)));
 
@@ -162,9 +175,17 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent callIntent = new Intent(Intent.ACTION_CALL);
-                callIntent.setData(Uri.parse("tel:+919731785240"));
-                startActivity(callIntent);
+                try {
+                    Intent share_intent = new Intent();
+                    String url = "https://api.whatsapp.com/send?phone=+919731785240&text=" + URLEncoder.encode("Regarding Essential Order", "UTF-8");
+                    share_intent.setPackage("com.whatsapp");
+                    share_intent.setData(Uri.parse(url));
+                    startActivity(share_intent);
+                } catch (Exception e) {
+                    Intent callIntent = new Intent(Intent.ACTION_CALL);
+                    callIntent.setData(Uri.parse("tel:+919731785240"));
+                    startActivity(callIntent);
+                }
             }
         });
 
@@ -178,12 +199,20 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
         voucher_code.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                card.setVisibility(View.GONE);
+                address_ll.setVisibility(View.GONE);
+                pay_rs.setVisibility(View.GONE);
+                confirm.setVisibility(View.GONE);
+                remove_voucher.setVisibility(View.GONE);
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                card.setVisibility(View.GONE);
+                address_ll.setVisibility(View.GONE);
+                pay_rs.setVisibility(View.GONE);
+                confirm.setVisibility(View.GONE);
+                remove_voucher.setVisibility(View.GONE);
             }
 
             @Override
@@ -191,22 +220,53 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
                 if (voucher_code.getText().toString().trim().length() == 0) {
                     apply.setEnabled(false);
                     apply.setAlpha(0.5f);
+                    card.setVisibility(View.VISIBLE);
+                    address_ll.setVisibility(View.VISIBLE);
+                    pay_rs.setVisibility(View.VISIBLE);
+                    confirm.setVisibility(View.VISIBLE);
                 } else {
-                    apply.setEnabled(true);
-                    apply.setAlpha(1f);
+                    if (!isApplied) {
+                        apply.setEnabled(true);
+                        apply.setAlpha(1f);
+                    }
                 }
+            }
+        });
+
+        remove_voucher.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                remove_voucher.setVisibility(View.GONE);
+                voucher_code.setText("");
+                if (price > 0) {
+                    price += 10;
+                }
+                isApplied = false;
+                discount_amount = 0;
+                pay_rs.setText(String.format("Pay ₹ %.2f", (price + gst)));
+                total_amount_tv.setText(String.format("₹ %.2f",  + (price + gst)));
+                voucher_discount.setText("₹ 0");
+                voucher_rl.setVisibility(View.GONE);
+                voucher_code.setEnabled(true);
+                apply.setText("APPLY");
             }
         });
 
         apply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                card.setVisibility(View.VISIBLE);
+                address_ll.setVisibility(View.VISIBLE);
+                pay_rs.setVisibility(View.VISIBLE);
+                confirm.setVisibility(View.VISIBLE);
                 String code = voucher_code.getText().toString().trim().toLowerCase();
                 if (code.equals("xyz") && !isApplied) {
+                    remove_voucher.setVisibility(View.VISIBLE);
                     isApplied = true;
+                    voucher_code.setEnabled(false);
                     voucher_rl.setVisibility(View.VISIBLE);
                     apply.setText("APPLIED");
-                    apply.setAlpha(1f);
+                    apply.setAlpha(0.5f);
                     price -= 10;
                     if (price < 0) {
                         price = 0;
@@ -312,7 +372,24 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
                     @Override
                     public void onResponse(String response) {
                         Log.d("data", "onResponse: " + response);
-                        Paper.book().write("essential_saved", "");
+                        String essential_saved = Paper.book().read("essential_saved_json");
+                        if (essential_saved != null && !essential_saved.isEmpty()) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(essential_saved);
+                                jsonObject.put(sp.getUsercode(), "");
+                                Paper.book().write("essential_saved_json", jsonObject.toString());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            try {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put(sp.getUsercode(), "");
+                                Paper.book().write("essential_saved_json", jsonObject.toString());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             if (jsonObject.getString("message").equalsIgnoreCase("Order Saved")) {
@@ -352,19 +429,36 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
         for (EssentialList essentialList : itemCartList.getEssentialLists()) {
             if (essentialList.getQty() > 0) {
                 count += 1;
-                price += essentialList.getCost() * essentialList.getQty();
-                gst += (essentialList.getCost() * essentialList.getQty()*essentialList.getDiscount()*0.01);
+                price += essentialList.getTotalCost();
+                gst += essentialList.getTotalCostWithDiscount();
             }
         }
 
         price -= discount_amount;
         tv_price.setText(String.format("₹ %.2f",  (price + gst)));
-        pay_rs.setText(String.format("Pay ₹ %.2f",  (price + gst)));
+            pay_rs.setText(String.format("Pay ₹ %.2f",  (price + gst)));
         total_amount_tv.setText(String.format("₹ %.2f", (price + gst)));
         price_details.setText("Price Details: ("+ count+" Items)");
 
         String json = new Gson().toJson(itemCartList.getEssentialLists());
-        Paper.book().write("essential_saved", json);
+        String essential_saved = Paper.book().read("essential_saved_json");
+        if (essential_saved != null && !essential_saved.isEmpty()) {
+            try {
+                JSONObject jsonObject = new JSONObject(essential_saved);
+                jsonObject.put(sp.getUsercode(), json);
+                Paper.book().write("essential_saved_json", jsonObject.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put(sp.getUsercode(), json);
+                Paper.book().write("essential_saved_json", jsonObject.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -377,11 +471,40 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
     protected void onPause() {
         super.onPause();
         String json = new Gson().toJson(itemCartList.getEssentialLists());
-        Paper.book().write("essential_saved", json);
+        String essential_saved = Paper.book().read("essential_saved_json");
+        if (essential_saved != null && !essential_saved.isEmpty()) {
+            try {
+                JSONObject jsonObject = new JSONObject(essential_saved);
+                jsonObject.put(sp.getUsercode(), json);
+                Paper.book().write("essential_saved_json", jsonObject.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put(sp.getUsercode(), json);
+                Paper.book().write("essential_saved_json", jsonObject.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void onPaymentError(int i, String s) {
         Log.d("data", "onPaymentError: " + s);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (card.getVisibility() == View.GONE) {
+            card.setVisibility(View.VISIBLE);
+            address_ll.setVisibility(View.VISIBLE);
+            pay_rs.setVisibility(View.VISIBLE);
+            confirm.setVisibility(View.VISIBLE);
+        } else {
+            super.onBackPressed();
+        }
     }
 }

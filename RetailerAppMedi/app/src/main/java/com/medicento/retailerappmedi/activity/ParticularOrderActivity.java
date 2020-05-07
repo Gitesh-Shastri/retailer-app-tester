@@ -33,6 +33,7 @@ import com.medicento.retailerappmedi.adapter.ImageAdapter;
 import com.medicento.retailerappmedi.data.Category;
 import com.medicento.retailerappmedi.data.Essential;
 import com.medicento.retailerappmedi.data.EssentialList;
+import com.medicento.retailerappmedi.data.SalesPerson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,6 +57,7 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
     EssentialList essentialList;
     TextView name, ptr;
     EditText qty;
+    SalesPerson sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +65,26 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
         setContentView(R.layout.activity_particular_order);
         Paper.init(this);
 
-        String essential_saved = Paper.book().read("essential_saved");
-        if (essential_saved != null && !essential_saved.isEmpty()) {
-            Type type = new TypeToken<ArrayList<EssentialList>>() {
-            }.getType();
-            essentialLists = new Gson().fromJson(essential_saved, type);
+        Gson gson = new Gson();
+
+        String cache = Paper.book().read("user");
+
+        if (cache != null && !cache.isEmpty()) {
+            sp = gson.fromJson(cache, SalesPerson.class);
         }
 
+        String essential_saved = Paper.book().read("essential_saved_json");
+        if (essential_saved != null && !essential_saved.isEmpty()) {
+            try {
+                JSONObject jsonObject = new JSONObject(essential_saved);
+                String data = jsonObject.getString(sp.getUsercode());
+                Type type = new TypeToken<ArrayList<EssentialList>>() {
+                }.getType();
+                essentialLists = new Gson().fromJson(data, type);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
@@ -176,8 +191,24 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
                 }
             }
         }
-        String json = new Gson().toJson(essentialLists);
-        Paper.book().write("essential_saved", json);
+        String essential_saved = Paper.book().read("essential_saved_json");
+        if (essential_saved != null && !essential_saved.isEmpty()) {
+            try {
+                JSONObject jsonObject = new JSONObject(essential_saved);
+                jsonObject.put(sp.getUsercode(), "");
+                Paper.book().write("essential_saved_json", jsonObject.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put(sp.getUsercode(), "");
+                Paper.book().write("essential_saved_json", jsonObject.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
         super.onBackPressed();
     }
 

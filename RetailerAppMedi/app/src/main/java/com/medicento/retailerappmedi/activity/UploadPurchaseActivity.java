@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -42,6 +43,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.github.barteksc.pdfviewer.listener.OnErrorListener;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -92,20 +94,20 @@ import java.util.Map;
 
 import io.paperdb.Paper;
 
-public class UploadPurchaseActivity extends AppCompatActivity implements PaymentResultListener, Player.EventListener {
+public class UploadPurchaseActivity extends AppCompatActivity implements PaymentResultListener, Player.EventListener, FullStcokImageAdapter.setOnClickListener {
 
-    ImageView back, close;
+    ImageView back, close, image;
     CardView image_card_view;
     RelativeLayout stocks, upper;
     LinearLayout upload_purchase, performa_invoice, download_ll, text_seek_bar;
     SeekBar seek_bar;
-    TextView title, per_total_amount, per_advance_amount, per_remaining_amount, lr_total_amount, lr_advance_amount, lr_remaining_amount;
+    TextView title, per_total_amount, per_advance_amount, per_remaining_amount, lr_total_amount, lr_advance_amount, lr_remaining_amount, view_text;
     RecyclerView stock_images_rv, stock_images_full_screen_rv;
     StcokImageAdapter imagesAdapter;
     FullStcokImageAdapter fullStcokImageAdapter;
     private ArrayList<String> urls;
     private ArrayList<EssentialList> essentialLists;
-    Button view_performa, download_performa, download_lr, view_lr, confirm_to_upload, review, proceed_to_50, proceed_to_50_remain;
+    Button view_performa, download_performa, download_lr, view_lr, confirm_to_upload, review, proceed_to_50, proceed_to_50_remain, view_on_web;
     String performa_url = "", lr_url = "";
     final int REQUEST_PERMISSION_CODE = 1000;
     ProgressBar progressBar;
@@ -123,6 +125,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     private SimpleExoPlayer player;
     private ImageView fullscreenButton;
     boolean fullscreen;
+    RadioGroup group;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +141,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         lr_remaining_amount = findViewById(R.id.lr_remaining_amount);
         videoView = findViewById(R.id.videoView);
         back = findViewById(R.id.back);
+        group = findViewById(R.id.group);
         close = findViewById(R.id.close);
         title = findViewById(R.id.title);
         stocks = findViewById(R.id.stocks);
@@ -145,6 +149,8 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         seek_bar = findViewById(R.id.seek_bar);
         upper = findViewById(R.id.upper);
         review = findViewById(R.id.review);
+        image = findViewById(R.id.image);
+        view_text = findViewById(R.id.view_text);
         progressBar = findViewById(R.id.progressBar);
         download_lr = findViewById(R.id.download_lr);
         proceed_to_50 = findViewById(R.id.proceed_to_50);
@@ -152,6 +158,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         confirm_to_upload = findViewById(R.id.confirm_to_upload);
         upload_purchase = findViewById(R.id.upload_purchase);
         performa_invoice = findViewById(R.id.performa_invoice);
+        view_on_web = findViewById(R.id.view_on_web);
         image_card_view = findViewById(R.id.image_card_view);
         stock_images_full_screen_rv = findViewById(R.id.stock_images_full_screen_rv);
         stock_images_rv = findViewById(R.id.stock_images_rv);
@@ -182,11 +189,18 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
 
         essentialLists = new ArrayList<>();
 
-        String essential_saved = Paper.book().read("essential_saved");
+
+        String essential_saved = Paper.book().read("essential_saved_json");
         if (essential_saved != null && !essential_saved.isEmpty()) {
-            Type type = new TypeToken<ArrayList<EssentialList>>() {
-            }.getType();
-            essentialLists = new Gson().fromJson(essential_saved, type);
+            try {
+                JSONObject jsonObject = new JSONObject(essential_saved);
+                String data = jsonObject.getString(sp.getUsercode());
+                Type type = new TypeToken<ArrayList<EssentialList>>() {
+                }.getType();
+                essentialLists = new Gson().fromJson(data, type);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         for (EssentialList essentialList : essentialLists) {
@@ -213,6 +227,13 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         imagesAdapter = new StcokImageAdapter(urls, this);
         stock_images_rv.setLayoutManager(new GridLayoutManager(this, 4));
         stock_images_rv.setAdapter(imagesAdapter);
+
+        group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                seek_bar.setProgress(i-1);
+            }
+        });
 
         seek_bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -281,7 +302,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                     params.height = (int) (190 * getApplicationContext().getResources().getDisplayMetrics().density);
                     videoView.setLayoutParams(params);
                     upper.setVisibility(View.VISIBLE);
-                    seek_bar.setVisibility(View.VISIBLE);
+                    group.setVisibility(View.VISIBLE);
                     text_seek_bar.setVisibility(View.VISIBLE);
                     confirm_to_upload.setVisibility(View.VISIBLE);
                     fullscreen = false;
@@ -298,7 +319,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                     params.height = params.MATCH_PARENT;
                     videoView.setLayoutParams(params);
                     upper.setVisibility(View.GONE);
-                    seek_bar.setVisibility(View.GONE);
+                    group.setVisibility(View.GONE);
                     text_seek_bar.setVisibility(View.GONE);
                     confirm_to_upload.setVisibility(View.GONE);
                     fullscreen = true;
@@ -514,6 +535,11 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         requestQueue.add(stringRequest);
     }
 
+    @Override
+    public void onClick(String url) {
+        Glide.with(this).load(url).into(image);
+    }
+
     class RetrievePdfStream extends AsyncTask<String, Void, InputStream> {
 
         @Override
@@ -636,9 +662,11 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     public void showImages() {
 
         image_card_view.setVisibility(View.VISIBLE);
+        Glide.with(this).load(urls.get(0)).into(image);
         fullStcokImageAdapter = new FullStcokImageAdapter(urls, this);
         stock_images_full_screen_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         stock_images_full_screen_rv.setAdapter(fullStcokImageAdapter);
+        fullStcokImageAdapter.setSetOnClickListener(this);
 
     }
 
@@ -755,7 +783,24 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                     @Override
                     public void onResponse(String response) {
                         Log.d("data", "onResponse: " + response);
-                        Paper.book().write("essential_saved", "");
+                        String essential_saved = Paper.book().read("essential_saved_json");
+                        if (essential_saved != null && !essential_saved.isEmpty()) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(essential_saved);
+                                jsonObject.put(sp.getUsercode(), "");
+                                Paper.book().write("essential_saved_json", jsonObject.toString());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            try {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put(sp.getUsercode(), "");
+                                Paper.book().write("essential_saved_json", jsonObject.toString());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             if (jsonObject.getString("message").equalsIgnoreCase("Order Saved")) {
@@ -870,6 +915,8 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
 
     @Override
     public void onPlayerError(ExoPlaybackException error) {
+        view_text.setVisibility(View.VISIBLE);
+        view_on_web.setVisibility(View.VISIBLE);
     }
 
     @Override

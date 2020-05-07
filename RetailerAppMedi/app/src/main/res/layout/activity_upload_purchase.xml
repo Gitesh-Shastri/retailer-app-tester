@@ -2,10 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#f0f0f0"
-    android:id="@+id/layout"
     tools:context=".activity.UploadPurchaseActivity">
 
     <RelativeLayout
@@ -60,13 +60,211 @@
         android:layout_marginBottom="10dp"
         android:max="5"
         android:progress="0"
-        android:theme="@style/Widget.AppCompat.SeekBar.Discrete" />
+        android:theme="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:visibility="gone" />
+
+    <RadioGroup
+        android:id="@+id/group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/upper"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:padding="0dp"
+                android:layout_margin="0dp"
+                android:id="@+id/one"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_centerInParent="true"
+                android:backgroundTint="@color/sea_blue"
+                android:buttonTint="@color/sea_blue" />
+
+            <View
+                android:layout_marginLeft="-5dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/light_grey_label"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/one"
+                />
+
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <View
+                android:layout_marginRight="-5dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/light_grey_label"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/two"
+                />
+            <RadioButton
+                android:padding="0dp"
+                android:layout_margin="0dp"
+                android:id="@+id/two"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_centerInParent="true"
+                android:backgroundTint="@color/sea_blue"
+                android:buttonTint="@color/sea_blue" />
+
+            <View
+                android:layout_marginLeft="-5dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/light_grey_label"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/two"
+                />
+
+        </RelativeLayout> <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <View
+            android:layout_marginRight="-5dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_grey_label"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/three"
+            />
+        <RadioButton
+            android:padding="0dp"
+            android:layout_margin="0dp"
+            android:id="@+id/three"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_centerInParent="true"
+            android:backgroundTint="@color/sea_blue"
+            android:buttonTint="@color/sea_blue" />
+
+        <View
+            android:layout_marginLeft="-5dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_grey_label"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/three"
+            />
+
+    </RelativeLayout> <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <View
+            android:layout_marginRight="-5dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_grey_label"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/four"
+            />
+        <RadioButton
+            android:padding="0dp"
+            android:layout_margin="0dp"
+            android:id="@+id/four"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_centerInParent="true"
+            android:backgroundTint="@color/sea_blue"
+            android:buttonTint="@color/sea_blue" />
+
+        <View
+            android:layout_marginLeft="-5dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_grey_label"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/four"
+            />
+
+    </RelativeLayout> <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <View
+            android:layout_marginRight="-5dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_grey_label"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/five"
+            />
+
+        <RadioButton
+            android:padding="0dp"
+            android:layout_margin="0dp"
+            android:id="@+id/five"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_centerInParent="true"
+            android:backgroundTint="@color/sea_blue"
+            android:buttonTint="@color/sea_blue" />
+
+        <View
+            android:layout_marginLeft="-5dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_grey_label"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/five"
+            />
+
+    </RelativeLayout> <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:padding="0dp"
+            android:layout_margin="0dp"
+            android:id="@+id/six"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_centerInParent="true"
+            android:backgroundTint="@color/sea_blue"
+            android:buttonTint="@color/sea_blue" />
+
+        <View
+            android:layout_marginRight="-5dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_grey_label"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/six"
+            />
+
+    </RelativeLayout>
+    </RadioGroup>
 
     <LinearLayout
         android:id="@+id/text_seek_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/seek_bar"
+        android:layout_below="@id/group"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp">
 
@@ -163,15 +361,15 @@
             android:textSize="11sp" />
 
         <com.google.android.exoplayer2.ui.PlayerView
-            android:layout_below="@+id/video_created_at"
+            android:id="@+id/videoView"
             android:layout_width="match_parent"
             android:layout_height="190dp"
+            android:layout_below="@+id/video_created_at"
             android:background="#000000"
-            app:controller_layout_id="@layout/exo_player_control_view"
-            android:id="@+id/videoView"
-            />
+            app:controller_layout_id="@layout/exo_player_control_view" />
 
         <TextView
+            android:visibility="gone"
             android:id="@+id/view_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -184,6 +382,7 @@
             android:textSize="12sp" />
 
         <Button
+            android:visibility="gone"
             android:id="@+id/view_on_web"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -707,9 +906,9 @@
 
     <com.github.barteksc.pdfviewer.PDFView
         android:id="@+id/pdfViewer"
-        android:layout_below="@id/upper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/upper"
         android:visibility="gone" />
 
     <ProgressBar
@@ -727,8 +926,17 @@
         android:visibility="gone">
 
         <RelativeLayout
+            android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:layout_above="@id/stock_images_full_screen_rv"
+                />
 
             <ImageView
                 android:id="@+id/close"
@@ -739,20 +947,10 @@
                 android:src="@drawable/cross_grey" />
 
             <androidx.recyclerview.widget.RecyclerView
+                android:layout_alignParentBottom="true"
                 android:id="@+id/stock_images_full_screen_rv"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/close" />
-
-            <ImageView
-                android:layout_centerVertical="true"
-                android:id="@+id/arrow"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentRight="true"
-                android:layout_margin="10dp"
-                android:tint="#555555"
-                android:src="@drawable/ic_keyboard_arrow_right_black_24dp" />
+                android:layout_height="90dp" />
 
         </RelativeLayout>
 
