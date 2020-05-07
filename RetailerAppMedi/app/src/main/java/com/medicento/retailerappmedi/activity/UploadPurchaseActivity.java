@@ -1,5 +1,6 @@
 package com.medicento.retailerappmedi.activity;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
@@ -10,25 +11,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.DisplayMetrics;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -36,7 +37,6 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -53,7 +53,6 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -61,15 +60,14 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.medicento.retailerappmedi.CartPageActivity;
 import com.medicento.retailerappmedi.R;
+import com.medicento.retailerappmedi.Utils.IUploadAPI;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
+import com.medicento.retailerappmedi.Utils.MedicentoUtils;
 import com.medicento.retailerappmedi.adapter.FullStcokImageAdapter;
-import com.medicento.retailerappmedi.adapter.ImagesAdapter;
-import com.medicento.retailerappmedi.adapter.ItemCartList;
+import com.medicento.retailerappmedi.adapter.OrderItemEssentialAdapter;
 import com.medicento.retailerappmedi.adapter.StcokImageAdapter;
 import com.medicento.retailerappmedi.data.EssentialList;
 import com.medicento.retailerappmedi.data.SalesPerson;
@@ -93,18 +91,27 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import io.paperdb.Paper;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class UploadPurchaseActivity extends AppCompatActivity implements PaymentResultListener, Player.EventListener, FullStcokImageAdapter.setOnClickListener {
 
     ImageView back, close, image;
     CardView image_card_view;
     RelativeLayout stocks, upper;
-    LinearLayout upload_purchase, performa_invoice, download_ll, text_seek_bar;
+    LinearLayout upload_purchase, performa_invoice, download_ll, text_seek_bar, add_a_file_ll, upload_photo_ll;
     SeekBar seek_bar;
     TextView title, per_total_amount, per_advance_amount, per_remaining_amount, lr_total_amount, lr_advance_amount, lr_remaining_amount, view_text;
-    RecyclerView stock_images_rv, stock_images_full_screen_rv;
+    RecyclerView stock_images_rv, stock_images_full_screen_rv, items_rv;
     StcokImageAdapter imagesAdapter;
     FullStcokImageAdapter fullStcokImageAdapter;
     private ArrayList<String> urls;
@@ -112,16 +119,17 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     Button view_performa, download_performa, download_lr, view_lr, confirm_to_upload, review, proceed_to_50, proceed_to_50_remain, view_on_web;
     String performa_url = "", lr_url = "";
     final int REQUEST_PERMISSION_CODE = 1000;
-    ProgressBar progressBar;
+    ProgressBar progressBar, progress_bar_uploading;
     float gst = 0;
 
     com.github.barteksc.pdfviewer.PDFView pdfViewer;
     boolean isFromDownload, isFromLr, isPdfVisible;
 
     int price = 0, currentWindow = 0;
-    long playbackPosition = 0;;
+    long playbackPosition = 0;
+    ;
     SalesPerson sp;
-    boolean isPaused, playWhenReady;
+    boolean isPaused, playWhenReady, isUploading;
     String video_url;
     private PlayerView videoView;
     private SimpleExoPlayer player;
@@ -129,6 +137,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     boolean fullscreen;
     RadioGroup group;
     RadioButton one, two, three, four, five, six;
+    OrderItemEssentialAdapter orderItemAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,10 +147,14 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         per_total_amount = findViewById(R.id.per_total_amount);
         per_advance_amount = findViewById(R.id.per_advance_amount);
         per_remaining_amount = findViewById(R.id.per_remaining_amount);
+        progress_bar_uploading = findViewById(R.id.progress_bar_uploading);
         lr_total_amount = findViewById(R.id.lr_total_amount);
         lr_advance_amount = findViewById(R.id.lr_advance_amount);
+        add_a_file_ll = findViewById(R.id.add_a_file_ll);
+        upload_photo_ll = findViewById(R.id.upload_photo_ll);
         proceed_to_50_remain = findViewById(R.id.proceed_to_50_remain);
         lr_remaining_amount = findViewById(R.id.lr_remaining_amount);
+        items_rv = findViewById(R.id.items_rv);
         videoView = findViewById(R.id.videoView);
         back = findViewById(R.id.back);
         one = findViewById(R.id.one);
@@ -198,7 +211,6 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
 
         essentialLists = new ArrayList<>();
 
-
         String essential_saved = Paper.book().read("essential_saved_json");
         if (essential_saved != null && !essential_saved.isEmpty()) {
             try {
@@ -215,21 +227,25 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         for (EssentialList essentialList : essentialLists) {
             if (essentialList.getQty() > 0) {
                 price += essentialList.getCost() * essentialList.getQty();
-                gst += (essentialList.getCost() * essentialList.getQty()*essentialList.getDiscount()*0.01);
+                gst += (essentialList.getCost() * essentialList.getQty() * essentialList.getDiscount() * 0.01);
             }
         }
 
+        orderItemAdapter = new OrderItemEssentialAdapter(essentialLists, this);
+        items_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        items_rv.setAdapter(orderItemAdapter);
+
         per_total_amount.setText(String.format("₹ %.2f", (price + gst)));
-        per_remaining_amount.setText("₹ " + (int)(price/2));
+        per_remaining_amount.setText("₹ " + (int) (price / 2));
         lr_total_amount.setText(String.format("₹ %.2f", (price + gst)));
-        if (price%2==0) {
+        if (price % 2 == 0) {
             per_advance_amount.setText(String.format("₹ %.2f", ((int) (price / 2) + gst)));
-            lr_advance_amount.setText(String.format("₹ %.2f",((int) (price / 2) + gst)));
+            lr_advance_amount.setText(String.format("₹ %.2f", ((int) (price / 2) + gst)));
         } else {
-            per_advance_amount.setText(String.format("₹ %.2f", ((int) ((price / 2)+1) + gst)));
-            lr_advance_amount.setText(String.format("₹ %.2f", ((int) ((price / 2)+1) + gst)));
+            per_advance_amount.setText(String.format("₹ %.2f", ((int) ((price / 2) + 1) + gst)));
+            lr_advance_amount.setText(String.format("₹ %.2f", ((int) ((price / 2) + 1) + gst)));
         }
-        lr_remaining_amount.setText("₹ " + (int)(price/2));
+        lr_remaining_amount.setText("₹ " + (int) (price / 2));
 
         urls = new ArrayList<>();
 
@@ -240,15 +256,22 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                seek_bar.setProgress(i-1);
+                seek_bar.setProgress(i - 1);
             }
         });
+
+        one.setChecked(true);
+        four.setEnabled(false);
+        five.setEnabled(false);
+        six.setEnabled(false);
 
         one.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
+                    Log.d("data", "onCheckedChanged: ");
                     setAllNone();
+                    one.setChecked(true);
                     seek_bar.setProgress(0);
                 }
             }
@@ -259,6 +282,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
                     setAllNone();
+                    two.setChecked(true);
                     seek_bar.setProgress(1);
                 }
             }
@@ -269,6 +293,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
                     setAllNone();
+                    three.setChecked(true);
                     seek_bar.setProgress(2);
                 }
             }
@@ -279,6 +304,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
                     setAllNone();
+                    four.setChecked(true);
                     seek_bar.setProgress(3);
                 }
             }
@@ -289,6 +315,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
                     setAllNone();
+                    five.setChecked(true);
                     seek_bar.setProgress(4);
                 }
             }
@@ -299,6 +326,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
                     setAllNone();
+                    six.setChecked(true);
                     seek_bar.setProgress(5);
                 }
             }
@@ -328,10 +356,10 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                         break;
                     case 3:
                         player.setPlayWhenReady(false);
-                        if (price%2==0) {
-                            startPayment((int)(( price / 2)+gst));
+                        if (price % 2 == 0) {
+                            startPayment((int) ((price / 2) + gst));
                         } else {
-                            startPayment(((int)(( price / 2)+gst))+1);
+                            startPayment(((int) ((price / 2) + gst)) + 1);
                         }
                         break;
                     case 4:
@@ -340,7 +368,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                         download_ll.setVisibility(View.VISIBLE);
                         break;
                     case 5:
-                        startPayment( price / 2);
+                        startPayment(price / 2);
                         break;
                 }
             }
@@ -497,7 +525,104 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             }
         });
 
+        add_a_file_ll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!checkPermission()) {
+                    requestPermission();
+                } {
+                    isUploading = true;
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("*/*");
+                    startActivityForResult(intent, 22);
+                }
+            }
+        });
+
+        upload_photo_ll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!checkPermission()) {
+                    requestPermission();
+                } {
+                    isUploading = true;
+                    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    String[] mimeTypes = {"image/png", "image/jpg", "image/jpeg"};
+                    intent.setType("image/*");
+                    intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+                    startActivityForResult(Intent.createChooser(intent, "Select File"), 21);
+                }
+            }
+        });
+
         getImages();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 21 && resultCode == RESULT_OK) {
+            Uri path = data.getData();
+            try {
+                Bitmap bitmap = (Bitmap) MediaStore.Images.Media.getBitmap(getContentResolver(), path);
+                File file = saveImage(bitmap);
+                uploadFileToServer(file);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (requestCode == 22 && resultCode == RESULT_OK) {
+            String path = getRealPathFromURI_API19(UploadPurchaseActivity.this, data.getData());
+            try {
+                File file = new File(path);
+                Log.d("data", "onActivityResult: " + path);
+                uploadFileToServer(file);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static String getRealPathFromURI_API19(Context context, Uri uri) {
+        String filePath = "";
+
+        // ExternalStorageProvider
+        String docId = DocumentsContract.getDocumentId(uri);
+        String[] split = docId.split(":");
+        String type = split[0];
+
+        if ("primary".equalsIgnoreCase(type)) {
+            return Environment.getExternalStorageDirectory() + "/" + split[1];
+        } else {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+                //getExternalMediaDirs() added in API 21
+                File[] external = context.getExternalMediaDirs();
+                if (external.length > 1) {
+                    filePath = external[1].getAbsolutePath();
+                    filePath = filePath.substring(0, filePath.indexOf("Android")) + split[1];
+                }
+            } else {
+                filePath = "/storage/" + type + "/" + split[1];
+            }
+            return filePath;
+        }
+    }
+
+    private File saveImage(Bitmap finalBitmap) {
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/saved_images");
+        myDir.mkdirs();
+        String fname = "medicento" + System.currentTimeMillis() + ".jpg";
+        File file = new File(myDir, fname);
+        if (file.exists()) file.delete();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return file;
     }
 
     private void setAllNone() {
@@ -707,6 +832,10 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     public void onRequestPermissionsResult(int requestCode, String permissions[],
                                            int[] grantResults) {
         Paper.book().write("has_permission_granted", "yes");
+        if (isUploading) {
+            isUploading = false;
+            return;
+        }
         if (performa_url != null && performa_url.isEmpty()) {
             getPerformaUrl();
         }
@@ -1035,6 +1164,76 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             isPaused = false;
             initializePlayerResume(video_url);
         }
+    }
+
+    private void uploadFileToServer(File file) {
+
+        progress_bar_uploading.setVisibility(View.VISIBLE);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("*/*"), file);
+        MultipartBody.Part vFile = MultipartBody.Part.createFormData("media", file.getName(), requestBody);
+
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.MINUTES)
+                .writeTimeout(10, TimeUnit.MINUTES)
+                .readTimeout(10, TimeUnit.MINUTES)
+                .build();
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(okHttpClient)
+                .baseUrl("http://stage.medicento.com:8080/api/app/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        IUploadAPI service = retrofit.create(IUploadAPI.class);
+        Call<com.medicento.retailerappmedi.data.ResponseBody> serverCom = service.uploadFile(vFile);
+        serverCom.enqueue(new Callback<com.medicento.retailerappmedi.data.ResponseBody>() {
+            @Override
+            public void onResponse(Call<com.medicento.retailerappmedi.data.ResponseBody> call, retrofit2.Response<com.medicento.retailerappmedi.data.ResponseBody> response) {
+                try {
+                    Log.d("data", "onResponse: " + response.body().getSaved_url());
+                    saveFile(response.body().getSaved_url());
+                    Toast.makeText(UploadPurchaseActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                progress_bar_uploading.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(Call<com.medicento.retailerappmedi.data.ResponseBody> call, Throwable t) {
+                String message = Log.getStackTraceString(t);
+                Log.d("data", "onFailure: " + message);
+                progress_bar_uploading.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void saveFile(String saved_url) {
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                "http://stage.medicento.com:8080/api/app/save_purchase_order/?id=" + sp.getmAllocatedPharmaId() + "&code=" + sp.getUsercode(),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("data", "onResponse: " + response);
+                        Toast.makeText(UploadPurchaseActivity.this, "File Uploaded", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        MedicentoUtils.showVolleyError(error);
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("url", saved_url);
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest);
     }
 
 }
