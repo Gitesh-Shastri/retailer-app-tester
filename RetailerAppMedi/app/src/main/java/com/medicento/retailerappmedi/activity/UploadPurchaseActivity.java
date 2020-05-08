@@ -105,12 +105,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class UploadPurchaseActivity extends AppCompatActivity implements PaymentResultListener, Player.EventListener, FullStcokImageAdapter.setOnClickListener {
 
-    ImageView back, close, image;
+    ImageView back, close, image, approve;
     CardView image_card_view;
     RelativeLayout stocks, upper;
-    LinearLayout upload_purchase, performa_invoice, download_ll, text_seek_bar, add_a_file_ll, upload_photo_ll;
+    LinearLayout upload_purchase, performa_invoice, download_ll, text_seek_bar, add_a_file_ll, upload_photo_ll, advance_soory,
+            advance_done, download_ll_not;
     SeekBar seek_bar;
-    TextView title, per_total_amount, per_advance_amount, per_remaining_amount, lr_total_amount, lr_advance_amount, lr_remaining_amount, view_text;
+    TextView title, per_total_amount, per_advance_amount, per_remaining_amount, lr_total_amount, lr_advance_amount,
+            lr_remaining_amount, view_text, pending, sorry, payment_recieved, pending_performa, reason_1, sorry_not, reason_1_d;
     RecyclerView stock_images_rv, stock_images_full_screen_rv, items_rv;
     StcokImageAdapter imagesAdapter;
     FullStcokImageAdapter fullStcokImageAdapter;
@@ -148,15 +150,24 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         per_advance_amount = findViewById(R.id.per_advance_amount);
         per_remaining_amount = findViewById(R.id.per_remaining_amount);
         progress_bar_uploading = findViewById(R.id.progress_bar_uploading);
+        pending_performa = findViewById(R.id.pending_performa);
         lr_total_amount = findViewById(R.id.lr_total_amount);
         lr_advance_amount = findViewById(R.id.lr_advance_amount);
+        payment_recieved = findViewById(R.id.payment_recieved);
+        download_ll_not = findViewById(R.id.download_ll_not);
+        advance_done = findViewById(R.id.advance_done);
         add_a_file_ll = findViewById(R.id.add_a_file_ll);
+        advance_soory = findViewById(R.id.advance_soory);
+        reason_1_d = findViewById(R.id.reason_1_d);
         upload_photo_ll = findViewById(R.id.upload_photo_ll);
         proceed_to_50_remain = findViewById(R.id.proceed_to_50_remain);
         lr_remaining_amount = findViewById(R.id.lr_remaining_amount);
         items_rv = findViewById(R.id.items_rv);
         videoView = findViewById(R.id.videoView);
         back = findViewById(R.id.back);
+        pending = findViewById(R.id.pending);
+        sorry = findViewById(R.id.sorry);
+        sorry_not = findViewById(R.id.sorry_not);
         one = findViewById(R.id.one);
         two = findViewById(R.id.two);
         three = findViewById(R.id.three);
@@ -172,6 +183,8 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         upper = findViewById(R.id.upper);
         review = findViewById(R.id.review);
         image = findViewById(R.id.image);
+        reason_1 = findViewById(R.id.reason_1);
+        approve = findViewById(R.id.approve);
         view_text = findViewById(R.id.view_text);
         progressBar = findViewById(R.id.progressBar);
         download_lr = findViewById(R.id.download_lr);
@@ -249,6 +262,8 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
 
         urls = new ArrayList<>();
 
+        payment_recieved.setText("Thank You! 50% Advance Payment of Rs. "+String.format("₹ %.2f", (price + gst))+" has been recieved.");
+
         imagesAdapter = new StcokImageAdapter(urls, this);
         stock_images_rv.setLayoutManager(new GridLayoutManager(this, 4));
         stock_images_rv.setAdapter(imagesAdapter);
@@ -261,15 +276,11 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         });
 
         one.setChecked(true);
-        four.setEnabled(false);
-        five.setEnabled(false);
-        six.setEnabled(false);
 
         one.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    Log.d("data", "onCheckedChanged: ");
                     setAllNone();
                     one.setChecked(true);
                     seek_bar.setProgress(0);
@@ -332,6 +343,9 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             }
         });
 
+        sorry.setText("Sorry! 50% Advance Payment of Rs. " + String.format("₹ %.2f", (price + gst)) + " couldn't be proceed due to one of the following reasons:");
+        sorry_not.setText("Sorry! 50% Advance Payment of Rs. " + String.format("₹ %.2f", (price + gst)) + " couldn't be proceed due to one of the following reasons:");
+
         seek_bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -339,6 +353,9 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                 upload_purchase.setVisibility(View.GONE);
                 performa_invoice.setVisibility(View.GONE);
                 download_ll.setVisibility(View.GONE);
+                advance_soory.setVisibility(View.GONE);
+                advance_done.setVisibility(View.GONE);
+                download_ll_not.setVisibility(View.GONE);
                 switch (i) {
                     case 0:
                         stocks.setVisibility(View.VISIBLE);
@@ -355,17 +372,46 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                         performa_invoice.setVisibility(View.VISIBLE);
                         break;
                     case 3:
-                        player.setPlayWhenReady(false);
-                        if (price % 2 == 0) {
-                            startPayment((int) ((price / 2) + gst));
+                        if (pending.getText().toString().equals("APPROVED")) {
+                            if (performa_url.isEmpty()) {
+                                advance_soory.setVisibility(View.VISIBLE);
+                                reason_1.setText("* Performa Invoice Not Yet Issued");
+                            } else {
+                                advance_done.setVisibility(View.VISIBLE);
+                            }
+//                            if (price % 2 == 0) {
+//                                startPayment((int) ((price / 2) + gst));
+//                            } else {
+//                                startPayment(((int) ((price / 2) + gst)) + 1);
+//                            }
                         } else {
-                            startPayment(((int) ((price / 2) + gst)) + 1);
+                            if (pending.getText().toString().equals("APPROVED")) {
+                                advance_soory.setVisibility(View.GONE);
+                            } else if (pending.getText().toString().equals("REJECTED")) {
+                                pending.setText("REJECTED");
+                            } else {
+                                pending.setText("PENDING");
+                                advance_soory.setVisibility(View.VISIBLE);
+                                if (performa_url.isEmpty()) {
+                                    reason_1.setText("* Purchase Order Not Yet Uploaded \n* Purchase Order Not Yet Approved \n* Performa Invoice Not Yet Issued");
+                                } else {
+                                    reason_1.setText("* Purchase Order Not Yet Uploaded \n* Purchase Order Not Yet Approved \n");
+                                }
+                            }
                         }
+                        player.setPlayWhenReady(false);
                         break;
                     case 4:
+                        reason_1_d.setText("");
+                        if (pending.getText().toString().contains("PENDING")) {
+                            reason_1_d.setText("* Purchase Order Not Yet Uploaded \n* Purchase Order Not Yet Approved \n");
+                        }
+                        if (performa_url.isEmpty()) {
+                            reason_1_d.append("* Performa Invoice Not Yet Issued");
+                        }
                         player.setPlayWhenReady(false);
                         title.setText("Delivery LR");
-                        download_ll.setVisibility(View.VISIBLE);
+                        download_ll_not.setVisibility(View.VISIBLE);
                         break;
                     case 5:
                         startPayment(price / 2);
@@ -434,21 +480,21 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         confirm_to_upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                seek_bar.setProgress(1);
+                two.setChecked(true);
             }
         });
 
         review.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                seek_bar.setProgress(2);
+                three.setChecked(true);
             }
         });
 
         proceed_to_50.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                seek_bar.setProgress(3);
+                four.setChecked(true);
             }
         });
 
@@ -464,7 +510,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             public void onClick(View view) {
                 isFromDownload = false;
                 if (performa_url != null && performa_url.isEmpty()) {
-                    getPerformaUrl();
+                    new RetrievePdfStream().execute(performa_url);
                 }
             }
         });
@@ -477,14 +523,14 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                 String has_permission_granted = Paper.book().read("has_permission_granted");
                 if (has_permission_granted != null && !has_permission_granted.isEmpty() && !has_permission_granted.equals("yes")) {
                     if (performa_url != null && performa_url.isEmpty()) {
-                        getPerformaUrl();
+                        new RetrievePdfStream().execute(performa_url);
                     }
                 } else {
                     if (!checkPermission()) {
                         requestPermission();
                     } else {
                         if (performa_url != null && performa_url.isEmpty()) {
-                            getPerformaUrl();
+                            new RetrievePdfStream().execute(performa_url);
                         }
                         Paper.book().write("has_permission_granted", "yes");
                     }
@@ -530,7 +576,8 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             public void onClick(View view) {
                 if (!checkPermission()) {
                     requestPermission();
-                } {
+                }
+                {
                     isUploading = true;
                     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.setType("*/*");
@@ -544,7 +591,8 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             public void onClick(View v) {
                 if (!checkPermission()) {
                     requestPermission();
-                } {
+                }
+                {
                     isUploading = true;
                     Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     String[] mimeTypes = {"image/png", "image/jpg", "image/jpeg"};
@@ -554,6 +602,16 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                 }
             }
         });
+
+        view_on_web.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(video_url));
+                startActivity(browserIntent);
+            }
+        });
+
+        getPoStatus();
 
         getImages();
     }
@@ -670,7 +728,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.GET,
-                "http://stage.medicento.com:8080/api/app/get_performa/",
+                "http://stage.medicento.com:8080/api/app/get_performa_url/?id=" + sp.getmAllocatedPharmaId() + "&code=" + sp.getUsercode(),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -678,7 +736,11 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             performa_url = JsonUtils.getJsonValueFromKey(jsonObject, "url");
-                            new RetrievePdfStream().execute(performa_url);
+                            if (performa_url.isEmpty()) {
+                                pending_performa.setVisibility(View.VISIBLE);
+                            } else {
+                                pending_performa.setVisibility(View.GONE);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -837,7 +899,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             return;
         }
         if (performa_url != null && performa_url.isEmpty()) {
-            getPerformaUrl();
+            new RetrievePdfStream().execute(performa_url);
         }
     }
 
@@ -946,6 +1008,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             saveData(s);
         }
         Log.d("data", "onPaymentSuccess: " + s);
+        advance_done.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -1236,4 +1299,46 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         requestQueue.add(stringRequest);
     }
 
+    public void getPoStatus() {
+
+        Log.d("data", "getPoStatus: http://stage.medicento.com:8080/api/app/get_po_status/?id=" + sp.getmAllocatedPharmaId() + "&code=" + sp.getUsercode());
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.GET,
+                "http://stage.medicento.com:8080/api/app/get_po_status/?id=" + sp.getmAllocatedPharmaId() + "&code=" + sp.getUsercode(),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("data", "onResponse: " + response);
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            if (JsonUtils.getBooleanValueFromJsonKey(jsonObject, "is_approved")) {
+                                pending.setText("APPROVED");
+                                approve.setVisibility(View.VISIBLE);
+                                pending.setVisibility(View.GONE);
+                            } else if (JsonUtils.getBooleanValueFromJsonKey(jsonObject, "is_rejected")) {
+                                pending.setText("REJECTED");
+                            } else {
+                                pending.setText("PENDING");
+                            }
+                            performa_url = JsonUtils.getJsonValueFromKey(jsonObject, "url");
+                            if (performa_url.isEmpty()) {
+                                pending_performa.setVisibility(View.VISIBLE);
+                            } else {
+                                pending_performa.setVisibility(View.GONE);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                }
+        );
+
+        requestQueue.add(stringRequest);
+    }
 }

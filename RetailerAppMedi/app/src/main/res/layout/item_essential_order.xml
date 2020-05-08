@@ -8,8 +8,7 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:layout_width="0dp"
-        android:layout_weight="1"
+        android:layout_width="wrap_content"
         android:textSize="11sp"
         android:textStyle="bold"
         android:textColor="#555555"
@@ -19,8 +18,7 @@
         />
 
     <TextView
-        android:layout_width="0dp"
-        android:layout_weight="6"
+        android:layout_width="wrap_content"
         android:textColor="#555555"
         android:textSize="11sp"
         android:textStyle="bold"
@@ -31,8 +29,7 @@
 
     <TextView
         android:gravity="end"
-        android:layout_width="0dp"
-        android:layout_weight="3"
+        android:layout_width="wrap_content"
         android:textStyle="bold"
         android:textSize="11sp"
         android:textColor="#555555"

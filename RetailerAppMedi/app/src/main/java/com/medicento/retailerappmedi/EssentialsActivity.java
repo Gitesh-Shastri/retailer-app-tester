@@ -143,6 +143,10 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
             }
         }
 
+        if (essentialLists == null) {
+            essentialLists = new ArrayList<>();
+        }
+
         int count_num = getCount_num(essentialLists);
         if (count_num > 0) {
             number.setVisibility(View.VISIBLE);
