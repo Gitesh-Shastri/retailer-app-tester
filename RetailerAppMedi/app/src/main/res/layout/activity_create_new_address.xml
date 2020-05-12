@@ -97,7 +97,18 @@
         android:text="State : "
         />
 
+    <Spinner
+        android:id="@+id/state_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="@drawable/border_grey"
+        android:textColor="#555555"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        />
+
     <EditText
+        android:visibility="gone"
         android:inputType="textCapWords"
         android:textColor="#555555"
         android:padding="5dp"
@@ -121,7 +132,18 @@
         android:text="City : "
         />
 
+    <Spinner
+        android:id="@+id/city_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="@drawable/border_grey"
+        android:textColor="#555555"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        />
+
     <EditText
+        android:visibility="gone"
         android:inputType="textCapWords"
         android:textColor="#555555"
         android:padding="5dp"

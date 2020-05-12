@@ -109,4 +109,5 @@
     <string name="your_pharma_code">Your Pharma Code :\n<b>XXXX</b></string>
     <string name="your_registered_mobile_no_nemail_id_xxxx">Your Registered Mobile No. /  Email ID : <b>XXXX</b></string>
     <string name="cart_total_6_items_inr_2430">Cart Total (0 items) : <b>INR </b></string>
+    <string name="prices_are_negotiable_basis_the_quantity_please_click_on_call_to_order_for_clarification">Prices are negotiable basis the Order Quantity.Please click on <b>Call to Order</b> for clarification.</string>
 </resources>

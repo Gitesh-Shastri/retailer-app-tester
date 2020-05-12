@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -46,6 +47,7 @@ import io.paperdb.Paper;
 
 public class ParticularOrderActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final String TAG = "ParticularOrder";
     ArrayList<String> images;
     ArrayList<EssentialList> essentialLists;
     ArrayList<Category> groups;
@@ -191,11 +193,12 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
                 }
             }
         }
+        String json = new Gson().toJson(essentialLists);
         String essential_saved = Paper.book().read("essential_saved_json");
         if (essential_saved != null && !essential_saved.isEmpty()) {
             try {
                 JSONObject jsonObject = new JSONObject(essential_saved);
-                jsonObject.put(sp.getUsercode(), "");
+                jsonObject.put(sp.getUsercode(), json);
                 Paper.book().write("essential_saved_json", jsonObject.toString());
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -203,7 +206,7 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
         } else {
             try {
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put(sp.getUsercode(), "");
+                jsonObject.put(sp.getUsercode(), json);
                 Paper.book().write("essential_saved_json", jsonObject.toString());
             } catch (JSONException e) {
                 e.printStackTrace();

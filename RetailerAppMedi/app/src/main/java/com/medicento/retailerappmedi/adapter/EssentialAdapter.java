@@ -25,12 +25,32 @@ public class EssentialAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     private ArrayList<Category> categories;
     private Context context;
     private DisplayMetrics metrics;
+    private boolean isNotShownBuy;
 
     public EssentialAdapter(ArrayList<Category> categories, Context context, DisplayMetrics metrics) {
         this.categories = categories;
         this.context = context;
         this.metrics = metrics;
+        this.isNotShownBuy = false;
     }
+
+    public EssentialAdapter(ArrayList<Category> categories, Context context, DisplayMetrics metrics, boolean isNotShownBuy) {
+        this.categories = categories;
+        this.context = context;
+        this.metrics = metrics;
+        this.isNotShownBuy = isNotShownBuy;
+    }
+
+    private setOnClickListener setOnClickListener;
+
+    public interface setOnClickListener {
+        public void onClickCategory(String id);
+    }
+
+    public void setSetOnClickListener(setOnClickListener setOnClickListener) {
+        this.setOnClickListener = setOnClickListener;
+    }
+
 
     @NonNull
     @Override
@@ -70,6 +90,7 @@ public class EssentialAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
         @Override
         protected void clear() {
+            buy.setVisibility(View.VISIBLE);
             name.setText("");
         }
 
@@ -77,13 +98,23 @@ public class EssentialAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         public void onBind(int position) {
             super.onBind(position);
 
+            if (isNotShownBuy) {
+                buy.setVisibility(View.GONE);
+            }
+
             name.setText(categories.get(position).getName());
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    context.startActivity(new Intent(context, EssentialsActivity.class)
-                    .putExtra("category", name.getText().toString()));
+                    if (!isNotShownBuy) {
+                        context.startActivity(new Intent(context, EssentialsActivity.class)
+                                .putExtra("category", name.getText().toString()));
+                    } else {
+                        if (setOnClickListener != null) {
+                            setOnClickListener.onClickCategory(categories.get(getCurrentPosition()).getId());
+                        }
+                    }
                 }
             });
 

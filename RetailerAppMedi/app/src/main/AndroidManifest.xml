@@ -35,15 +35,15 @@
         <activity android:name=".activity.ParticularOrderActivity" />
         <activity android:name=".create_account.ConfirmAddressDistributorActivity" />
         <activity android:name=".CartPageActivity"
-            android:windowSoftInputMode="stateAlwaysHidden"/>
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan"/>
         <activity android:name=".EssentialsActivity"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" />
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <activity android:name=".AccountCredentialdsActivity" />
         <activity android:name=".activity.ForgetPasswordActivity" />
         <activity
             android:name=".HomeActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan"
             />
         <activity android:name=".create_account.ConfirmAddressActivity" />
         <activity android:name=".activity.ConfirmationAccountActivity" />

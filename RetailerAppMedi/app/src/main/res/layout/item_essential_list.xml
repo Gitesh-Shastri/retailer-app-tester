@@ -3,13 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="10dp"
-    android:background="@drawable/border_grey"
+    android:background="@drawable/border_curved_white"
     android:layout_margin="5dp">
 
     <ImageView
         android:id="@+id/image"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:scaleType="fitXY"
         android:src="@drawable/mask_image" />
 
     <LinearLayout
@@ -136,6 +137,7 @@
     </LinearLayout>
 
     <RelativeLayout
+        android:visibility="gone"
         android:padding="5dp"
         android:layout_below="@+id/cart_ll"
         android:layout_width="match_parent"
@@ -146,7 +148,7 @@
             android:padding="2dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/border_outline_red"
+            android:background="@drawable/border_curved_green_outline"
             android:textColor="#555555"
             android:id="@+id/qty_per_100"
             />
@@ -166,7 +168,7 @@
                 android:padding="2dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/border_outline_red"
+                android:background="@drawable/border_curved_green_outline"
                 android:textColor="#555555"
                 android:id="@+id/qty_per_200"
                 />
@@ -179,7 +181,7 @@
             android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/border_outline_red"
+            android:background="@drawable/border_curved_green_outline"
             android:textColor="#555555"
             android:id="@+id/qty_per_500"
             />
@@ -193,7 +195,7 @@
             android:layout_below="@id/qty_per_100"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/border_outline_red"
+            android:background="@drawable/border_curved_green_outline"
             android:textColor="#555555"
             android:id="@+id/qty_per_1000"
             />
@@ -215,7 +217,7 @@
             android:layout_below="@id/qty_per_100"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/border_outline_red"
+            android:background="@drawable/border_curved_green_outline"
             android:textColor="#555555"
             android:id="@+id/qty_per_10000"
             />

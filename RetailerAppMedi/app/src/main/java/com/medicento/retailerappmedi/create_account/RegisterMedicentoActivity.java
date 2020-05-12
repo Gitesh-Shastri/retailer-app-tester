@@ -323,24 +323,7 @@ public class RegisterMedicentoActivity extends AppCompatActivity implements Goog
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(RegisterMedicentoActivity.this)
                     .addApi(LocationServices.API)
-                    .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
-                        @Override
-                        public void onConnected(Bundle bundle) {
-
-                        }
-
-                        @Override
-                        public void onConnectionSuspended(int i) {
-                            googleApiClient.connect();
-                        }
-                    })
-                    .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
-                        @Override
-                        public void onConnectionFailed(ConnectionResult connectionResult) {
-
-                            Log.d("Location error", "Location error " + connectionResult.getErrorCode());
-                        }
-                    }).build();
+                    .addConnectionCallbacks(this).build();
             googleApiClient.connect();
         }
 

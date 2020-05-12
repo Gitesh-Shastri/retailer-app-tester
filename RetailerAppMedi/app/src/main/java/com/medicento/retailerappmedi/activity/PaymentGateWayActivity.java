@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -24,6 +25,7 @@ import io.paperdb.Paper;
 
 public class PaymentGateWayActivity extends AppCompatActivity {
 
+    private static final String TAG = "PaymentGateWayAct";
     TextView id, cart, cost;
     ArrayList<EssentialList> essentialLists;
     RecyclerView cart_rv;
@@ -57,10 +59,9 @@ public class PaymentGateWayActivity extends AppCompatActivity {
             id.append(" "+getIntent().getStringExtra("id"));
         }
 
-        essentialLists = new ArrayList<>();
-
         String essential_saved = Paper.book().read("essential_saved_json");
         if (essential_saved != null && !essential_saved.isEmpty()) {
+            Log.d(TAG, "onCreate: " + essential_saved);
             try {
                 JSONObject jsonObject = new JSONObject(essential_saved);
                 String data = jsonObject.getString(sp.getUsercode());
@@ -70,6 +71,10 @@ public class PaymentGateWayActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        }
+
+        if (essentialLists == null) {
+            essentialLists = new ArrayList<>();
         }
 
         int count_num = 0;

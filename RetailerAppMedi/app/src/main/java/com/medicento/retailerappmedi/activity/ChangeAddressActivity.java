@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.android.volley.Request;
@@ -36,6 +37,7 @@ public class ChangeAddressActivity extends AppCompatActivity implements AddressA
     private ArrayList<Address> addresses;
     private AddressAdapter addressAdapter;
     SalesPerson sp;
+    ImageView back;
     RelativeLayout add_new_rl;
 
     @Override
@@ -52,6 +54,7 @@ public class ChangeAddressActivity extends AppCompatActivity implements AddressA
 
         add_new_rl = findViewById(R.id.add_new_rl);
         address_rv = findViewById(R.id.address_rv);
+        back = findViewById(R.id.back);
 
         addresses = new ArrayList<>();
 
@@ -63,6 +66,13 @@ public class ChangeAddressActivity extends AppCompatActivity implements AddressA
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
 
         add_new_rl.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,5 +170,11 @@ public class ChangeAddressActivity extends AppCompatActivity implements AddressA
                 }
         );
         requestQueue.add(stringRequest);
+    }
+
+    @Override
+    public void setAddress(int position) {
+        sp.setAddress(addresses.get(position).getAddress());
+        Paper.book().write("user", new Gson().toJson(sp));
     }
 }

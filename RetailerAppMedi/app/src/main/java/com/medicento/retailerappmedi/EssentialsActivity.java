@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -33,6 +34,7 @@ import com.medicento.retailerappmedi.activity.PaymentSummaryActivity;
 import com.medicento.retailerappmedi.adapter.EssentialAdapter;
 import com.medicento.retailerappmedi.adapter.EssentialListAdapter;
 import com.medicento.retailerappmedi.data.Category;
+import com.medicento.retailerappmedi.data.Essential;
 import com.medicento.retailerappmedi.data.EssentialList;
 import com.medicento.retailerappmedi.data.SalesPerson;
 
@@ -47,9 +49,10 @@ import java.util.Map;
 
 import io.paperdb.Paper;
 
-public class EssentialsActivity extends AppCompatActivity implements View.OnClickListener, EssentialListAdapter.OverallCostChangeListener{
+public class EssentialsActivity extends AppCompatActivity implements View.OnClickListener, EssentialListAdapter.OverallCostChangeListener, EssentialAdapter.setOnClickListener {
 
-    TextView pharma_name, count, price, number;
+    private static final String TAG = "EssentialsAct";
+    TextView pharma_name, count, price, number, prices;
     Button go_to_cart;
     private SalesPerson sp;
     private EssentialListAdapter essentialListAdapter;
@@ -63,6 +66,7 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
     LinearLayout home_ll, notification, payment, recentorder, essential;
     String category = "Mask";
     EssentialAdapter essentialAdapter;
+    ArrayList<EssentialList> essentialList_temp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +97,8 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
         recentorder = findViewById(R.id.recentorder);
         home_ll = findViewById(R.id.home_ll);
 
+        prices = findViewById(R.id.prices);
+
         notification.setOnClickListener(this);
         payment.setOnClickListener(this);
         recentorder.setOnClickListener(this);
@@ -105,11 +111,17 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
             getSupportActionBar().hide();
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            prices.setText(Html.fromHtml("Prices are negotiable basis the Order Quantity. Please click on <strong>Call to Order</strong> for clarification.", Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            prices.setText(Html.fromHtml("Prices are negotiable basis the Order Quantity. Please click on <strong>Call to Order</strong> for clarification."));
+        }
+
         Gson gson = new Gson();
         String cache = Paper.book().read("user");
         if (cache != null && !cache.isEmpty()) {
             sp = gson.fromJson(cache, SalesPerson.class);
-            pharma_name.setText(sp.getName());
+            pharma_name.setText(sp.getName() +" - " + sp.getUsercode());
         }
 
         if (sp.getType().equals("Pharmacy")) {
@@ -120,6 +132,7 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
             essentials_image.setColorFilter(Color.parseColor("#18989e"));
         } else {
             essentials_text.setText("Log Out");
+            essentials_image.setImageResource(R.drawable.ic_exit_to_app_black_48dp);
             home_text.setTextColor(Color.parseColor("#18989e"));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 home_image.setElevation(5f);
@@ -129,22 +142,38 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
 
         essentialLists = new ArrayList<>();
         essentials = new ArrayList<>();
+        essentialList_temp = new ArrayList<>();
 
         String essential_saved = Paper.book().read("essential_saved_json");
         if (essential_saved != null && !essential_saved.isEmpty()) {
+            Log.d(TAG, "onCreate: " + essential_saved);
             try {
                 JSONObject jsonObject = new JSONObject(essential_saved);
                 String data = jsonObject.getString(sp.getUsercode());
                 Type type = new TypeToken<ArrayList<EssentialList>>() {
                 }.getType();
-                essentialLists = new Gson().fromJson(data, type);
+                ArrayList<EssentialList> lists = new Gson().fromJson(data, type);
+
+                if (lists == null) {
+                    lists = new ArrayList<>();
+                }
+
+                boolean isFound;
+                for (int i=0;i<lists.size();i++) {
+                    isFound = false;
+                    for (int j=0;j<essentialLists.size();j++) {
+                        if (essentialLists.get(j).getId().equals(lists.get(i).getId())) {
+                            isFound = true;
+                            break;
+                        }
+                    }
+                    if (!isFound) {
+                        essentialLists.add(lists.get(i));
+                    }
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        }
-
-        if (essentialLists == null) {
-            essentialLists = new ArrayList<>();
         }
 
         int count_num = getCount_num(essentialLists);
@@ -156,24 +185,28 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
             go_to_cart_rl.setVisibility(View.GONE);
         }
 
-        essentialListAdapter= new EssentialListAdapter(essentialLists, this);
+        essentialList_temp.addAll(essentialLists);
+
+        essentialListAdapter= new EssentialListAdapter(essentialList_temp, this);
         essential_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         essential_rv.setAdapter(essentialListAdapter);
         essentialListAdapter.setmOverallCostChangeListener(this);
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        essentialAdapter = new EssentialAdapter(essentials, this, metrics);
+        essentialAdapter = new EssentialAdapter(essentials, this, metrics,  true);
         essential_cat_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         essential_cat_rv.setAdapter(essentialAdapter);
+
+        essentialAdapter.setSetOnClickListener(this);
 
         go_to_cart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(EssentialsActivity.this, CartPageActivity.class).putExtra("list", essentialListAdapter.getEssentialLists()));
+                startActivity(new Intent(EssentialsActivity.this, CartPageActivity.class).putExtra("list", essentialLists));
             }
         });
-        
+
         if (getIntent() != null && getIntent().hasExtra("category")) {
             category = getIntent().getStringExtra("category");
         }
@@ -193,6 +226,7 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
                     public void onResponse(String response) {
                         int j=0;
                         Log.d("data", "onResponse: " + response);
+                        essentialList_temp.clear();
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             JSONArray data = jsonObject.getJSONArray("data");
@@ -200,41 +234,40 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
                             boolean found = false;
                             for (int i=0;i<data.length();i++) {
                                 JSONObject each = data.getJSONObject(i);
-                                found = false;
+                                essentialList_temp.add(new EssentialList(JsonUtils.getJsonValueFromKey(each, "name"))
+                                        .setId(JsonUtils.getJsonValueFromKey(each, "id"))
+                                        .setCost(JsonUtils.getDoubleValue(each, "ptr"))
+                                        .setCost_100(JsonUtils.getDoubleValue(each, "qty_100_ptr"))
+                                        .setCost_200(JsonUtils.getDoubleValue(each, "qty_200_ptr"))
+                                        .setCost_500(JsonUtils.getDoubleValue(each, "qty_500_ptr"))
+                                        .setCost_1000(JsonUtils.getDoubleValue(each, "qty_1000_ptr"))
+                                        .setCost_10000(JsonUtils.getDoubleValue(each, "qty_10000_ptr"))
+                                        .setCost(JsonUtils.getDoubleValue(each, "ptr"))
+                                        .setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url"))
+                                        .setDiscount(JsonUtils.getIntegerValueFromJsonKey(each, "discount"))
+                                        .setCategory(JsonUtils.getIntegerValueFromJsonKey(each, "category")));
                                 for (j=0;j<essentialLists.size();j++) {
-                                    if (essentialLists.get(j).getName().equalsIgnoreCase(JsonUtils.getJsonValueFromKey(each, "name"))) {
-                                        essentialLists.get(j).setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url"));
-                                        essentialLists.get(j).setCost(JsonUtils.getDoubleValue(each, "ptr"));
-                                        essentialLists.get(j).setCategory(JsonUtils.getIntegerValueFromJsonKey(each, "category"));
-                                        essentialLists.get(i).setDiscount(JsonUtils.getIntegerValueFromJsonKey(each, "discount"));
-                                        essentialLists.get(i).setCost_100(JsonUtils.getDoubleValue(each, "qty_100_ptr"))
+                                    if (essentialLists.get(j).getId().equalsIgnoreCase(JsonUtils.getJsonValueFromKey(each, "id"))) {
+                                        essentialList_temp.get(i).setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url"))
+                                                .setQty(essentialLists.get(j).getQty())
+                                                .setCost(JsonUtils.getDoubleValue(each, "ptr"))
+                                                .setCategory(JsonUtils.getIntegerValueFromJsonKey(each, "category"))
+                                                .setDiscount(JsonUtils.getIntegerValueFromJsonKey(each, "discount"))
+                                                .setCost_100(JsonUtils.getDoubleValue(each, "qty_100_ptr"))
                                                 .setCost_200(JsonUtils.getDoubleValue(each, "qty_200_ptr"))
                                                 .setCost_500(JsonUtils.getDoubleValue(each, "qty_500_ptr"))
                                                 .setCost_1000(JsonUtils.getDoubleValue(each, "qty_1000_ptr"))
-                                                .setCost_10000(JsonUtils.getDoubleValue(each, "qty_10000_ptr"));
-                                        found = true;
+                                                .setCost_10000(JsonUtils.getDoubleValue(each, "qty_10000_ptr"))
+                                                .setName(JsonUtils.getJsonValueFromKey(each, "name"));
                                     }
-                                }
-                                if (!found) {
-                                    essentialLists.add(new EssentialList(JsonUtils.getJsonValueFromKey(each, "name"))
-                                            .setId(JsonUtils.getJsonValueFromKey(each, "id"))
-                                            .setCost(JsonUtils.getDoubleValue(each, "ptr"))
-                                            .setCost_100(JsonUtils.getDoubleValue(each, "qty_100_ptr"))
-                                            .setCost_200(JsonUtils.getDoubleValue(each, "qty_200_ptr"))
-                                            .setCost_500(JsonUtils.getDoubleValue(each, "qty_500_ptr"))
-                                            .setCost_1000(JsonUtils.getDoubleValue(each, "qty_1000_ptr"))
-                                            .setCost_10000(JsonUtils.getDoubleValue(each, "qty_10000_ptr"))
-                                            .setCost(JsonUtils.getDoubleValue(each, "ptr"))
-                                            .setCost(JsonUtils.getDoubleValue(each, "ptr"))
-                                            .setCost(JsonUtils.getDoubleValue(each, "ptr"))
-                                            .setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url"))
-                                            .setDiscount(JsonUtils.getIntegerValueFromJsonKey(each, "discount"))
-                                            .setCategory(JsonUtils.getIntegerValueFromJsonKey(each, "category")));
                                 }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+
+                        essentialLists.clear();
+                        essentialLists.addAll(essentialList_temp);
 
                         progress_bar.setVisibility(View.GONE);
                         essentialListAdapter.notifyDataSetChanged();
@@ -275,6 +308,7 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
                             for (int i = 0; i < data.length(); i++) {
                                 JSONObject each = data.getJSONObject(i);
                                 essentials.add(new Category(JsonUtils.getJsonValueFromKey(each, "name"))
+                                        .setId(JsonUtils.getJsonValueFromKey(each, "id"))
                                         .setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url")));
                             }
                         } catch (JSONException e) {
@@ -299,7 +333,18 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onCostChanged() {
-        int count_num = getCount_num(essentialListAdapter.getEssentialLists());
+        if (essentialLists != null && essentialLists.size() > 0) {
+            for (int i=0;i<essentialLists.size();i++) {
+                for (EssentialList essential: essentialListAdapter.getEssentialLists()) {
+                    if (essentialLists.get(i).getId().equals(essential.getId())) {
+                        essentialLists.get(i).setQty(essential.getQty());
+                        break;
+                    }
+                }
+            }
+        }
+
+        int count_num = getCount_num(essentialLists);
         if (count_num > 0) {
             number.setVisibility(View.VISIBLE);
             go_to_cart_rl.setVisibility(View.VISIBLE);
@@ -350,7 +395,19 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onPause() {
         super.onPause();
-        String json = new Gson().toJson(essentialListAdapter.getEssentialLists());
+
+        if (essentialLists != null && essentialLists.size() > 0) {
+            for (int i=0;i<essentialLists.size();i++) {
+                for (EssentialList essential: essentialListAdapter.getEssentialLists()) {
+                    if (essentialLists.get(i).getId().equals(essential.getId())) {
+                        essentialLists.get(i).setQty(essential.getQty());
+                        break;
+                    }
+                }
+            }
+        }
+
+        String json = new Gson().toJson(essentialLists);
         String essential_saved = Paper.book().read("essential_saved_json");
         if (essential_saved != null && !essential_saved.isEmpty()) {
             try {
@@ -394,6 +451,9 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
                     e.printStackTrace();
                 }
             }
+            if (essentialLists == null) {
+                essentialLists = new ArrayList<>();
+            }
             fetchProduct();
         }
     }
@@ -431,8 +491,30 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
                 }
                 break;
             case R.id.cart_rl:
-                startActivity(new Intent(EssentialsActivity.this, CartPageActivity.class).putExtra("list", essentialListAdapter.getEssentialLists()));
+                startActivity(new Intent(EssentialsActivity.this, CartPageActivity.class).putExtra("list", essentialLists));
                 break;
         }
+    }
+
+    @Override
+    public void onClickCategory(String id) {
+        if (essentialList_temp == null) {
+            essentialList_temp = new ArrayList<>();
+
+            essentialListAdapter= new EssentialListAdapter(essentialList_temp, this);
+            essential_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+            essential_rv.setAdapter(essentialListAdapter);
+            essentialListAdapter.setmOverallCostChangeListener(this);
+
+        } else {
+            essentialList_temp.clear();
+        }
+        for (int i=0;i<essentialLists.size();i++) {
+            if ((essentialLists.get(i).getCategory()+"").equals(id)) {
+                essentialList_temp.add(essentialLists.get(i));
+            }
+        }
+
+        essentialListAdapter.notifyDataSetChanged();
     }
 }

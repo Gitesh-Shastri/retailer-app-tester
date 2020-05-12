@@ -26,6 +26,7 @@ import java.util.ArrayList;
 
 public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
+    private RecyclerView recyclerView;
     private ArrayList<EssentialList> essentialLists;
     private Context context;
 
@@ -42,6 +43,12 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     public void setmOverallCostChangeListener(OverallCostChangeListener mOverallCostChangeListener) {
         this.mOverallCostChangeListener = mOverallCostChangeListener;
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.recyclerView = recyclerView;
     }
 
     public ArrayList<EssentialList> getEssentialLists() {
@@ -118,10 +125,80 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
 
             qty_per_100.setText("100 Qty - " + essentialLists.get(position).getCost_100() + " /PC");
-            qty_per_500.setText("200 Qty - " + essentialLists.get(position).getCost_200() + " /PC");
-            qty_per_200.setText("500 Qty - " + essentialLists.get(position).getCost_500() + " /PC");
+            qty_per_500.setText("500 Qty - " + essentialLists.get(position).getCost_500() + " /PC");
+            qty_per_200.setText("200 Qty - " + essentialLists.get(position).getCost_200() + " /PC");
             qty_per_1000.setText("1000 Qty - " + essentialLists.get(position).getCost_1000() + " /PC");
             qty_per_10000.setText("10000 Qty - " + essentialLists.get(position).getCost_10000() + " /PC");
+
+            qty_per_100.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    essentialLists.get(getCurrentPosition()).setQty(100);
+                    cart.setVisibility(View.GONE);
+                    add_cart.setVisibility(View.VISIBLE);
+                    qty.requestFocus();
+                    if (mOverallCostChangeListener != null) {
+                        mOverallCostChangeListener.onCostChanged();
+                    }
+                    notifyItemChanged(getCurrentPosition());
+                }
+            });
+
+            qty_per_200.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    essentialLists.get(getCurrentPosition()).setQty(200);
+                    cart.setVisibility(View.GONE);
+                    add_cart.setVisibility(View.VISIBLE);
+                    qty.requestFocus();
+                    if (mOverallCostChangeListener != null) {
+                        mOverallCostChangeListener.onCostChanged();
+                    }
+                    notifyItemChanged(getCurrentPosition());
+                }
+            });
+
+            qty_per_500.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    essentialLists.get(getCurrentPosition()).setQty(500);
+                    cart.setVisibility(View.GONE);
+                    add_cart.setVisibility(View.VISIBLE);
+                    qty.requestFocus();
+                    if (mOverallCostChangeListener != null) {
+                        mOverallCostChangeListener.onCostChanged();
+                    }
+                    notifyItemChanged(getCurrentPosition());
+                }
+            });
+
+            qty_per_1000.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    essentialLists.get(getCurrentPosition()).setQty(1000);
+                    cart.setVisibility(View.GONE);
+                    add_cart.setVisibility(View.VISIBLE);
+                    qty.requestFocus();
+                    if (mOverallCostChangeListener != null) {
+                        mOverallCostChangeListener.onCostChanged();
+                    }
+                    notifyItemChanged(getCurrentPosition());
+                }
+            });
+
+            qty_per_10000.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    essentialLists.get(getCurrentPosition()).setQty(10000);
+                    cart.setVisibility(View.GONE);
+                    add_cart.setVisibility(View.VISIBLE);
+                    qty.requestFocus();
+                    if (mOverallCostChangeListener != null) {
+                        mOverallCostChangeListener.onCostChanged();
+                    }
+                    notifyItemChanged(getCurrentPosition());
+                }
+            });
 
             Glide.with(context).load(essentialLists.get(position).getImage_url()).into(image);
 

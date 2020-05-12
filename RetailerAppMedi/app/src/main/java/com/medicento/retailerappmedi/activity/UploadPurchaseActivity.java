@@ -67,6 +67,7 @@ import com.medicento.retailerappmedi.Utils.IUploadAPI;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
 import com.medicento.retailerappmedi.Utils.MedicentoUtils;
 import com.medicento.retailerappmedi.adapter.FullStcokImageAdapter;
+import com.medicento.retailerappmedi.adapter.ImageFullScreenAdapter;
 import com.medicento.retailerappmedi.adapter.OrderItemEssentialAdapter;
 import com.medicento.retailerappmedi.adapter.StcokImageAdapter;
 import com.medicento.retailerappmedi.data.EssentialList;
@@ -105,7 +106,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class UploadPurchaseActivity extends AppCompatActivity implements PaymentResultListener, Player.EventListener, FullStcokImageAdapter.setOnClickListener {
 
-    ImageView back, close, image, approve;
+    ImageView back, close, approve;
     CardView image_card_view;
     RelativeLayout stocks, upper;
     LinearLayout upload_purchase, performa_invoice, download_ll, text_seek_bar, add_a_file_ll, upload_photo_ll, advance_soory,
@@ -113,9 +114,10 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     SeekBar seek_bar;
     TextView title, per_total_amount, per_advance_amount, per_remaining_amount, lr_total_amount, lr_advance_amount,
             lr_remaining_amount, view_text, pending, sorry, payment_recieved, pending_performa, reason_1, sorry_not, reason_1_d;
-    RecyclerView stock_images_rv, stock_images_full_screen_rv, items_rv;
+    RecyclerView stock_images_rv, stock_images_full_screen_rv, items_rv, stock_images_full_screen_next_rv;
     StcokImageAdapter imagesAdapter;
     FullStcokImageAdapter fullStcokImageAdapter;
+    ImageFullScreenAdapter imageFullScreenAdapter;
     private ArrayList<String> urls;
     private ArrayList<EssentialList> essentialLists;
     Button view_performa, download_performa, download_lr, view_lr, confirm_to_upload, review, proceed_to_50, proceed_to_50_remain, view_on_web;
@@ -140,6 +142,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     RadioGroup group;
     RadioButton one, two, three, four, five, six;
     OrderItemEssentialAdapter orderItemAdapter;
+    private boolean payment_not_made = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,7 +185,6 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         seek_bar = findViewById(R.id.seek_bar);
         upper = findViewById(R.id.upper);
         review = findViewById(R.id.review);
-        image = findViewById(R.id.image);
         reason_1 = findViewById(R.id.reason_1);
         approve = findViewById(R.id.approve);
         view_text = findViewById(R.id.view_text);
@@ -196,6 +198,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         view_on_web = findViewById(R.id.view_on_web);
         image_card_view = findViewById(R.id.image_card_view);
         stock_images_full_screen_rv = findViewById(R.id.stock_images_full_screen_rv);
+        stock_images_full_screen_next_rv = findViewById(R.id.stock_images_full_screen_next_rv);
         stock_images_rv = findViewById(R.id.stock_images_rv);
         download_ll = findViewById(R.id.download_ll);
         pdfViewer = findViewById(R.id.pdfViewer);
@@ -262,7 +265,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
 
         urls = new ArrayList<>();
 
-        payment_recieved.setText("Thank You! 50% Advance Payment of Rs. "+String.format("₹ %.2f", (price + gst))+" has been recieved.");
+        payment_recieved.setText("Thank You! 50% Advance Payment of Rs. " + String.format("₹ %.2f", (price + gst)) + " has been recieved.");
 
         imagesAdapter = new StcokImageAdapter(urls, this);
         stock_images_rv.setLayoutManager(new GridLayoutManager(this, 4));
@@ -344,7 +347,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         });
 
         sorry.setText("Sorry! 50% Advance Payment of Rs. " + String.format("₹ %.2f", (price + gst)) + " couldn't be proceed due to one of the following reasons:");
-        sorry_not.setText("Sorry! 50% Advance Payment of Rs. " + String.format("₹ %.2f", (price + gst)) + " couldn't be proceed due to one of the following reasons:");
+        sorry_not.setText("Your order hasn't been acknowledged by Logistics partner due to one of the following reasons: ");
 
         seek_bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -372,18 +375,18 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                         performa_invoice.setVisibility(View.VISIBLE);
                         break;
                     case 3:
+                        saveData("");
                         if (pending.getText().toString().equals("APPROVED")) {
                             if (performa_url.isEmpty()) {
                                 advance_soory.setVisibility(View.VISIBLE);
                                 reason_1.setText("* Performa Invoice Not Yet Issued");
                             } else {
-                                advance_done.setVisibility(View.VISIBLE);
+                                if (price % 2 == 0) {
+                                    startPayment((int) ((price / 2) + gst));
+                                } else {
+                                    startPayment(((int) ((price / 2) + gst)) + 1);
+                                }
                             }
-//                            if (price % 2 == 0) {
-//                                startPayment((int) ((price / 2) + gst));
-//                            } else {
-//                                startPayment(((int) ((price / 2) + gst)) + 1);
-//                            }
                         } else {
                             if (pending.getText().toString().equals("APPROVED")) {
                                 advance_soory.setVisibility(View.GONE);
@@ -408,6 +411,9 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                         }
                         if (performa_url.isEmpty()) {
                             reason_1_d.append("* Performa Invoice Not Yet Issued");
+                        }
+                        if (!payment_not_made) {
+                            reason_1_d.append("* 50% Advance Payment not made yet.");
                         }
                         player.setPlayWhenReady(false);
                         title.setText("Delivery LR");
@@ -801,8 +807,8 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     }
 
     @Override
-    public void onClick(String url) {
-        Glide.with(this).load(url).into(image);
+    public void onClick(int position) {
+        stock_images_full_screen_next_rv.scrollToPosition(position);
     }
 
     class RetrievePdfStream extends AsyncTask<String, Void, InputStream> {
@@ -931,12 +937,14 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     public void showImages() {
 
         image_card_view.setVisibility(View.VISIBLE);
-        Glide.with(this).load(urls.get(0)).into(image);
         fullStcokImageAdapter = new FullStcokImageAdapter(urls, this);
         stock_images_full_screen_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         stock_images_full_screen_rv.setAdapter(fullStcokImageAdapter);
         fullStcokImageAdapter.setSetOnClickListener(this);
 
+        imageFullScreenAdapter = new ImageFullScreenAdapter(urls, this);
+        stock_images_full_screen_next_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        stock_images_full_screen_next_rv.setAdapter(imageFullScreenAdapter);
     }
 
     @Override
@@ -1002,10 +1010,10 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
 
     @Override
     public void onPaymentSuccess(String s) {
+        payment_not_made = true;
         if (seek_bar.getProgress() == 3) {
-            seek_bar.setProgress(4);
-        } else {
             saveData(s);
+            seek_bar.setProgress(4);
         }
         Log.d("data", "onPaymentSuccess: " + s);
         advance_done.setVisibility(View.VISIBLE);
@@ -1013,10 +1021,9 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
 
     @Override
     public void onPaymentError(int i, String s) {
+        payment_not_made = false;
         if (seek_bar.getProgress() == 3) {
             seek_bar.setProgress(4);
-        } else {
-            saveData(s);
         }
         Log.d("data", "onPaymentError: " + s);
     }
@@ -1052,25 +1059,6 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("data", "onResponse: " + response);
-                        String essential_saved = Paper.book().read("essential_saved_json");
-                        if (essential_saved != null && !essential_saved.isEmpty()) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(essential_saved);
-                                jsonObject.put(sp.getUsercode(), "");
-                                Paper.book().write("essential_saved_json", jsonObject.toString());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            try {
-                                JSONObject jsonObject = new JSONObject();
-                                jsonObject.put(sp.getUsercode(), "");
-                                Paper.book().write("essential_saved_json", jsonObject.toString());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             if (jsonObject.getString("message").equalsIgnoreCase("Order Saved")) {
@@ -1092,9 +1080,15 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
+                if (price % 2 == 0) {
+                    params.put("paid_amount", ((int) (price / 2) + gst)+"");
+                } else {
+                    params.put("paid_amount", ((int) (price / 2) + gst)+"");
+                }
                 params.put("order_items", items.toString());
                 params.put("response", s);
                 params.put("id", sp.getmAllocatedPharmaId());
+                params.put("code", sp.getUsercode());
                 return params;
             }
         };
@@ -1143,7 +1137,8 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     }
 
     @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray
+            trackSelections) {
     }
 
     @Override

@@ -11,35 +11,26 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.medicento.retailerappmedi.R;
+import com.medicento.retailerappmedi.activity.UploadPurchaseActivity;
 
 import java.util.ArrayList;
 
-public class FullStcokImageAdapter extends RecyclerView.Adapter<BaseViewHolder> {
+public class ImageFullScreenAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     private ArrayList<String> urls;
     private Context context;
 
-    public FullStcokImageAdapter(ArrayList<String> urls, Context context) {
+    public ImageFullScreenAdapter(ArrayList<String> urls, Context context) {
         this.urls = urls;
         this.context = context;
-    }
-
-    private setOnClickListener setOnClickListener;
-
-    public interface setOnClickListener {
-        public void onClick(int position);
-    }
-
-    public void setSetOnClickListener(FullStcokImageAdapter.setOnClickListener setOnClickListener) {
-        this.setOnClickListener = setOnClickListener;
     }
 
     @NonNull
     @Override
     public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view = inflater.inflate(R.layout.item_full_image_url, parent, false);
-        return new ViewHolder(view);
+        View view = inflater.inflate(R.layout.item_image_full_url, parent, false);
+        return new Viewholder(view);
     }
 
     @Override
@@ -52,19 +43,19 @@ public class FullStcokImageAdapter extends RecyclerView.Adapter<BaseViewHolder> 
         return urls != null ? urls.size() : 0;
     }
 
-    public class ViewHolder extends BaseViewHolder {
+    public class Viewholder extends BaseViewHolder {
 
         ImageView image;
 
-        public ViewHolder(View itemView) {
+        public Viewholder(View itemView) {
             super(itemView);
-
             image = itemView.findViewById(R.id.image);
         }
 
+
         @Override
         protected void clear() {
-
+            image.setImageDrawable(null);
         }
 
         @Override
@@ -72,15 +63,6 @@ public class FullStcokImageAdapter extends RecyclerView.Adapter<BaseViewHolder> 
             super.onBind(position);
 
             Glide.with(context).load(urls.get(position)).into(image);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (setOnClickListener != null) {
-                        setOnClickListener.onClick(position);
-                    }
-                }
-            });
         }
     }
 }

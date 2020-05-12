@@ -6,19 +6,26 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -44,7 +51,7 @@ import static com.medicento.retailerappmedi.Utils.MedicentoUtils.amIConnect;
 public class RegisterDistributorActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
 
     EditText name_et, number, gst, drug, fssai, trade;
-    TextView message;
+    TextView message, drug_license, trade_license, message_1, message_2, message_3, message_4;
     Button sign_in_btn;
     AlertDialog alert;
     String city, state, address, pincode;
@@ -64,10 +71,16 @@ public class RegisterDistributorActivity extends AppCompatActivity implements Go
         }
 
         name_et = findViewById(R.id.name_et);
+        message_1 = findViewById(R.id.message_1);
+        message_2 = findViewById(R.id.message_2);
+        message_3 = findViewById(R.id.message_3);
+        message_4 = findViewById(R.id.message_4);
         fssai = findViewById(R.id.fssai);
         trade = findViewById(R.id.trade);
         number = findViewById(R.id.number);
         message = findViewById(R.id.message);
+        drug_license = findViewById(R.id.drug_license);
+        trade_license = findViewById(R.id.trade_license);
         sign_in_btn = findViewById(R.id.sign_in_btn);
         distributor = findViewById(R.id.distributor);
         trader = findViewById(R.id.trader);
@@ -182,11 +195,34 @@ public class RegisterDistributorActivity extends AppCompatActivity implements Go
             }
         });
 
+        distributor.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    message.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        trader.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    message.setVisibility(View.GONE);
+                }
+            }
+        });
+
+
         sign_in_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 message.setVisibility(View.GONE);
+                message_1.setVisibility(View.GONE);
+                message_2.setVisibility(View.GONE);
+                message_3.setVisibility(View.GONE);
+                message_4.setVisibility(View.GONE);
 
                 number.setBackgroundResource(R.drawable.border_grey);
                 name_et.setBackgroundResource(R.drawable.border_grey);
@@ -195,35 +231,47 @@ public class RegisterDistributorActivity extends AppCompatActivity implements Go
                 trade.setBackgroundResource(R.drawable.border_grey);
                 fssai.setBackgroundResource(R.drawable.border_grey);
 
-                message.setText("Please fill the mandatory fields");
-                if (name_et.getText().toString().isEmpty()) {
-                    name_et.setBackgroundResource(R.drawable.border_outline_red);
+                message.setText("Please fill the mandatory field");
+                message_2.setText("Please fill the mandatory field");
+                message_3.setText("Please fill the mandatory field");
+                message_4.setText("Please fill the mandatory field");
+
+                if (!distributor.isChecked() && !trader.isChecked()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        trader.setButtonTintList(ColorStateList.valueOf(getResources().getColor(R.color.red)));
+                        distributor.setButtonTintList(ColorStateList.valueOf(getResources().getColor(R.color.red)));
+                    }
                     message.setVisibility(View.VISIBLE);
-                }
-                if (number.getText().toString().isEmpty()) {
-                    number.setBackgroundResource(R.drawable.border_outline_red);
-                    message.setVisibility(View.VISIBLE);
-                }
-                if (distributor.isChecked()) {
+                    message.setText("Please Select one option");
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                trader.setButtonTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
+                                distributor.setButtonTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
+                            }
+                        }
+                    }, 2000);
+
+                } else {
+                    if (name_et.getText().toString().isEmpty()) {
+                        name_et.setBackgroundResource(R.drawable.border_outline_red);
+                        message.setVisibility(View.VISIBLE);
+                    }
+                    if (number.getText().toString().isEmpty()) {
+                        number.setBackgroundResource(R.drawable.border_outline_red);
+                        message.setVisibility(View.VISIBLE);
+                    }
                     if (gst.getText().toString().isEmpty()) {
                         gst.setBackgroundResource(R.drawable.border_outline_red);
                         message.setVisibility(View.VISIBLE);
                     }
-                    if (drug.getText().toString().isEmpty()) {
-                        drug.setBackgroundResource(R.drawable.border_outline_red);
-                        message.setVisibility(View.VISIBLE);
-                    }
-                } else if (trader.isChecked()) {
-                    if (trade.getText().toString().isEmpty()) {
-                        trade.setBackgroundResource(R.drawable.border_outline_red);
-                        message.setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    message.setVisibility(View.VISIBLE);
-                    message.setText("Please choose an option");
                 }
 
-                if (message.getVisibility() == View.VISIBLE) {
+                if (message.getVisibility() == View.VISIBLE || message_1.getVisibility() == View.VISIBLE ||
+                        message_2.getVisibility() == View.VISIBLE || message_3.getVisibility() == View.VISIBLE ||
+                        message_4.getVisibility() == View.VISIBLE) {
                     return;
                 }
                 if (!amIConnect(RegisterDistributorActivity.this)) {
@@ -275,24 +323,7 @@ public class RegisterDistributorActivity extends AppCompatActivity implements Go
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(RegisterDistributorActivity.this)
                     .addApi(LocationServices.API)
-                    .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
-                        @Override
-                        public void onConnected(Bundle bundle) {
-
-                        }
-
-                        @Override
-                        public void onConnectionSuspended(int i) {
-                            googleApiClient.connect();
-                        }
-                    })
-                    .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
-                        @Override
-                        public void onConnectionFailed(ConnectionResult connectionResult) {
-
-                            Log.d("Location error", "Location error " + connectionResult.getErrorCode());
-                        }
-                    }).build();
+                    .addConnectionCallbacks(this).build();
             googleApiClient.connect();
         }
 

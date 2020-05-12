@@ -80,16 +80,16 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:id="@+id/prices"
             android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="12sp"
             android:textColor="#555555"
-            android:textStyle="bold"
             android:drawablePadding="5dp"
-            android:drawableLeft="@drawable/ic_persons"
+            android:drawableLeft="@drawable/ic_circle_arrows"
             android:gravity="center_vertical"
-            android:text="Prices are negotiable basis the quantity.Please click on Call to Order for clarification."
+            android:text="@string/prices_are_negotiable_basis_the_quantity_please_click_on_call_to_order_for_clarification"
             android:background="@drawable/border_curved_green_outline_filled"
             />
 

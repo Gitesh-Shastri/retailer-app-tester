@@ -9,10 +9,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,19 +30,26 @@ import com.google.gson.Gson;
 import com.medicento.retailerappmedi.R;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
 import com.medicento.retailerappmedi.activity.ConfirmationAccountActivity;
+import com.medicento.retailerappmedi.activity.CreateNewAddressActivity;
+import com.medicento.retailerappmedi.data.City;
 import com.medicento.retailerappmedi.data.SalesPerson;
+import com.medicento.retailerappmedi.data.State;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import io.paperdb.Paper;
+import me.srodrigo.androidhintspinner.HintAdapter;
+import me.srodrigo.androidhintspinner.HintSpinner;
 
 import static com.medicento.retailerappmedi.Utils.MedicentoUtils.amIConnect;
 import static com.medicento.retailerappmedi.Utils.MedicentoUtils.showVolleyError;
@@ -56,10 +65,22 @@ public class ConfirmAddressDistributorActivity extends AppCompatActivity {
     ProgressBar progress_bar;
     SalesPerson sp;
 
+    Spinner state_spinner, city_spinner;
+    ArrayList<City> city_list;
+    ArrayList<State> state_list;
+    RequestQueue requestQueue;
+    State selected_state;
+    City selected_city;
+    int state_position = 0;
+    int city_position = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirm_address_distributor);
+
+        state_list = new ArrayList<>();
+        city_list = new ArrayList<>();
 
         address = findViewById(R.id.address);
         state = findViewById(R.id.state);
@@ -68,6 +89,8 @@ public class ConfirmAddressDistributorActivity extends AppCompatActivity {
         area = findViewById(R.id.area);
         pincode = findViewById(R.id.pincode);
         progress_bar = findViewById(R.id.progress_bar);
+        city_spinner = findViewById(R.id.city_spinner);
+        state_spinner = findViewById(R.id.state_spinner);
         name = findViewById(R.id.name);
         message = findViewById(R.id.message);
         sign_in_btn = findViewById(R.id.sign_in_btn);
@@ -91,55 +114,40 @@ public class ConfirmAddressDistributorActivity extends AppCompatActivity {
             getAreaName();
         }
 
-        if (address != null && address.getText().toString().isEmpty()) {
-            RequestQueue requestQueue = Volley.newRequestQueue(this);
-            StringRequest stringRequest = new StringRequest(
-                    Request.Method.GET,
-                    "https://api.ipgeolocation.io/ipgeo?apiKey=6e112e58ec4f42b19d98fdf4cc68fbe9",
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            Log.d("data", "onResponse: " + response);
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                Geocoder geocoder = new Geocoder(ConfirmAddressDistributorActivity.this, Locale.getDefault());
-                                try {
-                                    List<Address> addresses = geocoder.getFromLocation(Double.parseDouble(jsonObject.getString("latitude")), Double.parseDouble(jsonObject.getString("longitude")), 1);
-                                    Address obj = addresses.get(0);
-                                    String add = obj.getAddressLine(0);
-                                    add = add + "\n" + obj.getCountryName();
-                                    add = add + "\n" + obj.getCountryCode();
-                                    add = add + "\n" + obj.getAdminArea();
-                                    add = add + "\n" + obj.getPostalCode();
-                                    add = add + "\n" + obj.getSubAdminArea();
-                                    add = add + "\n" + obj.getLocality();
-                                    add = add + "\n" + obj.getSubThoroughfare();
+        requestQueue = Volley.newRequestQueue(this);
 
-                                    city.setText(obj.getAdminArea());
-                                    state.setText(obj.getSubAdminArea());
-                                    address.setText(obj.getAddressLine(0));
-                                    pincode.setText(obj.getPostalCode());
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.GET,
+                "http://stage.medicento.com:8080/api/area/state/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
 
-                                    Log.v("IGA", "Address" + add);
-                                    Toast.makeText(ConfirmAddressDistributorActivity.this, "Address Found", Toast.LENGTH_SHORT).show();
-                                } catch (IOException e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
+                            for (int i=0;i<jsonArray.length();i++) {
+                                JSONObject state_obj = jsonArray.getJSONObject(i);
+
+                                state_list.add(new State(JsonUtils.getJsonValueFromKey(state_obj, "name"),
+                                        JsonUtils.getJsonValueFromKey(state_obj, "id")));
+
+                                if (JsonUtils.getJsonValueFromKey(state_obj, "name").equals(state.getText().toString())) {
+                                    state_position = i;
                                 }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            showVolleyError(error);
-                        }
+                        setStateSpinner();
                     }
-            );
-            requestQueue.add(stringRequest);
-        }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                }
+        );
+        requestQueue.add(stringRequest);
 
         sign_in_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,6 +204,109 @@ public class ConfirmAddressDistributorActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+    }
+
+    private void setStateSpinner() {
+
+        HintAdapter<State> statehintAdapter = new HintAdapter<State>(
+                ConfirmAddressDistributorActivity.this,
+                R.layout.spinner_item,
+                "Select State",
+                state_list) {
+
+            @Override
+            protected View getCustomView(int position, View convertView, ViewGroup parent) {
+
+                View view = inflateLayout(parent, false);
+                ((TextView) view.findViewById(R.id.text)).setText(state_list.get(position).getName());
+                return view;
+            }
+        };
+
+        HintSpinner<State> hintSpinner = new HintSpinner<>(
+                state_spinner,
+                statehintAdapter,
+                new HintSpinner.Callback<State>() {
+                    @Override
+                    public void onItemSelected(int position, State itemAtPosition) {
+                        selected_state = itemAtPosition;
+                        state.setText(selected_state.getName());
+                        fetchCity(selected_state);
+                    }
+                });
+        hintSpinner.init();
+    }
+
+    public void fetchCity(State state) {
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.GET,
+                "http://stage.medicento.com:8080/api/area/city/?state="+state.getId(),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+
+                            for (int i=0;i<jsonArray.length();i++) {
+                                JSONObject city_obj = jsonArray.getJSONObject(i);
+
+                                city_list.add(new City(JsonUtils.getJsonValueFromKey(city_obj, "name"),
+                                        JsonUtils.getJsonValueFromKey(city_obj, "id")));
+
+                                if (JsonUtils.getJsonValueFromKey(city_obj, "name").equals(city.getText().toString())) {
+                                    city_position = i;
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        setCitySpinner();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                }
+        );
+        if (city_list != null) {
+            city_list = new ArrayList<>();
+        } else {
+            city_list.clear();
+        }
+        requestQueue.add(stringRequest);
+    }
+
+    private void setCitySpinner() {
+        HintAdapter<City> statehintAdapter = new HintAdapter<City>(
+                ConfirmAddressDistributorActivity.this,
+                R.layout.spinner_item,
+                "Select City",
+                city_list) {
+
+            @Override
+            protected View getCustomView(int position, View convertView, ViewGroup parent) {
+
+                View view = inflateLayout(parent, false);
+                ((TextView) view.findViewById(R.id.text)).setText(city_list.get(position).getName());
+                return view;
+            }
+        };
+
+        HintSpinner<City> hintSpinner = new HintSpinner<>(
+                city_spinner,
+                statehintAdapter,
+                new HintSpinner.Callback<City>() {
+                    @Override
+                    public void onItemSelected(int position, City itemAtPosition) {
+                        selected_city = itemAtPosition;
+                        city.setText(selected_city.getName());
+                    }
+                });
+        hintSpinner.init();
     }
 
     private void getAreaName() {

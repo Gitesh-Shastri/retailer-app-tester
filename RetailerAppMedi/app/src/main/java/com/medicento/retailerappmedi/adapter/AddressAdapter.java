@@ -31,6 +31,8 @@ public class AddressAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         void onItemClick(int position);
 
         void onRemove(int position);
+
+        void setAddress(int position);
     }
 
     public void setItemClick(AddressAdapter.itemClick itemClick) {
@@ -97,6 +99,15 @@ public class AddressAdapter extends RecyclerView.Adapter<BaseViewHolder> {
                 public void onClick(View view) {
                     if (itemClick != null) {
                         itemClick.onItemClick(getCurrentPosition());
+                    }
+                }
+            });
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (itemClick != null) {
+                        itemClick.setAddress(getCurrentPosition());
                     }
                 }
             });
