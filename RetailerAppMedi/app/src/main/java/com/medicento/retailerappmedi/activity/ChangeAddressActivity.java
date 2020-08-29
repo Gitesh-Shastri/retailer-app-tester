@@ -175,6 +175,8 @@ public class ChangeAddressActivity extends AppCompatActivity implements AddressA
     @Override
     public void setAddress(int position) {
         sp.setAddress(addresses.get(position).getAddress());
+        sp.setState_name(addresses.get(position).getState().toString());
+        sp.setCity_name(addresses.get(position).getCity().toString());
         Paper.book().write("user", new Gson().toJson(sp));
     }
 }

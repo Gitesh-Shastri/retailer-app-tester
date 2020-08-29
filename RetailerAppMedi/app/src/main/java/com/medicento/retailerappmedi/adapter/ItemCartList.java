@@ -62,12 +62,14 @@ public class ItemCartList extends RecyclerView.Adapter<BaseViewHolder> {
     public class ViewHolder extends BaseViewHolder {
 
         EditText qty;
-        TextView cost, name;
+        TextView cost, name, discount, gst;
         ImageView edit, delete, image;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
+            gst = itemView.findViewById(R.id.gst);
+            discount = itemView.findViewById(R.id.discount);
             edit = itemView.findViewById(R.id.edit);
             qty = itemView.findViewById(R.id.qty);
             name = itemView.findViewById(R.id.name);
@@ -81,6 +83,8 @@ public class ItemCartList extends RecyclerView.Adapter<BaseViewHolder> {
             qty.setText("");
             cost.setText("");
             name.setText("");
+            discount.setText("");
+            gst.setText("");
         }
 
         @Override
@@ -90,6 +94,13 @@ public class ItemCartList extends RecyclerView.Adapter<BaseViewHolder> {
             EssentialList essentialList = essentialLists.get(position);
 
             qty.setText(essentialList.getQty()+"");
+            if (essentialList.getMrp() >= essentialList.getCost()) {
+                discount.setText((int)((1-(essentialLists.get(position).getCost()/essentialLists.get(position).getMrp()))*100)+"% OFF");
+            } else {
+                discount.setText("0% OFF");
+            }
+
+            gst.setText(essentialList.getDiscount() + "% GST applicable");
             cost.setText("₹ " + (essentialList.getCost()*essentialList.getQty()));
 
             name.setText(essentialList.getName());
@@ -110,7 +121,7 @@ public class ItemCartList extends RecyclerView.Adapter<BaseViewHolder> {
                     if (mOverallCostChangeListener != null) {
                         mOverallCostChangeListener.onCostChanged();
                     }
-                    notifyItemRemoved(getCurrentPosition());
+                    notifyDataSetChanged();
                 }
             });
 

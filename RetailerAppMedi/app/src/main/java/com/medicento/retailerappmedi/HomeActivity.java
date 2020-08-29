@@ -378,7 +378,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View view) {
                 try {
                     LinearLayoutManager linearLayoutManager = (LinearLayoutManager) essential_rv.getLayoutManager();
-                    essential_rv.scrollToPosition(linearLayoutManager.findFirstVisibleItemPosition()-1);
+                    essential_rv.scrollToPosition(linearLayoutManager.findFirstVisibleItemPosition() - 1);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -390,7 +390,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View view) {
                 try {
                     LinearLayoutManager linearLayoutManager = (LinearLayoutManager) essential_rv.getLayoutManager();
-                    essential_rv.scrollToPosition(linearLayoutManager.findFirstVisibleItemPosition()+3);
+                    essential_rv.scrollToPosition(linearLayoutManager.findFirstVisibleItemPosition() + 3);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -467,10 +467,10 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         try {
             try {
                 LinearLayoutManager linearLayoutManager = (LinearLayoutManager) essential_rv.getLayoutManager();
-                if (linearLayoutManager.findFirstVisibleItemPosition()+4 >= essentials.size()) {
+                if (linearLayoutManager.findFirstVisibleItemPosition() + 4 >= essentials.size()) {
                     essential_rv.scrollToPosition(0);
                 } else {
-                    essential_rv.scrollToPosition(linearLayoutManager.findFirstVisibleItemPosition()+5);
+                    essential_rv.scrollToPosition(linearLayoutManager.findFirstVisibleItemPosition() + 5);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -668,6 +668,40 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     private void placeOrder() {
 
+        RequestQueue requestQueue = Volley.newRequestQueue(HomeActivity.this);
+
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.GET,
+                "http://stage.medicento.com:8080/api/area/is_operational/?pk="+sp.getmAllocatedCityId(),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            if (!JsonUtils.getBooleanValueFromJsonKey(jsonObject, "is_operational")) {
+                                startActivity(
+                                        new Intent(HomeActivity.this, CartPageOrderActivity.class)
+                                                .putExtra("orders", medicineAdapter.getMedicines()));
+                            } else {
+                                placeOrderAfterCheck();
+                            }
+                        } catch (Exception e) {
+                            placeOrderAfterCheck();
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        placeOrderAfterCheck();
+                    }
+                }
+        );
+        requestQueue.add(stringRequest);
+    }
+
+    private void placeOrderAfterCheck() {
         RequestQueue requestQueue = Volley.newRequestQueue(HomeActivity.this);
 
         StringRequest stringRequest = new StringRequest(

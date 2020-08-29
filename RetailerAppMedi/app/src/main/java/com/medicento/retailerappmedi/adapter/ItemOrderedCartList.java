@@ -1,0 +1,158 @@
+package com.medicento.retailerappmedi.adapter;
+
+import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.medicento.retailerappmedi.R;
+import com.medicento.retailerappmedi.data.EssentialList;
+import com.medicento.retailerappmedi.data.MedicineOrdered;
+import com.medicento.retailerappmedi.data.OrderedMedicine;
+
+import java.util.ArrayList;
+
+public class ItemOrderedCartList extends RecyclerView.Adapter<BaseViewHolder> {
+
+    private ArrayList<OrderedMedicine> essentialLists;
+    private Context context;
+
+    public ItemOrderedCartList(ArrayList<OrderedMedicine> essentialLists, Context context) {
+        this.essentialLists = essentialLists;
+        this.context = context;
+    }
+
+    ItemCartList.OverallCostChangeListener mOverallCostChangeListener;
+
+    public interface OverallCostChangeListener {
+        void onCostChanged();
+    }
+
+    public void setmOverallCostChangeListener(ItemCartList.OverallCostChangeListener mOverallCostChangeListener) {
+        this.mOverallCostChangeListener = mOverallCostChangeListener;
+    }
+    @NonNull
+    @Override
+    public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+        LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
+        View view = inflater.inflate(R.layout.item_cart_list, viewGroup, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull BaseViewHolder baseViewHolder, int i) {
+        baseViewHolder.onBind(i);
+    }
+
+    public ArrayList<OrderedMedicine> getEssentialLists() {
+        return essentialLists;
+    }
+
+    @Override
+    public int getItemCount() {
+        return essentialLists != null ? essentialLists.size() : 0;
+    }
+
+    public class ViewHolder extends BaseViewHolder {
+
+        EditText qty;
+        TextView cost, name, discount, gst;
+        ImageView edit, delete, image;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+
+            gst = itemView.findViewById(R.id.gst);
+            discount = itemView.findViewById(R.id.discount);
+            edit = itemView.findViewById(R.id.edit);
+            qty = itemView.findViewById(R.id.qty);
+            name = itemView.findViewById(R.id.name);
+            cost = itemView.findViewById(R.id.cost);
+            delete = itemView.findViewById(R.id.delete);
+            image = itemView.findViewById(R.id.image);
+        }
+
+        @Override
+        protected void clear() {
+            qty.setText("");
+            cost.setText("");
+            name.setText("");
+            discount.setText("");
+            gst.setText("");
+        }
+
+        @Override
+        public void onBind(int position) {
+            super.onBind(position);
+
+            OrderedMedicine essentialList = essentialLists.get(position);
+
+            qty.setText(essentialList.getQty()+"");
+            if (essentialList.getMrp() >= essentialList.getCost()) {
+                discount.setText((int)((1-(essentialLists.get(position).getCost()/essentialLists.get(position).getMrp()))*100)+"% OFF");
+            } else {
+                discount.setText("0% OFF");
+            }
+
+            gst.setText(essentialList.getDiscount() + "% GST applicable");
+            cost.setText("₹ " + (essentialList.getCost()*essentialList.getQty()));
+
+            name.setText(essentialList.getMedicineName());
+
+            edit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    qty.requestFocus();
+                }
+            });
+
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    essentialLists.remove(getCurrentPosition());
+                    if (mOverallCostChangeListener != null) {
+                        mOverallCostChangeListener.onCostChanged();
+                    }
+                    notifyDataSetChanged();
+                }
+            });
+
+            qty.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if (!qty.getText().toString().trim().equals("0")) {
+                        try {
+                            essentialLists.get(getCurrentPosition()).setQty(Integer.parseInt(qty.getText().toString()));
+                            if (mOverallCostChangeListener != null) {
+                                mOverallCostChangeListener.onCostChanged();
+                            }
+                            notifyItemChanged(getCurrentPosition());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    qty.setSelection(qty.getText().toString().length());
+                }
+            });
+        }
+    }
+}

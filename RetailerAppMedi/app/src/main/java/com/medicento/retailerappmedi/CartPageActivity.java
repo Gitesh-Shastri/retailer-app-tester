@@ -82,6 +82,7 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
     float discount_amount = 0;
     int count = 0;
     CardView card;
+    String message = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,15 +113,6 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
         for (EssentialList essentialList : essentialLists) {
             price += essentialList.getTotalCost();
             gst += essentialList.getTotalCostWithDiscount();
-        }
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat
-                    .requestPermissions(
-                            CartPageActivity.this,
-                            new String[]{Manifest.permission.CALL_PHONE},
-                            1001);
         }
 
         card = findViewById(R.id.card);
@@ -156,7 +148,8 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
         } else {
             prices.setText(Html.fromHtml("Prices are negotiable basis the Order Quantity. Please click on <strong>Call to Order</strong> for clarification."));
         }
-        address.setText(sp.getAddress());
+
+        address.setText(sp.getAddress() + " "+sp.getState_name() + "-" + sp.getCity_name());
 
         itemCartList = new ItemCartList(essentialLists, this);
         item_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -174,7 +167,20 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
             @Override
             public void onClick(View view) {
                 if (sp.getType().equals("Pharmacy")) {
-                    startPayment();
+                    boolean isQtyGreater = false;
+                    message = "";
+                    for (EssentialList each: essentialLists) {
+                        if (each.getMinimum_qty() > each.getQty()) {
+                            isQtyGreater = true;
+                            message += each.getMinimum_qty() + " for " + each.getName() + ", ";
+                        }
+                    }
+                    if (!isQtyGreater) {
+                        checkMinimum();
+                    } else {
+                        message=message.substring(0, message.length()-2);
+                        Toast.makeText(CartPageActivity.this, "Minimum Order Qty(MOQ): " + message + " is needed to place an order!", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     startActivity(new Intent(CartPageActivity.this, UploadPurchaseActivity.class));
                 }
@@ -185,15 +191,35 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
             @Override
             public void onClick(View view) {
                 try {
+                    String data = "*Partner Type*: ";
+                    if (sp.getType().equals("Pharmacy")) {
+                        data += "Pharmacy\n";
+                    } else {
+                        data += "Distributor\n";
+                    }
+                    data += "*Name*: " + sp.getName() + "\n*City*: " + sp.getCity_name() + "\n*State*: " +sp.getState_name() + "\n*Query regarding below Essential Products*:\n";
+                    for (int i=0;i<itemCartList.getEssentialLists().size();i++) {
+                        data += (i+1) + ". " + itemCartList.getEssentialLists().get(i).getName();
+                    }
+
                     Intent share_intent = new Intent();
-                    String url = "https://api.whatsapp.com/send?phone=+919731785240&text=" + URLEncoder.encode("Regarding Essential Order", "UTF-8");
+                    String url = "https://api.whatsapp.com/send?phone=+919731785240&text=" + URLEncoder.encode(data, "UTF-8");
                     share_intent.setPackage("com.whatsapp");
                     share_intent.setData(Uri.parse(url));
                     startActivity(share_intent);
                 } catch (Exception e) {
-                    Intent callIntent = new Intent(Intent.ACTION_CALL);
-                    callIntent.setData(Uri.parse("tel:+919731785240"));
-                    startActivity(callIntent);
+                    if (ActivityCompat.checkSelfPermission(CartPageActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED &&
+                            ActivityCompat.checkSelfPermission(CartPageActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat
+                                .requestPermissions(
+                                        CartPageActivity.this,
+                                        new String[]{Manifest.permission.CALL_PHONE},
+                                        1001);
+                    } else {
+                        Intent callIntent = new Intent(Intent.ACTION_CALL);
+                        callIntent.setData(Uri.parse("tel:+919731785240"));
+                        startActivity(callIntent);
+                    }
                 }
             }
         });
@@ -273,6 +299,8 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
 
             }
         });
+
+        requestOrder();
     }
 
     @Override
@@ -283,6 +311,41 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             }
         }
+    }
+
+    String cost_value = "";
+    private void checkMinimum() {
+
+        RequestQueue requestQueue = Volley.newRequestQueue(CartPageActivity.this);
+
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.GET,
+                "http://stage.medicento.com:8080/api/app/check_cost/?type=essential&cost="+price,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            cost_value = JsonUtils.getJsonValueFromKey(jsonObject, "cost");
+                            if (JsonUtils.getBooleanValueFromJsonKey(jsonObject, "is_valid")) {
+                                startPayment();
+                            } else {
+                                Toast.makeText(CartPageActivity.this, "Minimum Cart Value: Rs." + cost_value + " is needed to place an order! Please add Essentials accordingly.", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (Exception e) {
+                            Toast.makeText(CartPageActivity.this, "Minimum Cart Value: Rs." + cost_value + " is needed to place an order! Please add Essentials accordingly.", Toast.LENGTH_SHORT).show();
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(CartPageActivity.this, "", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+        requestQueue.add(stringRequest);
     }
 
     public void startPayment() {
@@ -389,7 +452,7 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
             String cache = Paper.book().read("user");
             if (cache != null && !cache.isEmpty()) {
                 sp = gson.fromJson(cache, SalesPerson.class);
-                address.setText(sp.getAddress());
+                address.setText(sp.getAddress() + " "+sp.getState_name() + "-" + sp.getCity_name());
             }
         }
     }
@@ -481,8 +544,9 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
         }
 
         price -= discount_amount;
+        gst_tv.setText(String.format("₹ %.2f", gst));
         tv_price.setText(String.format("₹ %.2f",  (price + gst)));
-            pay_rs.setText(String.format("Pay ₹ %.2f",  (price + gst)));
+        pay_rs.setText(String.format("Pay ₹ %.2f",  (price + gst)));
         total_amount_tv.setText(String.format("₹ %.2f", (price + gst)));
         price_details.setText("Price Details: ("+ count+" Items)");
 
@@ -567,5 +631,62 @@ public class CartPageActivity extends AppCompatActivity implements ItemCartList.
         } else {
             super.onBackPressed();
         }
+    }
+
+    private void requestOrder() {
+
+        final JSONArray jsonArray = new JSONArray();
+
+        for (EssentialList essentialList : essentialLists) {
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("name", essentialList.getName());
+                jsonObject.put("cost", essentialList.getCost());
+                jsonObject.put("qty", essentialList.getQty());
+                price += essentialList.getCost() + essentialList.getQty();
+                jsonArray.put(jsonObject);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        final JSONObject items = new JSONObject();
+        try {
+            items.put("items", jsonArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                "http://stage.medicento.com:8080/api/app/save_order/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                String essential_order_id = Paper.book().read("essential_order_id");
+                if (essential_order_id != null && !essential_order_id.isEmpty()) {
+                    params.put("order_id", essential_order_id);
+                }
+                params.put("update_data", "1");
+                params.put("order_items", items.toString());
+                params.put("response", "");
+                params.put("id", sp.getmAllocatedPharmaId());
+                params.put("code", sp.getUsercode());
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest);
     }
 }

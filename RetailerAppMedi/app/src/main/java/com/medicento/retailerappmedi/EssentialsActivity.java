@@ -3,11 +3,14 @@ package com.medicento.retailerappmedi;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.provider.Settings;
 import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -26,14 +29,19 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
+import com.medicento.retailerappmedi.Utils.MedicentoUtils;
 import com.medicento.retailerappmedi.activity.NotificationActivity;
 import com.medicento.retailerappmedi.activity.PaymentSummaryActivity;
 import com.medicento.retailerappmedi.adapter.EssentialAdapter;
 import com.medicento.retailerappmedi.adapter.EssentialListAdapter;
 import com.medicento.retailerappmedi.data.Category;
+import com.medicento.retailerappmedi.data.Constants;
 import com.medicento.retailerappmedi.data.Essential;
 import com.medicento.retailerappmedi.data.EssentialList;
 import com.medicento.retailerappmedi.data.SalesPerson;
@@ -48,6 +56,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.paperdb.Paper;
+
+import static com.medicento.retailerappmedi.Utils.MedicentoUtils.getDeviceModel;
+import static com.medicento.retailerappmedi.Utils.MedicentoUtils.showVolleyError;
 
 public class EssentialsActivity extends AppCompatActivity implements View.OnClickListener, EssentialListAdapter.OverallCostChangeListener, EssentialAdapter.setOnClickListener {
 
@@ -67,6 +78,7 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
     String category = "Mask";
     EssentialAdapter essentialAdapter;
     ArrayList<EssentialList> essentialList_temp;
+    String token = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +143,7 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
             }
             essentials_image.setColorFilter(Color.parseColor("#18989e"));
         } else {
+            back.setVisibility(View.GONE);
             essentials_text.setText("Log Out");
             essentials_image.setImageResource(R.drawable.ic_exit_to_app_black_48dp);
             home_text.setTextColor(Color.parseColor("#18989e"));
@@ -139,6 +152,20 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
             }
             home_image.setColorFilter(Color.parseColor("#18989e"));
         }
+
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            return;
+                        }
+
+                        token = task.getResult().getToken();
+
+                        sentFirebaseToken();
+                    }
+                });
 
         essentialLists = new ArrayList<>();
         essentials = new ArrayList<>();
@@ -215,6 +242,80 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
         getCategory();
     }
 
+    private void sentFirebaseToken() {
+        String androidId = "";
+        try {
+            androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        final String finalAndroidId = androidId;
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                "http://stage.medicento.com:8080/api/app/save_user_info/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(TAG, "onResponse: " + response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        showVolleyError(error);
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("android_id", finalAndroidId);
+                params.put("reg_id", token);
+                params.put("android_version", Constants.VERSION);
+                params.put("manufacture_name", MedicentoUtils.getDeviceManufacture());
+                params.put("model_name", getDeviceModel());
+                params.put("user_ip", "");
+
+                if (sp != null && sp.getmAllocatedPharmaId() != null) {
+                    params.put("pharmacy_id", sp.getmAllocatedPharmaId());
+                }
+
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest);
+
+        requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest1 = new StringRequest(
+                Request.Method.POST,
+                "http://stage.medicento.com:8080/api/app/register_device/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(TAG, "onResponse: " + response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        showVolleyError(error);
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("dev_id", finalAndroidId);
+                params.put("reg_id", token);
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest1);
+
+    }
+
     private void fetchProduct() {
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -242,7 +343,9 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
                                         .setCost_500(JsonUtils.getDoubleValue(each, "qty_500_ptr"))
                                         .setCost_1000(JsonUtils.getDoubleValue(each, "qty_1000_ptr"))
                                         .setCost_10000(JsonUtils.getDoubleValue(each, "qty_10000_ptr"))
+                                        .setMinimum_qty(JsonUtils.getIntegerValueFromJsonKey(each, "minimum_qty"))
                                         .setCost(JsonUtils.getDoubleValue(each, "ptr"))
+                                        .setMrp(JsonUtils.getDoubleValue(each, "mrp"))
                                         .setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url"))
                                         .setDiscount(JsonUtils.getIntegerValueFromJsonKey(each, "discount"))
                                         .setCategory(JsonUtils.getIntegerValueFromJsonKey(each, "category")));
@@ -251,6 +354,7 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
                                         essentialList_temp.get(i).setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url"))
                                                 .setQty(essentialLists.get(j).getQty())
                                                 .setCost(JsonUtils.getDoubleValue(each, "ptr"))
+                                                .setMrp(JsonUtils.getDoubleValue(each, "mrp"))
                                                 .setCategory(JsonUtils.getIntegerValueFromJsonKey(each, "category"))
                                                 .setDiscount(JsonUtils.getIntegerValueFromJsonKey(each, "discount"))
                                                 .setCost_100(JsonUtils.getDoubleValue(each, "qty_100_ptr"))
@@ -258,6 +362,7 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
                                                 .setCost_500(JsonUtils.getDoubleValue(each, "qty_500_ptr"))
                                                 .setCost_1000(JsonUtils.getDoubleValue(each, "qty_1000_ptr"))
                                                 .setCost_10000(JsonUtils.getDoubleValue(each, "qty_10000_ptr"))
+                                                .setMinimum_qty(JsonUtils.getIntegerValueFromJsonKey(each, "minimum_qty"))
                                                 .setName(JsonUtils.getJsonValueFromKey(each, "name"));
                                     }
                                 }
@@ -453,6 +558,15 @@ public class EssentialsActivity extends AppCompatActivity implements View.OnClic
             }
             if (essentialLists == null) {
                 essentialLists = new ArrayList<>();
+            } else {
+                int count_num = getCount_num(essentialLists);
+                if (count_num > 0) {
+                    number.setVisibility(View.VISIBLE);
+                    go_to_cart_rl.setVisibility(View.VISIBLE);
+                } else {
+                    number.setVisibility(View.GONE);
+                    go_to_cart_rl.setVisibility(View.GONE);
+                }
             }
             fetchProduct();
         }

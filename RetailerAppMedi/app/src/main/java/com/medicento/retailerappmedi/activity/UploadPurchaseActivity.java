@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -22,6 +23,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -81,6 +83,8 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -106,21 +110,25 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class UploadPurchaseActivity extends AppCompatActivity implements PaymentResultListener, Player.EventListener, FullStcokImageAdapter.setOnClickListener {
 
+    private static final String TAG = "UploadPurchaseAct";
     ImageView back, close, approve;
     CardView image_card_view;
-    RelativeLayout stocks, upper;
+    RelativeLayout stocks, upper, stock_prieview, request;
     LinearLayout upload_purchase, performa_invoice, download_ll, text_seek_bar, add_a_file_ll, upload_photo_ll, advance_soory,
-            advance_done, download_ll_not;
+            advance_done, advance_soory_50;
+    RelativeLayout download_ll_not;
     SeekBar seek_bar;
     TextView title, per_total_amount, per_advance_amount, per_remaining_amount, lr_total_amount, lr_advance_amount,
-            lr_remaining_amount, view_text, pending, sorry, payment_recieved, pending_performa, reason_1, sorry_not, reason_1_d;
+            lr_remaining_amount, view_text, pending, sorry, payment_recieved, pending_performa, reason_1, sorry_not,
+            reason_1_d, title_photo, photo_created_at, file_name, sorry_50, reason_50;
     RecyclerView stock_images_rv, stock_images_full_screen_rv, items_rv, stock_images_full_screen_next_rv;
     StcokImageAdapter imagesAdapter;
     FullStcokImageAdapter fullStcokImageAdapter;
     ImageFullScreenAdapter imageFullScreenAdapter;
     private ArrayList<String> urls;
     private ArrayList<EssentialList> essentialLists;
-    Button view_performa, download_performa, download_lr, view_lr, confirm_to_upload, review, proceed_to_50, proceed_to_50_remain, view_on_web;
+    Button view_performa, download_performa, download_lr, view_lr, confirm_to_upload, review, proceed_to_50,
+            proceed_to_50_remain, view_on_web, request_for_video_and_image, back_to_po, preview, view_lr_d, download_lr_d, back_to_50_remain, back_to_po_50;
     String performa_url = "", lr_url = "";
     final int REQUEST_PERMISSION_CODE = 1000;
     ProgressBar progressBar, progress_bar_uploading;
@@ -143,15 +151,24 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     RadioButton one, two, three, four, five, six;
     OrderItemEssentialAdapter orderItemAdapter;
     private boolean payment_not_made = false;
+    ProgressBar progress_bar;
+    String order_id = "", invoice_url = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_purchase);
 
+        progress_bar = findViewById(R.id.progress_bar);
+
+        back_to_po = findViewById(R.id.back_to_po);
+        request = findViewById(R.id.request);
+        file_name = findViewById(R.id.file_name);
+        stock_prieview = findViewById(R.id.stock_prieview);
         per_total_amount = findViewById(R.id.per_total_amount);
         per_advance_amount = findViewById(R.id.per_advance_amount);
         per_remaining_amount = findViewById(R.id.per_remaining_amount);
+        back_to_50_remain = findViewById(R.id.back_to_50_remain);
         progress_bar_uploading = findViewById(R.id.progress_bar_uploading);
         pending_performa = findViewById(R.id.pending_performa);
         lr_total_amount = findViewById(R.id.lr_total_amount);
@@ -162,7 +179,10 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         add_a_file_ll = findViewById(R.id.add_a_file_ll);
         advance_soory = findViewById(R.id.advance_soory);
         reason_1_d = findViewById(R.id.reason_1_d);
+        photo_created_at = findViewById(R.id.photo_created_at);
         upload_photo_ll = findViewById(R.id.upload_photo_ll);
+        download_lr_d = findViewById(R.id.download_lr_d);
+        view_lr_d = findViewById(R.id.view_lr_d);
         proceed_to_50_remain = findViewById(R.id.proceed_to_50_remain);
         lr_remaining_amount = findViewById(R.id.lr_remaining_amount);
         items_rv = findViewById(R.id.items_rv);
@@ -195,16 +215,24 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         confirm_to_upload = findViewById(R.id.confirm_to_upload);
         upload_purchase = findViewById(R.id.upload_purchase);
         performa_invoice = findViewById(R.id.performa_invoice);
+        title_photo = findViewById(R.id.title_photo);
         view_on_web = findViewById(R.id.view_on_web);
         image_card_view = findViewById(R.id.image_card_view);
+        request_for_video_and_image = findViewById(R.id.request_for_video_and_image);
         stock_images_full_screen_rv = findViewById(R.id.stock_images_full_screen_rv);
         stock_images_full_screen_next_rv = findViewById(R.id.stock_images_full_screen_next_rv);
         stock_images_rv = findViewById(R.id.stock_images_rv);
         download_ll = findViewById(R.id.download_ll);
         pdfViewer = findViewById(R.id.pdfViewer);
 
+        preview = findViewById(R.id.preview);
         view_performa = findViewById(R.id.view_performa);
         download_performa = findViewById(R.id.download_performa);
+
+        advance_soory_50 = findViewById(R.id.advance_soory_50);
+        back_to_po_50 = findViewById(R.id.back_to_po_50);
+        reason_50 = findViewById(R.id.reason_50);
+        sorry_50 = findViewById(R.id.sorry_50);
 
         Paper.init(this);
 
@@ -247,6 +275,14 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             }
         }
 
+        if (getIntent() != null && getIntent().hasExtra("type")) {
+            if (getIntent().getStringExtra("type").equals("PO") || getIntent().getStringExtra("type").equals("PI")) {
+                seek_bar.setProgress(3);
+            } else {
+                seek_bar.setProgress(0);
+            }
+        }
+
         orderItemAdapter = new OrderItemEssentialAdapter(essentialLists, this);
         items_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         items_rv.setAdapter(orderItemAdapter);
@@ -265,7 +301,11 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
 
         urls = new ArrayList<>();
 
-        payment_recieved.setText("Thank You! 50% Advance Payment of Rs. " + String.format("₹ %.2f", (price + gst)) + " has been recieved.");
+        if (price % 2 == 0) {
+            payment_recieved.setText("Thank You! 50% Advance Payment of Rs. " + String.format("₹ %.2f", ((int) (price / 2) + gst)) + " has been recieved.");
+        } else {
+            payment_recieved.setText("Thank You! 50% Advance Payment of Rs. " + String.format("₹ %.2f", (price + gst)) + " has been recieved.");
+        }
 
         imagesAdapter = new StcokImageAdapter(urls, this);
         stock_images_rv.setLayoutManager(new GridLayoutManager(this, 4));
@@ -275,6 +315,74 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 seek_bar.setProgress(i - 1);
+            }
+        });
+
+        String request_images = Paper.book().read("request_images");
+        if (request_images != null && !request_images.isEmpty()) {
+            request_for_video_and_image.setText("Request Sent for Stock Image & Video");
+            request_for_video_and_image.setEnabled(false);
+        }
+
+        String essential_order_id = Paper.book().read("essential_order_id");
+        if (essential_order_id != null && !essential_order_id.isEmpty()) {
+            order_id = essential_order_id;
+        }
+
+        String payment_made = Paper.book().read("payment_made");
+        if (payment_made != null && !payment_made.isEmpty() && payment_made.equals("1")) {
+            payment_not_made = true;
+        }
+
+        request_for_video_and_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                requestOrder(true, "");
+            }
+        });
+
+        back_to_po.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (back_to_po.getText().toString().equals("BACK TO PO UPLOAD PAGE")) {
+                    two.setChecked(true);
+                    seek_bar.setProgress(1);
+                } else {
+                    three.setChecked(true);
+                    seek_bar.setProgress(2);
+                }
+            }
+        });
+
+        back_to_50_remain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (back_to_50_remain.getText().toString().equals("BACK TO PO UPLOAD PAGE")) {
+                    two.setChecked(true);
+                    seek_bar.setProgress(1);
+                } else if (back_to_50_remain.getText().toString().equals("BACK TO PURCHASE INVOICE")) {
+                    three.setChecked(true);
+                    seek_bar.setProgress(2);
+                } else {
+                    four.setChecked(true);
+                    seek_bar.setProgress(3);
+                }
+            }
+        });
+
+        back_to_po_50.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (back_to_po_50.getText().toString().equals("BACK TO PO UPLOAD PAGE")) {
+                    two.setChecked(true);
+                    seek_bar.setProgress(1);
+                } else if (back_to_po_50.getText().toString().equals("BACK TO PURCHASE INVOICE")) {
+                    three.setChecked(true);
+                    seek_bar.setProgress(2);
+                } else {
+                    four.setChecked(true);
+                    seek_bar.setProgress(3);
+                }
             }
         });
 
@@ -346,7 +454,15 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             }
         });
 
-        sorry.setText("Sorry! 50% Advance Payment of Rs. " + String.format("₹ %.2f", (price + gst)) + " couldn't be proceed due to one of the following reasons:");
+        if (price % 2 == 0) {
+            sorry.setText("Sorry! 50% Advance Payment of Rs. " + String.format("₹ %.2f", ((int) (price / 2) + gst)) + " couldn't be proceed due to one of the following reasons:");
+        } else {
+            sorry.setText("Sorry! 50% Advance Payment of Rs. " + String.format("₹ %.2f", (price + gst)) + " couldn't be proceed due to one of the following reasons:");
+        }
+
+        sorry_50 = findViewById(R.id.sorry_50);
+        sorry_50.setText("Sorry! 50% Remaining Payment of Rs. " + String.format("₹ %.2f", ((int) (price / 2) + gst)) + " couldn't be proceed due to one of the following reasons:");
+
         sorry_not.setText("Your order hasn't been acknowledged by Logistics partner due to one of the following reasons: ");
 
         seek_bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -359,28 +475,42 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                 advance_soory.setVisibility(View.GONE);
                 advance_done.setVisibility(View.GONE);
                 download_ll_not.setVisibility(View.GONE);
+                advance_soory_50.setVisibility(View.GONE);
                 switch (i) {
                     case 0:
                         stocks.setVisibility(View.VISIBLE);
                         title.setText("Stock Videos & Pics");
                         break;
                     case 1:
-                        player.setPlayWhenReady(false);
+                        if (player != null) {
+                            player.setPlayWhenReady(false);
+                        }
                         title.setText("Purchase Order");
                         upload_purchase.setVisibility(View.VISIBLE);
                         break;
                     case 2:
-                        player.setPlayWhenReady(false);
+                        if (player != null) {
+                            player.setPlayWhenReady(false);
+                        }
+                        if (pending.getText().toString().equals("REJECTED")) {
+                            proceed_to_50.setText("BACK TO PO UPLOAD PAGE");
+                        } else if (pending.getText().toString().equals("PENDING")) {
+                            proceed_to_50.setText("BACK TO PO UPLOAD PAGE");
+                        } else {
+                            proceed_to_50.setText("Proceed To Pay 50% Advance");
+                        }
                         title.setText("Performa Invoice");
                         performa_invoice.setVisibility(View.VISIBLE);
                         break;
                     case 3:
-                        saveData("");
+                        saveData("", false);
                         if (pending.getText().toString().equals("APPROVED")) {
-                            if (performa_url.isEmpty()) {
+                            if (invoice_url.isEmpty()) {
                                 advance_soory.setVisibility(View.VISIBLE);
-                                reason_1.setText("* Performa Invoice Not Yet Issued");
+                                reason_1.setText("\n* Performa Invoice Not Yet Issued");
+                                back_to_po.setText("BACK TO PURCHASE INVOICE");
                             } else {
+                                advance_soory.setVisibility(View.GONE);
                                 if (price % 2 == 0) {
                                     startPayment((int) ((price / 2) + gst));
                                 } else {
@@ -388,39 +518,103 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                                 }
                             }
                         } else {
-                            if (pending.getText().toString().equals("APPROVED")) {
-                                advance_soory.setVisibility(View.GONE);
-                            } else if (pending.getText().toString().equals("REJECTED")) {
+                            advance_soory.setVisibility(View.VISIBLE);
+                            reason_1.setText("");
+                            if (pending.getText().toString().equals("REJECTED")) {
                                 pending.setText("REJECTED");
+                                reason_1.append("\n* Purchase Order has been rejected by Team Medicento");
+                                back_to_po.setText("BACK TO PO UPLOAD PAGE");
                             } else {
-                                pending.setText("PENDING");
                                 advance_soory.setVisibility(View.VISIBLE);
                                 if (performa_url.isEmpty()) {
-                                    reason_1.setText("* Purchase Order Not Yet Uploaded \n* Purchase Order Not Yet Approved \n* Performa Invoice Not Yet Issued");
-                                } else {
-                                    reason_1.setText("* Purchase Order Not Yet Uploaded \n* Purchase Order Not Yet Approved \n");
+                                    reason_1.append("\n* Purchase Order Not Yet Uploaded");
+                                    back_to_po.setText("BACK TO PO UPLOAD PAGE");
                                 }
+                                reason_1.append("\n* Purchase Order Not Yet Approved");
+                            }
+                            if (invoice_url.isEmpty()) {
+                                if (!back_to_po.getText().toString().equals("BACK TO PO UPLOAD PAGE")) {
+                                    back_to_po.setText("BACK TO PURCHASE INVOICE");
+                                }
+                                reason_1.append("\n* Performa Invoice Not Yet Issued");
                             }
                         }
-                        player.setPlayWhenReady(false);
+                        if (player != null) {
+                            player.setPlayWhenReady(false);
+                        }
                         break;
                     case 4:
                         reason_1_d.setText("");
                         if (pending.getText().toString().contains("PENDING")) {
-                            reason_1_d.setText("* Purchase Order Not Yet Uploaded \n* Purchase Order Not Yet Approved \n");
+                            if (performa_url.isEmpty()) {
+                                reason_1_d.setText("\n* Purchase Order Not Yet Uploaded");
+                                back_to_50_remain.setText("BACK TO PO UPLOAD PAGE");
+                            }
+                            reason_1_d.append("\n* Purchase Order Not Yet Approved");
                         }
-                        if (performa_url.isEmpty()) {
-                            reason_1_d.append("* Performa Invoice Not Yet Issued");
+                        if (pending.getText().toString().equals("REJECTED")) {
+                            back_to_50_remain.setText("BACK TO PO UPLOAD PAGE");
+                            reason_1_d.append("\n* Purchase Order has been rejected by Team Medicento");
+                        }
+                        if (invoice_url.isEmpty()) {
+                            if (!back_to_50_remain.getText().toString().equals("BACK TO PO UPLOAD PAGE")) {
+                                back_to_50_remain.setText("BACK TO PURCHASE INVOICE");
+                            }
+                            reason_1_d.append(" \n* Performa Invoice Not Yet Issued");
                         }
                         if (!payment_not_made) {
-                            reason_1_d.append("* 50% Advance Payment not made yet.");
+                            if (!back_to_50_remain.getText().toString().equals("BACK TO PURCHASE INVOICE") && !back_to_50_remain.getText().toString().equals("BACK TO PO UPLOAD PAGE")) {
+                                back_to_50_remain.setText("BACK TO 50% ADVANCE PAYMENT");
+                            }
+                            reason_1_d.append("\n* 50% Advance Payment not made yet.");
                         }
-                        player.setPlayWhenReady(false);
+                        if (player != null) {
+                            player.setPlayWhenReady(false);
+                        }
                         title.setText("Delivery LR");
-                        download_ll_not.setVisibility(View.VISIBLE);
+                        if (lr_url != null && !lr_url.isEmpty()) {
+                            download_ll.setVisibility(View.VISIBLE);
+                            download_ll_not.setVisibility(View.GONE);
+                        } else {
+                            download_ll.setVisibility(View.GONE);
+                            download_ll_not.setVisibility(View.VISIBLE);
+                        }
                         break;
                     case 5:
-                        startPayment(price / 2);
+                        reason_50.setText("");
+                        if (pending.getText().toString().contains("PENDING")) {
+                            if (performa_url.isEmpty()) {
+                                reason_50.setText("\n* Purchase Order Not Yet Uploaded");
+                                back_to_po_50.setText("BACK TO PO UPLOAD PAGE");
+                            }
+                            reason_1_d.append("\n* Purchase Order Not Yet Approved");
+                        }
+                        if (pending.getText().toString().equals("REJECTED")) {
+                            back_to_po_50.setText("BACK TO PO UPLOAD PAGE");
+                            reason_50.append("\n* Purchase Order has been rejected by Team Medicento");
+                        }
+                        if (invoice_url.isEmpty()) {
+                            if (!back_to_po_50.getText().toString().equals("BACK TO PO UPLOAD PAGE")) {
+                                back_to_po_50.setText("BACK TO PURCHASE INVOICE");
+                            }
+                            reason_50.append(" \n* Performa Invoice Not Yet Issued");
+                        }
+                        if (!payment_not_made) {
+                            if (!back_to_po_50.getText().toString().equals("BACK TO PURCHASE INVOICE") && !back_to_po_50.getText().toString().equals("BACK TO PO UPLOAD PAGE")) {
+                                back_to_po_50.setText("BACK TO 50% ADVANCE PAYMENT");
+                            }
+                            reason_50.append("\n* 50% Advance Payment not made yet.");
+                        }
+                        if (player != null) {
+                            player.setPlayWhenReady(false);
+                        }
+                        if (!reason_50.getText().toString().isEmpty()) {
+                            advance_soory_50.setVisibility(View.VISIBLE);
+                        } else {
+                            startPayment(price / 2);
+                            advance_soory_50.setVisibility(View.GONE);
+                        }
+                        title.setText("Remaining 50% Payment");
                         break;
                 }
             }
@@ -500,7 +694,11 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         proceed_to_50.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                four.setChecked(true);
+                if (proceed_to_50.getText().toString().equals("Proceed To Pay 50% Advance")) {
+                    four.setChecked(true);
+                } else {
+                    two.setChecked(true);
+                }
             }
         });
 
@@ -515,8 +713,11 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             @Override
             public void onClick(View view) {
                 isFromDownload = false;
-                if (performa_url != null && performa_url.isEmpty()) {
-                    new RetrievePdfStream().execute(performa_url);
+                if (invoice_url != null && !invoice_url.isEmpty()) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(invoice_url));
+                    startActivity(browserIntent);
+                } else {
+                    Toast.makeText(UploadPurchaseActivity.this, "PI has not been generated yet", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -528,15 +729,19 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                 isFromLr = false;
                 String has_permission_granted = Paper.book().read("has_permission_granted");
                 if (has_permission_granted != null && !has_permission_granted.isEmpty() && !has_permission_granted.equals("yes")) {
-                    if (performa_url != null && performa_url.isEmpty()) {
-                        new RetrievePdfStream().execute(performa_url);
+                    if (invoice_url != null && !invoice_url.isEmpty()) {
+                        new RetrievePdfStream().execute(invoice_url);
+                    } else {
+                        Toast.makeText(UploadPurchaseActivity.this, "PI has not been generated yet", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     if (!checkPermission()) {
                         requestPermission();
                     } else {
-                        if (performa_url != null && performa_url.isEmpty()) {
-                            new RetrievePdfStream().execute(performa_url);
+                        if (invoice_url != null && !invoice_url.isEmpty()) {
+                            new RetrievePdfStream().execute(invoice_url);
+                        } else {
+                            Toast.makeText(UploadPurchaseActivity.this, "PI has not been generated yet", Toast.LENGTH_SHORT).show();
                         }
                         Paper.book().write("has_permission_granted", "yes");
                     }
@@ -548,9 +753,27 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             @Override
             public void onClick(View view) {
                 isFromDownload = false;
-                if (lr_url != null && lr_url.isEmpty()) {
-                    getLrUrl();
+                Log.d(TAG, "onClick: " + lr_url);
+                if (lr_url != null && !lr_url.isEmpty()) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(lr_url));
+                    startActivity(browserIntent);
+                } else {
+                    Toast.makeText(UploadPurchaseActivity.this, "LR has not been generated yet", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        view_lr_d.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(UploadPurchaseActivity.this, "LR has not been generated yet", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        download_lr_d.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(UploadPurchaseActivity.this, "LR has not been generated yet", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -600,11 +823,10 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                 }
                 {
                     isUploading = true;
-                    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    String[] mimeTypes = {"image/png", "image/jpg", "image/jpeg"};
-                    intent.setType("image/*");
-                    intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-                    startActivityForResult(Intent.createChooser(intent, "Select File"), 21);
+                    Intent image_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (image_intent.resolveActivity(getPackageManager()) != null) {
+                        startActivityForResult(image_intent, 20);
+                    }
                 }
             }
         });
@@ -612,14 +834,27 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         view_on_web.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(video_url));
+                if (video_url.isEmpty()) {
+                    Toast.makeText(UploadPurchaseActivity.this, "Stock Video is currently unavailable", Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(video_url));
+                    startActivity(browserIntent);
+                }
+            }
+        });
+
+        preview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(performa_url));
                 startActivity(browserIntent);
             }
         });
 
-        getPoStatus();
-
-        getImages();
+        if (order_id != null && !order_id.isEmpty()) {
+            getImages();
+            getPoStatus();
+        }
     }
 
     @Override
@@ -632,43 +867,195 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                 File file = saveImage(bitmap);
                 uploadFileToServer(file);
             } catch (Exception e) {
+                Toast.makeText(this, "Please Try Again!", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
         } else if (requestCode == 22 && resultCode == RESULT_OK) {
-            String path = getRealPathFromURI_API19(UploadPurchaseActivity.this, data.getData());
+            String path = getPath(UploadPurchaseActivity.this, data.getData());
             try {
                 File file = new File(path);
                 Log.d("data", "onActivityResult: " + path);
                 uploadFileToServer(file);
             } catch (Exception e) {
+                Toast.makeText(this, "Please Try Again!", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        } if (requestCode == 20 && resultCode == RESULT_OK) {
+            try {
+                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                File file = saveImage(bitmap);
+                uploadFileToServer(file);
+            } catch (Exception e) {
+                Toast.makeText(this, "Please Try Again!", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
         }
     }
 
-    public static String getRealPathFromURI_API19(Context context, Uri uri) {
-        String filePath = "";
+    private static Uri filePathUri = null;
 
-        // ExternalStorageProvider
-        String docId = DocumentsContract.getDocumentId(uri);
-        String[] split = docId.split(":");
-        String type = split[0];
+    public static String getPath(final Context context, final Uri uri)
+    {
+        //check here to KITKAT or new version
+        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        filePathUri = uri;
 
-        if ("primary".equalsIgnoreCase(type)) {
-            return Environment.getExternalStorageDirectory() + "/" + split[1];
-        } else {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                //getExternalMediaDirs() added in API 21
-                File[] external = context.getExternalMediaDirs();
-                if (external.length > 1) {
-                    filePath = external[1].getAbsolutePath();
-                    filePath = filePath.substring(0, filePath.indexOf("Android")) + split[1];
+        // DocumentProvider
+        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+
+            // ExternalStorageProvider
+            if (isExternalStorageDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                if ("primary".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
-            } else {
-                filePath = "/storage/" + type + "/" + split[1];
             }
-            return filePath;
+
+            //DownloadsProvider
+            else if (isDownloadsDocument(uri)) {
+
+                final String id = DocumentsContract.getDocumentId(uri);
+
+                final Uri contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+
+                //return getDataColumn(context, uri, null, null);
+                return getDataColumn(context, contentUri, null, null);
+            }
+
+            // MediaProvider
+            else if (isMediaDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                Uri contentUri = null;
+                if ("image".equals(type)) {
+                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                } else if ("video".equals(type)) {
+                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                } else if ("audio".equals(type)) {
+                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                }
+
+                final String selection = "_id=?";
+                final String[] selectionArgs = new String[] {
+                        split[1]
+                };
+
+                return getDataColumn(context, contentUri, selection, selectionArgs);
+            }
         }
+        // MediaStore (and general)
+        else if ("content".equalsIgnoreCase(uri.getScheme())) {
+
+            // Return the remote address
+            if (isGooglePhotosUri(uri))
+                return uri.getLastPathSegment();
+
+            return getDataColumn(context, uri, null, null);
+        }
+        // File
+        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the value of the data column for this Uri. This is useful for
+     * MediaStore Uris, and other file-based ContentProviders.
+     *
+     * @param context The context.
+     * @param uri The Uri to query.
+     * @param selection (Optional) Filter used in the query.
+     * @param selectionArgs (Optional) Selection arguments used in the query.
+     * @return The value of the _data column, which is typically a file path.
+     */
+    public static String getDataColumn(Context context, Uri uri, String selection,
+                                       String[] selectionArgs) {
+
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = {
+                column
+        };
+        FileInputStream input = null;
+        FileOutputStream output = null;
+
+        try {
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int index = cursor.getColumnIndexOrThrow(column);
+                return cursor.getString(index);
+            }
+        } catch (IllegalArgumentException e){
+            e.printStackTrace();
+
+            File file = new File(context.getCacheDir(), "tmp");
+            String filePath = file.getAbsolutePath();
+
+            try {
+                ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(filePathUri, "r");
+                if (pfd == null)
+                    return null;
+
+                FileDescriptor fd = pfd.getFileDescriptor();
+                input = new FileInputStream(fd);
+                output = new FileOutputStream(filePath);
+                int read;
+                byte[] bytes = new byte[4096];
+                while ((read = input.read(bytes)) != -1) {
+                    output.write(bytes, 0, read);
+                }
+
+                input.close();
+                output.close();
+                return new File(filePath).getAbsolutePath();
+            } catch (IOException ignored) {
+                ignored.printStackTrace();
+            }
+        } finally{
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is ExternalStorageProvider.
+     */
+    public static boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is DownloadsProvider.
+     */
+    public static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is MediaProvider.
+     */
+    public static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is Google Photos.
+     */
+    public static boolean isGooglePhotosUri(Uri uri) {
+        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
     private File saveImage(Bitmap finalBitmap) {
@@ -703,7 +1090,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.GET,
-                "http://stage.medicento.com:8080/api/app/get_lr/",
+                "http://stage.medicento.com:8080/api/app/get_lr/?order_id="+order_id,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -720,41 +1107,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        progressBar.setVisibility(View.GONE);
-                    }
-                }
-        );
-
-        progressBar.setVisibility(View.VISIBLE);
-        requestQueue.add(stringRequest);
-    }
-
-    private void getPerformaUrl() {
-
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        StringRequest stringRequest = new StringRequest(
-                Request.Method.GET,
-                "http://stage.medicento.com:8080/api/app/get_performa_url/?id=" + sp.getmAllocatedPharmaId() + "&code=" + sp.getUsercode(),
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            performa_url = JsonUtils.getJsonValueFromKey(jsonObject, "url");
-                            if (performa_url.isEmpty()) {
-                                pending_performa.setVisibility(View.VISIBLE);
-                            } else {
-                                pending_performa.setVisibility(View.GONE);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(UploadPurchaseActivity.this, "Please Try Again!", Toast.LENGTH_SHORT).show();
                         progressBar.setVisibility(View.GONE);
                     }
                 }
@@ -769,7 +1122,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.GET,
-                "http://stage.medicento.com:8080/api/app/get_images/",
+                "http://stage.medicento.com:8080/api/app/get_images/?order_id="+order_id,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -778,8 +1131,20 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                             JSONObject jsonObject = new JSONObject(response);
                             JSONArray data = jsonObject.getJSONArray("data");
 
+                            if (data.length() > 0) {
+                                request.setVisibility(View.GONE);
+                                stock_prieview.setVisibility(View.VISIBLE);
+                            }
+
+                            title_photo.setText("Stock Photos For");
+
                             for (int i = 0; i < data.length(); i++) {
                                 JSONObject each = data.getJSONObject(i);
+                                JSONObject order_id = each.getJSONObject("order_id");
+                                if (!title_photo.getText().toString().contains(JsonUtils.getJsonValueFromKey(order_id, "name"))) {
+                                    title_photo.append(" " + JsonUtils.getJsonValueFromKey(order_id, "name"));
+                                    photo_created_at.setText("Uploaded on " + JsonUtils.getJsonValueFromKey(each, "created_at"));
+                                }
                                 urls.add(JsonUtils.getJsonValueFromKey(each, "image_url"));
                             }
 
@@ -797,6 +1162,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(UploadPurchaseActivity.this, "Please Try Again!", Toast.LENGTH_SHORT).show();
                         progressBar.setVisibility(View.GONE);
                     }
                 }
@@ -883,14 +1249,17 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     private boolean checkPermission() {
         int result = ContextCompat.checkSelfPermission(UploadPurchaseActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
         int read = ContextCompat.checkSelfPermission(UploadPurchaseActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE);
+        int camera = ContextCompat.checkSelfPermission(UploadPurchaseActivity.this, Manifest.permission.CAMERA);
         return result == PackageManager.PERMISSION_GRANTED
-                && read == PackageManager.PERMISSION_GRANTED;
+                && read == PackageManager.PERMISSION_GRANTED
+                && camera == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermission() {
         ActivityCompat.requestPermissions(this, new String[]{
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA
         }, REQUEST_PERMISSION_CODE);
         Paper.book().write("has_permission_granted", "yes");
     }
@@ -904,8 +1273,8 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             isUploading = false;
             return;
         }
-        if (performa_url != null && performa_url.isEmpty()) {
-            new RetrievePdfStream().execute(performa_url);
+        if (invoice_url != null && invoice_url.isEmpty()) {
+            new RetrievePdfStream().execute(invoice_url);
         }
     }
 
@@ -1010,9 +1379,10 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
 
     @Override
     public void onPaymentSuccess(String s) {
+        Paper.book().write("payment_made", "1");
         payment_not_made = true;
         if (seek_bar.getProgress() == 3) {
-            saveData(s);
+            saveData(s, true);
             seek_bar.setProgress(4);
         }
         Log.d("data", "onPaymentSuccess: " + s);
@@ -1028,7 +1398,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
         Log.d("data", "onPaymentError: " + s);
     }
 
-    private void saveData(final String s) {
+    private void saveData(final String s, boolean payment_done) {
 
         final JSONArray jsonArray = new JSONArray();
 
@@ -1059,21 +1429,13 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            if (jsonObject.getString("message").equalsIgnoreCase("Order Saved")) {
-                                startActivity(new Intent(UploadPurchaseActivity.this, PaymentGateWayActivity.class)
-                                        .putExtra("id", JsonUtils.getJsonValueFromKey(jsonObject, "id")));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        Toast.makeText(UploadPurchaseActivity.this, "Please Try Again!", Toast.LENGTH_SHORT).show();
                     }
                 }
         ) {
@@ -1085,10 +1447,17 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                 } else {
                     params.put("paid_amount", ((int) (price / 2) + gst)+"");
                 }
+                String essential_order_id = Paper.book().read("essential_order_id");
+                if (essential_order_id != null && !essential_order_id.isEmpty()) {
+                    params.put("order_id", essential_order_id);
+                }
                 params.put("order_items", items.toString());
                 params.put("response", s);
                 params.put("id", sp.getmAllocatedPharmaId());
                 params.put("code", sp.getUsercode());
+                if (payment_done) {
+                    params.put("advance", "1");
+                }
                 return params;
             }
         };
@@ -1218,7 +1587,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
     @Override
     protected void onResume() {
         super.onResume();
-        if (isPaused) {
+        if (isPaused && video_url != null && !video_url.isEmpty()) {
             isPaused = false;
             initializePlayerResume(video_url);
         }
@@ -1246,8 +1615,7 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             @Override
             public void onResponse(Call<com.medicento.retailerappmedi.data.ResponseBody> call, retrofit2.Response<com.medicento.retailerappmedi.data.ResponseBody> response) {
                 try {
-                    Log.d("data", "onResponse: " + response.body().getSaved_url());
-                    saveFile(response.body().getSaved_url());
+                    requestOrder(false, response.body().getSaved_url());
                     Toast.makeText(UploadPurchaseActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1258,55 +1626,26 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
             @Override
             public void onFailure(Call<com.medicento.retailerappmedi.data.ResponseBody> call, Throwable t) {
                 String message = Log.getStackTraceString(t);
-                Log.d("data", "onFailure: " + message);
+                Log.d(TAG, "onFailure: " + message);
+                Toast.makeText(UploadPurchaseActivity.this, "Please Try Again!", Toast.LENGTH_SHORT).show();
                 progress_bar_uploading.setVisibility(View.GONE);
             }
         });
     }
 
-    private void saveFile(String saved_url) {
-
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        StringRequest stringRequest = new StringRequest(
-                Request.Method.POST,
-                "http://stage.medicento.com:8080/api/app/save_purchase_order/?id=" + sp.getmAllocatedPharmaId() + "&code=" + sp.getUsercode(),
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("data", "onResponse: " + response);
-                        Toast.makeText(UploadPurchaseActivity.this, "File Uploaded", Toast.LENGTH_SHORT).show();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        MedicentoUtils.showVolleyError(error);
-                    }
-                }
-        ) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("url", saved_url);
-                return params;
-            }
-        };
-        requestQueue.add(stringRequest);
-    }
-
     public void getPoStatus() {
 
-        Log.d("data", "getPoStatus: http://stage.medicento.com:8080/api/app/get_po_status/?id=" + sp.getmAllocatedPharmaId() + "&code=" + sp.getUsercode());
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(
                 Request.Method.GET,
-                "http://stage.medicento.com:8080/api/app/get_po_status/?id=" + sp.getmAllocatedPharmaId() + "&code=" + sp.getUsercode(),
+                "http://stage.medicento.com:8080/api/app/get_po_status/?id=" + sp.getmAllocatedPharmaId() + "&code=" + sp.getUsercode()+"&order_id="+order_id,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         Log.d("data", "onResponse: " + response);
                         try {
                             JSONObject jsonObject = new JSONObject(response);
+                            invoice_url = JsonUtils.getJsonValueFromKey(jsonObject, "invoice_url");
                             if (JsonUtils.getBooleanValueFromJsonKey(jsonObject, "is_approved")) {
                                 pending.setText("APPROVED");
                                 approve.setVisibility(View.VISIBLE);
@@ -1317,11 +1656,19 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                                 pending.setText("PENDING");
                             }
                             performa_url = JsonUtils.getJsonValueFromKey(jsonObject, "url");
-                            if (performa_url.isEmpty()) {
+                            if (!performa_url.isEmpty()) {
+                                file_name.setText(performa_url);
+                                file_name.setText(file_name.getText().toString().replaceAll("http://stage.medicento.com:8080/static/media/pdf/", ""));
+                                preview.setVisibility(View.VISIBLE);
+                            } else {
+                                preview.setVisibility(View.GONE);
+                            }
+                            if (invoice_url.isEmpty()) {
                                 pending_performa.setVisibility(View.VISIBLE);
                             } else {
                                 pending_performa.setVisibility(View.GONE);
                             }
+                            lr_url = JsonUtils.getJsonValueFromKey(jsonObject, "po_url");
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -1334,6 +1681,94 @@ public class UploadPurchaseActivity extends AppCompatActivity implements Payment
                 }
         );
 
+        requestQueue.add(stringRequest);
+    }
+
+    private void requestOrder(boolean is_request_images, String saved_url) {
+
+        Log.d("UploadPurchase", "requestOrder: " + saved_url);
+
+        final JSONArray jsonArray = new JSONArray();
+
+        for (EssentialList essentialList : essentialLists) {
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("name", essentialList.getName());
+                jsonObject.put("cost", essentialList.getCost());
+                jsonObject.put("qty", essentialList.getQty());
+                price += essentialList.getCost() + essentialList.getQty();
+                jsonArray.put(jsonObject);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        final JSONObject items = new JSONObject();
+        try {
+            items.put("items", jsonArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                "http://stage.medicento.com:8080/api/app/save_order/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            Paper.book().write("essential_order_id", JsonUtils.getJsonValueFromKey(jsonObject, "id"));
+                            if (!saved_url.isEmpty()) {
+                                performa_url = saved_url;
+                                file_name.setText(performa_url);
+                                preview.setVisibility(View.VISIBLE);
+                                file_name.setText(file_name.getText().toString().replaceAll("http://stage.medicento.com:8080/static/media/pdf/", ""));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(UploadPurchaseActivity.this, "Please Try Again!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                if (price % 2 == 0) {
+                    params.put("paid_amount", ((int) (price / 2) + gst)+"");
+                } else {
+                    params.put("paid_amount", ((int) (price / 2) + gst)+"");
+                }
+                String essential_order_id = Paper.book().read("essential_order_id");
+                if (essential_order_id != null && !essential_order_id.isEmpty()) {
+                    params.put("order_id", essential_order_id);
+                }
+                if (is_request_images) {
+                    Paper.book().write("request_images", "1");
+                    params.put("request", "1");
+                }
+                params.put("order_items", items.toString());
+                params.put("response", "");
+                params.put("id", sp.getmAllocatedPharmaId());
+                params.put("code", sp.getUsercode());
+                if (saved_url != null && !saved_url.isEmpty()) {
+                    params.put("saved_url", saved_url);
+                }
+                return params;
+            }
+        };
+
+        if (is_request_images) {
+            request_for_video_and_image.setText("Request Sent for Stock Image & Video");
+            request_for_video_and_image.setEnabled(false);
+        }
         requestQueue.add(stringRequest);
     }
 }

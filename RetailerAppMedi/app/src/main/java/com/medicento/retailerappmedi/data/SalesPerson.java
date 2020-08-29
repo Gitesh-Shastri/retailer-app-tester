@@ -41,7 +41,7 @@ public class SalesPerson implements Serializable{
     }
 
     public String getCity_name() {
-        return city_name;
+        return city_name != null ? city_name : "";
     }
 
     public void setCity_name(String city_name) {

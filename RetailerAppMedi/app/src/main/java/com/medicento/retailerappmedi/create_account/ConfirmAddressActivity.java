@@ -7,13 +7,20 @@ import android.location.Address;
 import android.location.Geocoder;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,27 +35,36 @@ import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.medicento.retailerappmedi.R;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
+import com.medicento.retailerappmedi.activity.ChangeAddressActivity;
 import com.medicento.retailerappmedi.activity.ConfirmationAccountActivity;
+import com.medicento.retailerappmedi.data.Area;
+import com.medicento.retailerappmedi.data.City;
 import com.medicento.retailerappmedi.data.SalesPerson;
+import com.medicento.retailerappmedi.data.State;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import io.paperdb.Paper;
+import me.srodrigo.androidhintspinner.HintAdapter;
+import me.srodrigo.androidhintspinner.HintSpinner;
 
 import static com.medicento.retailerappmedi.Utils.MedicentoUtils.amIConnect;
 import static com.medicento.retailerappmedi.Utils.MedicentoUtils.showVolleyError;
 
-public class ConfirmAddressActivity extends AppCompatActivity {
+public class ConfirmAddressActivity extends AppCompatActivity implements AreaAdapter.setOnClickListener {
 
     EditText address, state, city, pincode, area;
+    RecyclerView area_rv;
     TextView name, message;
     String gst, drug, number;
     Button sign_in_btn;
@@ -56,6 +72,18 @@ public class ConfirmAddressActivity extends AppCompatActivity {
     ImageView back;
     ProgressBar progress_bar;
     SalesPerson sp;
+    AreaAdapter areaAdapter;
+    private ArrayList<Area> areas;
+    private boolean isAreaLoading = false;
+    Spinner state_spinner, city_spinner;
+    ArrayList<City> city_list;
+    ArrayList<State> state_list;
+    RequestQueue requestQueue;
+    State selected_state;
+    City selected_city;
+    int state_position = 0;
+    int city_position = 0;
+    private boolean isAreaSelected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +91,7 @@ public class ConfirmAddressActivity extends AppCompatActivity {
         setContentView(R.layout.activity_confirm_address);
 
         address = findViewById(R.id.address);
+        area_rv = findViewById(R.id.area_rv);
         state = findViewById(R.id.state);
         city = findViewById(R.id.city);
         back = findViewById(R.id.back);
@@ -72,6 +101,15 @@ public class ConfirmAddressActivity extends AppCompatActivity {
         name = findViewById(R.id.name);
         message = findViewById(R.id.message);
         sign_in_btn = findViewById(R.id.sign_in_btn);
+        city_spinner = findViewById(R.id.city_spinner);
+        state_spinner = findViewById(R.id.state_spinner);
+
+        areas = new ArrayList<>();
+
+        areaAdapter = new AreaAdapter(areas, this);
+        area_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        area_rv.setAdapter(areaAdapter);
+        areaAdapter.setOnClickListener(this);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
@@ -79,67 +117,75 @@ public class ConfirmAddressActivity extends AppCompatActivity {
 
         if (getIntent()  != null) {
             address.setText(getIntent().getStringExtra("address"));
-            state.setText(getIntent().getStringExtra("state"));
-            city.setText(getIntent().getStringExtra("city"));
             name.setText(getIntent().getStringExtra("name"));
             pincode.setText(getIntent().getStringExtra("pincode"));
             gst = getIntent().getStringExtra("gst");
             drug = getIntent().getStringExtra("drug");
             number = getIntent().getStringExtra("number");
-
-            getAreaName();
         }
 
-        if (address != null && address.getText().toString().isEmpty()) {
-            RequestQueue requestQueue = Volley.newRequestQueue(this);
-            StringRequest stringRequest = new StringRequest(
-                    Request.Method.GET,
-                    "https://api.ipgeolocation.io/ipgeo?apiKey=6e112e58ec4f42b19d98fdf4cc68fbe9",
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            Log.d("data", "onResponse: " + response);
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                Geocoder geocoder = new Geocoder(ConfirmAddressActivity.this, Locale.getDefault());
-                                try {
-                                    List<Address> addresses = geocoder.getFromLocation(Double.parseDouble(jsonObject.getString("latitude")), Double.parseDouble(jsonObject.getString("longitude")), 1);
-                                    Address obj = addresses.get(0);
-                                    String add = obj.getAddressLine(0);
-                                    add = add + "\n" + obj.getCountryName();
-                                    add = add + "\n" + obj.getCountryCode();
-                                    add = add + "\n" + obj.getAdminArea();
-                                    add = add + "\n" + obj.getPostalCode();
-                                    add = add + "\n" + obj.getSubAdminArea();
-                                    add = add + "\n" + obj.getLocality();
-                                    add = add + "\n" + obj.getSubThoroughfare();
+        state_list = new ArrayList<>();
+        city_list = new ArrayList<>();
 
-                                    city.setText(obj.getAdminArea());
-                                    state.setText(obj.getSubAdminArea());
-                                    address.setText(obj.getAddressLine(0));
-                                    pincode.setText(obj.getPostalCode());
+        requestQueue = Volley.newRequestQueue(this);
 
-                                    getAreaName();
-                                    Log.v("IGA", "Address" + add);
-                                    Toast.makeText(ConfirmAddressActivity.this, "Address Found", Toast.LENGTH_SHORT).show();
-                                } catch (IOException e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.GET,
+                "http://stage.medicento.com:8080/api/area/state/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+
+                            for (int i=0;i<jsonArray.length();i++) {
+                                JSONObject state_obj = jsonArray.getJSONObject(i);
+
+                                state_list.add(new State(JsonUtils.getJsonValueFromKey(state_obj, "name"),
+                                        JsonUtils.getJsonValueFromKey(state_obj, "id")));
+
+                                if (JsonUtils.getJsonValueFromKey(state_obj, "name").equals(state.getText().toString())) {
+                                    state_position = i;
                                 }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            showVolleyError(error);
-                        }
+                        setStateSpinner();
                     }
-            );
-            requestQueue.add(stringRequest);
-        }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                }
+        );
+        requestQueue.add(stringRequest);
+
+        area.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (isAreaSelected) {
+                    isAreaSelected = false;
+                    return;
+                }
+                if (area.getText().toString().trim().length() > 1) {
+                    loadArea();
+                } else if (area.getText().toString().trim().isEmpty()) {
+                    area_rv.setVisibility(View.GONE);
+                }
+            }
+        });
 
         sign_in_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -198,6 +244,172 @@ public class ConfirmAddressActivity extends AppCompatActivity {
         });
     }
 
+    private void setStateSpinner() {
+
+        HintAdapter<State> statehintAdapter = new HintAdapter<State>(
+                ConfirmAddressActivity.this,
+                R.layout.spinner_item,
+                "Select State",
+                state_list) {
+
+            @Override
+            protected View getCustomView(int position, View convertView, ViewGroup parent) {
+
+                View view = inflateLayout(parent, false);
+                ((TextView) view.findViewById(R.id.text)).setText(state_list.get(position).getName());
+                return view;
+            }
+        };
+
+        HintSpinner<State> hintSpinner = new HintSpinner<>(
+                state_spinner,
+                statehintAdapter,
+                new HintSpinner.Callback<State>() {
+                    @Override
+                    public void onItemSelected(int position, State itemAtPosition) {
+                        selected_state = itemAtPosition;
+                        state.setText(selected_state.getName());
+                        fetchCity(selected_state);
+                    }
+                });
+        hintSpinner.init();
+    }
+
+    public void fetchCity(State state) {
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.GET,
+                "http://stage.medicento.com:8080/api/area/city/?state="+state.getId(),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+
+                            for (int i=0;i<jsonArray.length();i++) {
+                                JSONObject city_obj = jsonArray.getJSONObject(i);
+
+                                city_list.add(new City(JsonUtils.getJsonValueFromKey(city_obj, "name"),
+                                        JsonUtils.getJsonValueFromKey(city_obj, "id")));
+
+                                if (JsonUtils.getJsonValueFromKey(city_obj, "name").equals(city.getText().toString())) {
+                                    city_position = i;
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        setCitySpinner();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                }
+        );
+        if (city_list != null) {
+            city_list = new ArrayList<>();
+        } else {
+            city_list.clear();
+        }
+        requestQueue.add(stringRequest);
+    }
+
+    private void setCitySpinner() {
+        HintAdapter<City> statehintAdapter = new HintAdapter<City>(
+                ConfirmAddressActivity.this,
+                R.layout.spinner_item,
+                "Select City",
+                city_list) {
+
+            @Override
+            protected View getCustomView(int position, View convertView, ViewGroup parent) {
+
+                View view = inflateLayout(parent, false);
+                ((TextView) view.findViewById(R.id.text)).setText(city_list.get(position).getName());
+                return view;
+            }
+        };
+
+        HintSpinner<City> hintSpinner = new HintSpinner<>(
+                city_spinner,
+                statehintAdapter,
+                new HintSpinner.Callback<City>() {
+                    @Override
+                    public void onItemSelected(int position, City itemAtPosition) {
+                        selected_city = itemAtPosition;
+                        city.setText(selected_city.getName());
+                    }
+                });
+        hintSpinner.init();
+    }
+
+    private void loadArea() {
+
+        if (isAreaLoading) {
+            return;
+        }
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                "http://stage.medicento.com:8080/api/area/get_name/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            area_rv.setVisibility(View.VISIBLE);
+                            areas.clear();
+                            JSONObject jsonObject = new JSONObject(response);
+                            JSONArray jsonArray = jsonObject.getJSONArray("results");
+
+                            if (jsonArray.length() == 0) {
+                                area_rv.setVisibility(View.GONE);
+                            }
+
+                            for (int i=0;i<jsonArray.length();i++) {
+                                JSONObject each = jsonArray.getJSONObject(i);
+                                areas.add(new Area(
+                                        JsonUtils.getJsonValueFromKey(each, "name"),
+                                        JsonUtils.getJsonValueFromKey(each, "id"),
+                                        JsonUtils.getJsonValueFromKey(each, "state"),
+                                        JsonUtils.getJsonValueFromKey(each, "city")
+                                ));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        isAreaLoading = false;
+                        areaAdapter.notifyDataSetChanged();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        isAreaLoading = false;
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("query", area.getText().toString());
+                if (selected_city != null) {
+                    params.put("city", selected_city.getId());
+                }
+                if (selected_state != null) {
+                    params.put("state", selected_state.getId());
+                }
+                params.put("page", "0");
+                return params;
+            }
+        };
+        isAreaLoading = true;
+        requestQueue.add(stringRequest);
+    }
+
     private void getAreaName() {
 
         RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
@@ -245,6 +457,8 @@ public class ConfirmAddressActivity extends AppCompatActivity {
         };
         requestQueue.add(stringRequest);
     }
+
+    private Area selected_area;
 
     private void sendDetailsToServer() {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -300,7 +514,7 @@ public class ConfirmAddressActivity extends AppCompatActivity {
                                         new Intent(ConfirmAddressActivity.this, ConfirmationAccountActivity.class)
                                             .putExtra("number", number)
                                             .putExtra("pharmacode", code));
-
+                                finish();
                             } else if (message.equals("Already Created")) {
                                 Toast.makeText(ConfirmAddressActivity.this, "Pharmacy Already Exists with the provided Phone Number, Kindly use FORGOT PASSWORD with the Phone Number to access your medicento Credentials", Toast.LENGTH_SHORT).show();
                             } else {
@@ -331,7 +545,17 @@ public class ConfirmAddressActivity extends AppCompatActivity {
 
                 Map<String, String> params = new HashMap<>();
                 params.put("name", name.getText().toString());
-                params.put("area_name", area.getText().toString());
+                if (selected_area != null) {
+                    params.put("area_id", selected_area.getId());
+                } else {
+                    params.put("area_name", area.getText().toString());
+                }
+                if (selected_city != null) {
+                    params.put("city", selected_city.getId());
+                }
+                if (selected_state != null) {
+                    params.put("state", selected_state.getId());
+                }
                 params.put("address", address.getText().toString());
                 params.put("gst", gst);
                 params.put("drug", drug);
@@ -351,5 +575,17 @@ public class ConfirmAddressActivity extends AppCompatActivity {
                 2));
         requestQueue.add(stringRequest);
 
+    }
+
+    @Override
+    public void onAreaClick(int positon) {
+        try {
+            isAreaSelected = true;
+            selected_area = areas.get(positon);
+            area_rv.setVisibility(View.GONE);
+            area.setText(selected_area.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

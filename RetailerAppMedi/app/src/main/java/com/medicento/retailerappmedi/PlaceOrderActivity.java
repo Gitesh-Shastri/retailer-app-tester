@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import com.google.gson.Gson;
 import com.medicento.retailerappmedi.create_account.CreateAccountActivity;
+import com.medicento.retailerappmedi.create_account.RegisterMedicentoActivity;
 import com.medicento.retailerappmedi.data.SalesPerson;
 
 import io.paperdb.Paper;

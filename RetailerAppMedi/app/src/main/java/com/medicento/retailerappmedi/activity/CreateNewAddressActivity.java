@@ -330,6 +330,10 @@ public class CreateNewAddressActivity extends AppCompatActivity implements Googl
                     }
                 });
         hintSpinner.init();
+
+        if (!state.getText().toString().isEmpty()) {
+            state_spinner.setSelection(state_position);
+        }
     }
 
     public void fetchCity(State state) {
@@ -402,6 +406,10 @@ public class CreateNewAddressActivity extends AppCompatActivity implements Googl
                     }
                 });
         hintSpinner.init();
+
+        if (!city.getText().toString().isEmpty()) {
+            city_spinner.setSelection(city_position);
+        }
     }
 
     private void getAreaName() {
@@ -462,6 +470,8 @@ public class CreateNewAddressActivity extends AppCompatActivity implements Googl
                     @Override
                     public void onResponse(String response) {
                         sp.setAddress(address.getText().toString());
+                        sp.setState_name(state.getText().toString());
+                        sp.setCity_name(city.getText().toString());
                         Paper.book().write("user", new Gson().toJson(sp));
                         progress_bar.setVisibility(View.GONE);
                         submit.setVisibility(View.VISIBLE);

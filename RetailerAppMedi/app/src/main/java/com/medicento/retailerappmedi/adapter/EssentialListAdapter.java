@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -76,7 +77,7 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     public class ViewHolder extends BaseViewHolder {
 
-        TextView old_price, name, new_price, qty_per_100, qty_per_200, qty_per_500, qty_per_1000, qty_per_10000;
+        TextView old_price, name, new_price, qty_per_100, qty_per_200, qty_per_500, qty_per_1000, qty_per_10000, discount, minimum_qty;
         ImageView delete, edit, image;
         Button cart;
         LinearLayout add_cart, details;
@@ -85,6 +86,8 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         public ViewHolder(View itemView) {
             super(itemView);
 
+            discount = itemView.findViewById(R.id.discount);
+            minimum_qty = itemView.findViewById(R.id.minimum_qty);
             old_price = itemView.findViewById(R.id.old_price);
             new_price = itemView.findViewById(R.id.new_price);
             add_cart = itemView.findViewById(R.id.add_cart);
@@ -110,6 +113,7 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             qty_per_500.setText("");
             qty_per_1000.setText("");
             qty_per_10000.setText("");
+            discount.setText("");
             add_cart.setVisibility(View.GONE);
         }
 
@@ -120,10 +124,16 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
             name.setText(essentialLists.get(position).getName());
             qty.setText(essentialLists.get(position).getQty()+"");
-            old_price.setText(essentialLists.get(position).getCost()+"");
-            new_price.setText(essentialLists.get(position).getCost()+"");
+            new_price.setText("₹"+essentialLists.get(position).getCost()+" ");
+            if (essentialLists.get(position).getMrp() == 0) {
+                old_price.setText("₹"+essentialLists.get(position).getCost()+" ");
+                discount.setText("0% OFF");
+            } else {
+                old_price.setText("₹ "+essentialLists.get(position).getMrp()+"");
+                discount.setText((int)((1-(essentialLists.get(position).getCost()/essentialLists.get(position).getMrp()))*100)+"% OFF");
+            }
 
-
+            minimum_qty.setText("Minimum Order Qty : " + essentialLists.get(position).getMinimum_qty());
             qty_per_100.setText("100 Qty - " + essentialLists.get(position).getCost_100() + " /PC");
             qty_per_500.setText("500 Qty - " + essentialLists.get(position).getCost_500() + " /PC");
             qty_per_200.setText("200 Qty - " + essentialLists.get(position).getCost_200() + " /PC");
@@ -136,7 +146,6 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
                     essentialLists.get(getCurrentPosition()).setQty(100);
                     cart.setVisibility(View.GONE);
                     add_cart.setVisibility(View.VISIBLE);
-                    qty.requestFocus();
                     if (mOverallCostChangeListener != null) {
                         mOverallCostChangeListener.onCostChanged();
                     }
@@ -150,7 +159,6 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
                     essentialLists.get(getCurrentPosition()).setQty(200);
                     cart.setVisibility(View.GONE);
                     add_cart.setVisibility(View.VISIBLE);
-                    qty.requestFocus();
                     if (mOverallCostChangeListener != null) {
                         mOverallCostChangeListener.onCostChanged();
                     }
@@ -164,7 +172,6 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
                     essentialLists.get(getCurrentPosition()).setQty(500);
                     cart.setVisibility(View.GONE);
                     add_cart.setVisibility(View.VISIBLE);
-                    qty.requestFocus();
                     if (mOverallCostChangeListener != null) {
                         mOverallCostChangeListener.onCostChanged();
                     }
@@ -178,7 +185,6 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
                     essentialLists.get(getCurrentPosition()).setQty(1000);
                     cart.setVisibility(View.GONE);
                     add_cart.setVisibility(View.VISIBLE);
-                    qty.requestFocus();
                     if (mOverallCostChangeListener != null) {
                         mOverallCostChangeListener.onCostChanged();
                     }
@@ -192,7 +198,6 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
                     essentialLists.get(getCurrentPosition()).setQty(10000);
                     cart.setVisibility(View.GONE);
                     add_cart.setVisibility(View.VISIBLE);
-                    qty.requestFocus();
                     if (mOverallCostChangeListener != null) {
                         mOverallCostChangeListener.onCostChanged();
                     }
@@ -223,6 +228,8 @@ public class EssentialListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
                 cart.setVisibility(View.VISIBLE);
                 add_cart.setVisibility(View.GONE);
             }
+
+            qty.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
             qty.addTextChangedListener(new TextWatcher() {
                 @Override

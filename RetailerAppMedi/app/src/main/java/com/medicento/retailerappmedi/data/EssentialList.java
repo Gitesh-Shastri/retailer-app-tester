@@ -5,8 +5,8 @@ import java.io.Serializable;
 public class EssentialList implements Serializable {
 
     private String name, id, image_url;
-    private int qty, category, discount;
-    private float cost, cost_100, cost_200, cost_500, cost_1000, cost_10000;
+    private int qty, category, discount, minimum_qty;
+    private float cost, cost_100, cost_200, cost_500, cost_1000, cost_10000, mrp;
     private boolean isAdd;
 
     public EssentialList() {
@@ -21,6 +21,8 @@ public class EssentialList implements Serializable {
         this.cost_500 = 0;
         this.cost_1000 = 0;
         this.cost_10000 = 0;
+        this.mrp = 135;
+        this.minimum_qty = 0;
     }
 
     public EssentialList(String name) {
@@ -35,6 +37,8 @@ public class EssentialList implements Serializable {
         this.cost_500 = 0;
         this.cost_1000 = 0;
         this.cost_10000 = 0;
+        this.mrp = 135;
+        this.minimum_qty = 0;
     }
 
     public float getCost_100() {
@@ -180,5 +184,23 @@ public class EssentialList implements Serializable {
             return this.qty * this.cost_100 * this.discount * 0.01;
         }
         return this.qty * this.cost * this.discount * 0.01;
+    }
+
+    public float getMrp() {
+        return mrp;
+    }
+
+    public EssentialList setMrp(float mrp) {
+        this.mrp = mrp;
+        return this;
+    }
+
+    public int getMinimum_qty() {
+        return minimum_qty;
+    }
+
+    public EssentialList setMinimum_qty(int minimum_qty) {
+        this.minimum_qty = minimum_qty;
+        return this;
     }
 }

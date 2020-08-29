@@ -49,13 +49,14 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     public class ViewHolder extends BaseViewHolder {
 
         ImageView image;
-        TextView name;
+        TextView name, price;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
             image = itemView.findViewById(R.id.image);
             name = itemView.findViewById(R.id.name);
+            price = itemView.findViewById(R.id.price);
         }
 
         @Override
@@ -68,6 +69,7 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             super.onBind(position);
 
             name.setText(groups.get(position).getName());
+            price.setText("₹ "+groups.get(position).getLowest_price());
             Glide.with(context).load(groups.get(position).getImage_url()).into(image);
 
             itemView.setOnClickListener(new View.OnClickListener() {

@@ -299,7 +299,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:text="50% Advance Pay"
+            android:text="50% Advance Payment"
             android:textColor="#a2a2a2"
             android:textSize="10sp"
             android:textStyle="bold" />
@@ -333,98 +333,133 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/text_seek_bar">
 
-        <TextView
-            android:id="@+id/title_video"
+        <RelativeLayout
+            android:id="@+id/request"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingLeft="10dp"
-            android:paddingTop="10dp"
-            android:paddingRight="10dp"
-            android:text="Stock Videos For Masks"
-            android:textColor="#555555"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/video_created_at"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/title_video"
-            android:paddingLeft="10dp"
-            android:text="Uploaded 3min ago"
-            android:textColor="#555555"
-            android:textSize="11sp" />
+            <Button
+                android:id="@+id/request_for_video_and_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@drawable/border_curved_dark_grey"
+                android:minHeight="0dp"
+                android:padding="10dp"
+                android:text="Request for Stock Image &amp; Video"
+                android:textAllCaps="false"
+                android:textColor="@color/white" />
 
-        <com.google.android.exoplayer2.ui.PlayerView
-            android:id="@+id/videoView"
-            android:layout_width="match_parent"
-            android:layout_height="190dp"
-            android:layout_below="@+id/video_created_at"
-            android:background="#000000"
-            app:controller_layout_id="@layout/exo_player_control_view" />
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/request_for_video_and_image"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/view_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/videoView"
-            android:layout_marginTop="5dp"
-            android:gravity="center_horizontal"
-            android:paddingLeft="10dp"
-            android:text="Unable to view the video?"
-            android:textColor="#555555"
-            android:textSize="12sp"
-            android:visibility="gone" />
+        </RelativeLayout>
 
-        <Button
-            android:id="@+id/view_on_web"
+        <RelativeLayout
+            android:id="@+id/stock_prieview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/view_text"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/border_curved_dark_grey"
-            android:minHeight="0dp"
-            android:padding="5dp"
-            android:text="View Video On Web"
-            android:textColor="@color/white"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
+            android:layout_height="match_parent"
+            android:visibility="gone">
 
-        <TextView
-            android:id="@+id/title_photo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/view_on_web"
-            android:layout_weight="1"
-            android:paddingLeft="10dp"
-            android:paddingTop="10dp"
-            android:paddingRight="10dp"
-            android:text="Stock Photos For Masks"
-            android:textColor="#555555"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            <TextView
+                android:id="@+id/title_video"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:paddingTop="10dp"
+                android:paddingRight="10dp"
+                android:text="Stock Videos For Masks"
+                android:textColor="#555555"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/photo_created_at"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/title_photo"
-            android:paddingLeft="10dp"
-            android:text="Uploaded 10min ago"
-            android:textColor="#555555"
-            android:textSize="11sp" />
+            <TextView
+                android:id="@+id/video_created_at"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/title_video"
+                android:paddingLeft="10dp"
+                android:text="Uploaded 3min ago"
+                android:textColor="#555555"
+                android:textSize="11sp" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/stock_images_rv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/confirm"
-            android:layout_below="@+id/photo_created_at" />
+            <com.google.android.exoplayer2.ui.PlayerView
+                android:id="@+id/videoView"
+                android:layout_width="match_parent"
+                android:layout_height="190dp"
+                android:layout_below="@+id/video_created_at"
+                android:background="#000000"
+                app:controller_layout_id="@layout/exo_player_control_view" />
+
+            <TextView
+                android:id="@+id/view_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/videoView"
+                android:layout_marginTop="5dp"
+                android:gravity="center_horizontal"
+                android:paddingLeft="10dp"
+                android:text="Unable to view the video?"
+                android:textColor="#555555"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/view_on_web"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/view_text"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/border_curved_dark_grey"
+                android:minHeight="0dp"
+                android:padding="5dp"
+                android:text="View Video On Web"
+                android:textColor="@color/white"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/title_photo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/view_on_web"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:paddingTop="10dp"
+                android:paddingRight="10dp"
+                android:textColor="#555555"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/photo_created_at"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/title_photo"
+                android:paddingLeft="10dp"
+                android:text="Uploaded 10min ago"
+                android:textColor="#555555"
+                android:textSize="11sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/stock_images_rv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/confirm"
+                android:layout_below="@+id/photo_created_at" />
+
+        </RelativeLayout>
 
         <Button
             android:id="@+id/confirm_to_upload"
@@ -446,13 +481,13 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:visibility="gone"
         android:id="@+id/upload_purchase"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/text_seek_bar"
         android:layout_marginTop="20dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="match_parent"
@@ -466,12 +501,11 @@
             android:textSize="13sp" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:id="@+id/items_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/items_rv"
-            />
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp" />
 
         <LinearLayout
             android:id="@+id/add_a_file_ll"
@@ -535,19 +569,42 @@
 
         </LinearLayout>
 
-        <ProgressBar
-            android:visibility="gone"
-            android:id="@+id/progress_bar_uploading"
-            android:layout_gravity="center_horizontal"
+        <Button
+            android:id="@+id/preview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/border_curved_dark_grey"
+            android:minHeight="0dp"
+            android:padding="5dp"
+            android:text="Preview"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/file_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+            android:textColor="#555555"
+            android:textSize="12sp" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar_uploading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:max="100"
+            android:visibility="gone"
             tools:progress="0" />
 
         <RelativeLayout
-            android:layout_margin="10dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_margin="10dp">
 
             <Button
                 android:id="@+id/review"
@@ -601,13 +658,13 @@
             android:padding="10dp">
 
             <ImageView
-                android:visibility="gone"
                 android:id="@+id/approve"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_alignParentRight="true"
                 android:adjustViewBounds="true"
-                android:src="@drawable/approved" />
+                android:src="@drawable/approved"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/pending"
@@ -618,6 +675,7 @@
                 android:minWidth="0dp"
                 android:minHeight="0dp"
                 android:padding="5dp"
+                android:textSize="12sp"
                 android:text="PENDING"
                 android:textColor="@color/red" />
 
@@ -665,9 +723,9 @@
                 android:layout_alignParentRight="true"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
-                android:textSize="12sp"
                 android:text="PENDING"
-                android:textColor="@color/red" />
+                android:textColor="@color/red"
+                android:textSize="12sp" />
 
             <Button
                 android:id="@+id/view_performa"
@@ -769,9 +827,9 @@
         </LinearLayout>
 
         <RelativeLayout
-            android:layout_margin="10dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_margin="10dp">
 
             <Button
                 android:id="@+id/proceed_to_50"
@@ -804,13 +862,12 @@
         android:visibility="gone">
 
         <ImageView
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_sad"
-            />
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/ic_sad" />
 
         <TextView
             android:id="@+id/sorry"
@@ -821,15 +878,15 @@
             android:paddingRight="20dp"
             android:text="Sorry! 50% Advance Payment of Rs. 512.5 couldn't be proceed due to one of the following reasons: "
             android:textColor="#555555"
-            android:textStyle="bold"
-            android:textSize="13sp" />
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
         <TextView
-            android:layout_marginTop="10dp"
             android:id="@+id/reason_1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
             android:text="* Purchase Order Not Yet Uploaded"
@@ -837,9 +894,9 @@
             android:textSize="12sp" />
 
         <RelativeLayout
-            android:layout_margin="10dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_margin="10dp">
 
             <Button
                 android:id="@+id/back_to_po"
@@ -853,7 +910,7 @@
                 android:background="@drawable/border_green"
                 android:minHeight="0dp"
                 android:padding="8dp"
-                android:text="Return To PO  Upload Page"
+                android:text="Return To PO Upload Page"
                 android:textColor="@color/white"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -872,13 +929,12 @@
         android:visibility="gone">
 
         <ImageView
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_smiling"
-            />
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/ic_smiling" />
 
         <TextView
             android:id="@+id/payment_recieved"
@@ -889,14 +945,14 @@
             android:paddingRight="20dp"
             android:text="Thank You! 50% Advance Payment of Rs. 512.5 has been recieved."
             android:textColor="#555555"
-            android:textStyle="bold"
-            android:textSize="13sp" />
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
         <TextView
-            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
             android:text="The order has now been processed with the logistic Partner!"
@@ -904,9 +960,9 @@
             android:textSize="12sp" />
 
         <RelativeLayout
-            android:layout_margin="10dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_margin="10dp">
 
             <Button
                 android:id="@+id/proceed_to_delivery_lr"
@@ -929,107 +985,130 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/download_ll_not"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/text_seek_bar"
-        android:layout_marginTop="20dp"
         android:orientation="vertical"
         android:visibility="gone">
 
-        <ImageView
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_sad"
-            />
-
-        <TextView
-            android:id="@+id/sorry_not"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:text="Your order hasn't been acknowledged by Logistics partner due to one of the following reasons: "
-            android:textColor="#555555"
-            android:textStyle="bold"
-            android:textSize="13sp" />
-
-        <TextView
-            android:layout_marginTop="10dp"
-            android:id="@+id/reason_1_d"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:text="* Purchase Order Not Yet Uploaded"
-            android:textColor="#555555"
-            android:textSize="12sp" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+        <LinearLayout
+            android:layout_above="@id/back_to_50_remain"
+            android:orientation="vertical"
             android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:src="@drawable/ic_sad" />
+
+            <TextView
+                android:id="@+id/sorry_not"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:text="Your order hasn't been acknowledged by Logistics partner due to one of the following reasons: "
+                android:textColor="#555555"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/reason_1_d"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:text="* Purchase Order Not Yet Uploaded"
+                android:textColor="#555555"
+                android:textSize="12sp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/border_curved_white"
+                android:padding="10dp">
+
+                <TextView
+                    android:id="@+id/heading_download_lr_d"
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp"
+                    android:text="Download Delivery LR"
+                    android:textColor="#555555"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:text="PENDING"
+                    android:textColor="@color/red"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/view_lr_d"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/heading_download_lr_d"
+                    android:layout_alignParentLeft="true"
+                    android:background="@drawable/border_curved_dark_grey"
+                    android:minHeight="0dp"
+                    android:padding="5dp"
+                    android:text="View"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/download_lr_d"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/heading_download_lr_d"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/border_green"
+                    android:minHeight="0dp"
+                    android:padding="5dp"
+                    android:text="Download"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/back_to_50_remain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="30dp"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="10dp"
-            android:background="@drawable/border_curved_white"
-            android:padding="10dp">
+            android:background="@drawable/border_green"
+            android:minHeight="0dp"
+            android:padding="5dp"
+            android:text="Back To 50% Advance Payment"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/heading_download_lr_d"
-                android:layout_width="wrap_content"
-                android:layout_height="25dp"
-                android:text="Download Delivery LR"
-                android:textColor="#555555"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:text="PENDING"
-                android:textColor="@color/red"
-                android:textSize="12sp"
-                />
-
-            <Button
-                android:id="@+id/view_lr_d"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/heading_download_lr_d"
-                android:layout_alignParentLeft="true"
-                android:background="@drawable/border_curved_dark_grey"
-                android:minHeight="0dp"
-                android:padding="5dp"
-                android:text="View"
-                android:textColor="@color/white"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/download_lr_d"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/heading_download_lr_d"
-                android:layout_alignParentRight="true"
-                android:background="@drawable/border_green"
-                android:minHeight="0dp"
-                android:padding="5dp"
-                android:text="Download"
-                android:textColor="@color/white"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-        </RelativeLayout>
-
-    </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/download_ll"
@@ -1187,6 +1266,73 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/advance_soory_50"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/text_seek_bar"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/ic_sad" />
+
+        <TextView
+            android:id="@+id/sorry_50"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="Sorry! 50% Advance Payment of Rs. 512.5 couldn't be proceed due to one of the following reasons: "
+            android:textColor="#555555"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/reason_50"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="* Purchase Order Not Yet Uploaded"
+            android:textColor="#555555"
+            android:textSize="12sp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp">
+
+            <Button
+                android:id="@+id/back_to_po_50"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/border_green"
+                android:minHeight="0dp"
+                android:padding="8dp"
+                android:text="Return To PO Upload Page"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
     <com.github.barteksc.pdfviewer.PDFView
         android:id="@+id/pdfViewer"
         android:layout_width="match_parent"
@@ -1218,8 +1364,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_above="@id/stock_images_full_screen_rv"
-                android:layout_alignParentTop="true"
-                />
+                android:layout_alignParentTop="true" />
 
             <ImageView
                 android:id="@+id/close"

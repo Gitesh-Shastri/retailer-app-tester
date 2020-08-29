@@ -14,6 +14,7 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.medicento.retailerappmedi.activity.NotificationActivity;
+import com.medicento.retailerappmedi.activity.UploadPurchaseActivity;
 
 import java.util.Map;
 import java.util.Random;
@@ -52,6 +53,13 @@ public class MyFireBaseInstanceService extends FirebaseMessagingService {
                     Uri.parse("https://play.google.com/store/apps/details?id=com.medicento.retailerappmedi"
                     )
             );
+        } else if (data.containsKey("type")) {
+            String type = data.get("type").toString();
+            if (type.equals("PO") || type.equals("PI") || type.equals("request")) {
+                intent = new Intent(getApplicationContext(), UploadPurchaseActivity.class).putExtra("type", type);
+            } else {
+                intent = new Intent(getApplicationContext(), NotificationActivity.class);
+            }
         } else {
             intent = new Intent(getApplicationContext(), NotificationActivity.class);
         }

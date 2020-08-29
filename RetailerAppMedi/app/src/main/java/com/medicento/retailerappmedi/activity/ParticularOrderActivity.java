@@ -29,6 +29,7 @@ import com.google.gson.reflect.TypeToken;
 import com.medicento.retailerappmedi.CartPageActivity;
 import com.medicento.retailerappmedi.R;
 import com.medicento.retailerappmedi.Utils.JsonUtils;
+import com.medicento.retailerappmedi.adapter.DotAdapter;
 import com.medicento.retailerappmedi.adapter.GroupAdapter;
 import com.medicento.retailerappmedi.adapter.ImageAdapter;
 import com.medicento.retailerappmedi.data.Category;
@@ -52,7 +53,7 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
     ArrayList<EssentialList> essentialLists;
     ArrayList<Category> groups;
     ImageAdapter imageAdapter;
-    RecyclerView image_rv, group_rv;
+    RecyclerView image_rv, group_rv, dots_rv;
     GroupAdapter groupAdapter;
     Button add_to_cart;
     ImageView back, cart, add, sub;
@@ -60,6 +61,7 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
     TextView name, ptr;
     EditText qty;
     SalesPerson sp;
+    DotAdapter dotAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +100,7 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
         back = findViewById(R.id.back);
         cart = findViewById(R.id.cart);
         name = findViewById(R.id.name);
+        dots_rv = findViewById(R.id.dots_rv);
         image_rv = findViewById(R.id.image_rv);
         group_rv = findViewById(R.id.group_rv);
         add_to_cart = findViewById(R.id.add_to_cart);
@@ -107,12 +110,6 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
 
         images = new ArrayList<>();
         groups = new ArrayList<>();
-
-        images.add("");
-        images.add("");
-        images.add("");
-        images.add("");
-        images.add("");
 
         if (getIntent() != null && getIntent().hasExtra("item")) {
             essentialList = (EssentialList) getIntent().getSerializableExtra("item");
@@ -128,6 +125,10 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
         groupAdapter = new GroupAdapter(groups, this);
         group_rv.setLayoutManager(new GridLayoutManager(this, 2));
         group_rv.setAdapter(groupAdapter);
+
+        dotAdapter = new DotAdapter(images, this);
+        dots_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        dots_rv.setAdapter(dotAdapter);
 
         add_to_cart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,6 +166,8 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
         });
 
         getCategory();
+
+        getImages();
     }
 
     @Override
@@ -233,7 +236,8 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
                                 JSONObject each = data.getJSONObject(i);
                                 if (essentialList.getCategory() != JsonUtils.getIntegerValueFromJsonKey(each, "id")) {
                                     groups.add(new Category(JsonUtils.getJsonValueFromKey(each, "name"))
-                                            .setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url")));
+                                            .setImage_url(JsonUtils.getJsonValueFromKey(each, "image_url"))
+                                            .setLowest_price(JsonUtils.getJsonValueFromKey(each, "lowest_price")));
                                 }
                             }
                         } catch (JSONException e) {
@@ -241,6 +245,43 @@ public class ParticularOrderActivity extends AppCompatActivity implements View.O
                         }
 
                         groupAdapter.notifyDataSetChanged();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                }
+        );
+
+        requestQueue.add(stringRequest);
+    }
+
+    private void getImages() {
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.GET,
+                "http://stage.medicento.com:8080/api/app/get_product_image/"+essentialList.getId(),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            JSONArray data = jsonObject.getJSONArray("data");
+
+                            for (int i = 0; i < data.length(); i++) {
+                                JSONObject each = data.getJSONObject(i);
+                                images.add(JsonUtils.getJsonValueFromKey(each, "image_url"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        dotAdapter.notifyDataSetChanged();
+                        imageAdapter.notifyDataSetChanged();
                     }
                 },
                 new Response.ErrorListener() {

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Retailer App Medicento</string>
+    <string name="app_name">Medicento App</string>
     <string-array name="slots">
         <item>Slot 1</item>
         <item>Slot 2</item>

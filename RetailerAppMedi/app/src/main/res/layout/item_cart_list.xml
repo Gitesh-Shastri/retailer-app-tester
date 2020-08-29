@@ -60,13 +60,23 @@
                     android:background="#555555" />
 
                 <TextView
+                    android:id="@+id/discount"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:text="Discount ₹ 15"
                     android:textColor="#555555"
                     android:textSize="12sp" />
 
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/gst"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="12% applicable"
+                android:textColor="@color/red"
+                android:textSize="11sp"/>
 
         </LinearLayout>
 

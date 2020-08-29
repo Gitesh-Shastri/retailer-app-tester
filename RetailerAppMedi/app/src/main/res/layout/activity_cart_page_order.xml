@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/root_view"
+    tools:context=".CartPageOrderActivity">
+
+    <RelativeLayout
+        android:id="@+id/upper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_less_curve"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/ic_arrow_back_white_20dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/back"
+            android:maxLines="1"
+            android:padding="5dp"
+            android:text="Your Cart"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="15dp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/search" />
+
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/cart"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/cart_nav" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/upper"
+        android:orientation="vertical"
+        android:layout_above="@id/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/item_rv"
+            />
+
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card"
+        android:layout_margin="5dp"
+        app:cardCornerRadius="5dp"
+        android:layout_above="@id/view_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/prices"
+            android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#555555"
+            android:drawablePadding="5dp"
+            android:drawableLeft="@drawable/ic_circle_arrows"
+            android:gravity="center_vertical"
+            android:text="We are only taking Bulk Orders out of your city and the Discount is Negotiable basis the Order Quantity. Please Click on Call To Order for more clarification. You can also contact Medicento Support (+91)- 78293 49000 for any queries."
+            android:background="@drawable/border_curved_green_outline_filled"
+            />
+
+    </androidx.cardview.widget.CardView>
+
+    <View
+        android:id="@+id/view_1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@id/detail_ll"
+        android:layout_marginBottom="5dp"
+        android:background="#555555" />
+
+    <LinearLayout
+        android:id="@+id/detail_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/view"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/address_ll"
+            android:layout_marginBottom="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_weight="8"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Deliver To"
+                    android:textColor="@color/red"
+                    />
+
+                <TextView
+                    android:id="@+id/address"
+                    android:textSize="12sp"
+                    android:textColor="@color/black"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Vamsi Medicals\n11, 3rd Main Rd, Ayyappa Temple Block, Vannarpet, Yerappa Garden, Viveka Nagar, Bengaluru, Karnataka 560047"
+                    />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/change"
+                android:textSize="11sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/border_outline_green"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="5dp"
+                android:text="Change"
+                android:textAllCaps="false"
+                android:textColor="@color/black" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/voucher_code_ll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text="Voucher Code"
+            android:textStyle="bold"
+            android:textColor="#555555" />
+
+        <RelativeLayout
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:padding="5dp"
+            android:background="@drawable/border_curved_light_grey"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:focusedByDefault="false"
+                android:inputType="textCapCharacters"
+                android:drawableLeft="@drawable/ic_code"
+                android:drawablePadding="5dp"
+                android:textSize="12sp"
+                android:id="@+id/voucher_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/apply"
+                android:background="@android:color/transparent"
+                android:hint="Enter voucher code"
+                />
+
+            <Button
+                android:enabled="false"
+                android:layout_centerVertical="true"
+                android:id="@+id/apply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:text="Apply"
+                android:alpha="0.5"
+                android:textColor="@color/sea_blue"
+                android:background="@android:color/transparent"
+                android:textStyle="bold"
+                android:layout_alignParentRight="true"
+                />
+
+        </RelativeLayout>
+
+        <Button
+            android:textAllCaps="false"
+            android:visibility="gone"
+            android:id="@+id/remove_voucher"
+            android:layout_gravity="end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:background="@android:color/transparent"
+            android:textSize="10sp"
+            android:text="Remove Voucher"
+            android:textColor="@color/red"
+            />
+
+        <TextView
+            android:id="@+id/price_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/confirm"
+            android:layout_marginBottom="10dp"
+            android:text="Price Details : "
+            android:textColor="#555555"
+            android:textStyle="bold" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:text="Order Total"
+                android:textColor="#555555" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:id="@+id/price"
+                android:text="₹ 17500"
+                android:textColor="#555555" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:text="GST"
+                android:textColor="#555555" />
+
+            <TextView
+                android:id="@+id/gst"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="₹ 0"
+                android:textColor="#555555" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/voucher_rl"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:text="Voucher Discount"
+                android:textColor="#555555" />
+
+            <TextView
+                android:id="@+id/voucher_discount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="- ₹ 0"
+                android:textColor="@color/sea_blue" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@id/total_amount_tv"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="5dp"
+        android:background="#555555" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/confirm_ll"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="20dp"
+        android:text="Total Amount"
+        android:textColor="#555555"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/total_amount_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/confirm_ll"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="20dp"
+        android:text="₹"
+        android:textColor="#555555"
+        android:textStyle="bold" />
+
+    <RelativeLayout
+        android:id="@+id/confirm_ll"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:textSize="16sp"
+            android:paddingLeft="10dp"
+            android:drawableLeft="@drawable/ic_whatsapp"
+            android:id="@+id/confirm"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/border_green"
+            android:text="Call to Order"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+
+        <Button
+            android:layout_gravity="right"
+            android:textSize="16sp"
+            android:id="@+id/pay_rs"
+            android:layout_width="150dp"
+            android:layout_alignParentRight="true"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/border_distrbutor"
+            android:textAllCaps="false"
+            android:text="Pay ₹ 17500"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

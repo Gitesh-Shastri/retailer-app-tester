@@ -26,26 +26,31 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activity.CreateNewAddressActivity"></activity>
+        <activity android:name=".CartPageOrderActivity"></activity>
+        <activity android:name=".activity.CreateNewAddressActivity" />
         <activity android:name=".activity.ChangeAddressActivity" />
-        <activity android:name=".activity.UploadPurchaseActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"/>
+        <activity
+            android:name=".activity.UploadPurchaseActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity android:name=".activity.PaymentGateWayActivity" />
         <activity android:name=".activity.PaymentMethodActivity" />
         <activity android:name=".activity.ParticularOrderActivity" />
         <activity android:name=".create_account.ConfirmAddressDistributorActivity" />
-        <activity android:name=".CartPageActivity"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustPan"/>
-        <activity android:name=".EssentialsActivity"
+        <activity
+            android:name=".CartPageActivity"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
+        <activity
+            android:name=".EssentialsActivity"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <activity android:name=".AccountCredentialdsActivity" />
         <activity android:name=".activity.ForgetPasswordActivity" />
         <activity
             android:name=".HomeActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustPan"
-            />
-        <activity android:name=".create_account.ConfirmAddressActivity" />
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
+        <activity
+            android:name=".create_account.ConfirmAddressActivity"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <activity android:name=".activity.ConfirmationAccountActivity" />
         <activity android:name=".create_account.RegisterDistributorActivity" />
         <activity

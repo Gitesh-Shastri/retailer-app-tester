@@ -64,18 +64,6 @@ public class RegisterMedicentoActivity extends AppCompatActivity implements Goog
             getSupportActionBar().hide();
         }
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat
-                    .requestPermissions(
-                            RegisterMedicentoActivity.this,
-                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            LOCATION_PERMISSION);
-        } else {
-            enableLoc();
-//            buildGoogleApiClient();
-        }
-
         name_et = findViewById(R.id.name_et);
         number = findViewById(R.id.number);
         message = findViewById(R.id.message);
@@ -173,10 +161,6 @@ public class RegisterMedicentoActivity extends AppCompatActivity implements Goog
                     number.setBackgroundResource(R.drawable.border_outline_red);
                     message.setVisibility(View.VISIBLE);
                 }
-                if (gst.getText().toString().isEmpty()) {
-                    gst.setBackgroundResource(R.drawable.border_outline_red);
-                    message.setVisibility(View.VISIBLE);
-                }
                 if (drug.getText().toString().isEmpty()) {
                     drug.setBackgroundResource(R.drawable.border_outline_red);
                     message.setVisibility(View.VISIBLE);
@@ -201,12 +185,9 @@ public class RegisterMedicentoActivity extends AppCompatActivity implements Goog
                     alert.show();
                 } else {
                     Intent intent = new Intent(RegisterMedicentoActivity.this, ConfirmAddressActivity.class);
-                    intent.putExtra("state", state);
-                    intent.putExtra("city", city);
                     intent.putExtra("number", number.getText().toString());
                     intent.putExtra("gst", gst.getText().toString());
                     intent.putExtra("drug", drug.getText().toString());
-                    intent.putExtra("address", address);
                     intent.putExtra("name", name_et.getText().toString());
                     intent.putExtra("pincode", pincode);
                     startActivity(intent);
